@@ -388,17 +388,17 @@ export const DailySummaryView: React.FC<DailySummaryViewProps> = ({
         <div className="space-y-6">
           {/* GROUP 1: CLASSES 6, 7, 8 */}
           <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
-            <div className="bg-zinc-50 px-5 py-3.5 border-b border-zinc-200 flex items-center justify-between">
+            <div className="bg-zinc-50 px-4 py-3 border-b border-zinc-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center space-x-2">
-                <span className="w-2 h-2 rounded-full bg-black" />
-                <h3 className="font-bold text-sm text-zinc-950 uppercase tracking-wide">
-                  Group 1: Upper Primary (Classes 6, 7, 8)
+                <span className="w-2 h-2 rounded-full bg-black shrink-0" />
+                <h3 className="font-bold text-xs text-zinc-950 uppercase tracking-wide">
+                  Group 1: Upper Primary (6-8)
                 </h3>
               </div>
-              <div className="flex items-center space-x-3 text-xs font-mono">
-                <span className="text-zinc-500">Boys: <strong className="text-zinc-900">{summary.group1_totals.boys_total}</strong></span>
-                <span className="text-zinc-500">Girls: <strong className="text-zinc-900">{summary.group1_totals.girls_total}</strong></span>
-                <span className="bg-black text-white px-2 py-0.5 rounded font-bold">
+              <div className="flex items-center justify-between sm:justify-end space-x-2.5 text-[11px] font-mono">
+                <span className="text-zinc-500">B: <strong className="text-zinc-900">{summary.group1_totals.boys_total}</strong></span>
+                <span className="text-zinc-500">G: <strong className="text-zinc-900">{summary.group1_totals.girls_total}</strong></span>
+                <span className="bg-black text-white px-2 py-0.5 rounded text-[10px] font-bold">
                   {summary.group1_totals.grand_total} Meals
                 </span>
               </div>
@@ -418,43 +418,43 @@ export const DailySummaryView: React.FC<DailySummaryViewProps> = ({
                       className="border border-zinc-200 rounded-xl p-4 bg-zinc-50/40 hover:bg-zinc-50 transition-colors"
                     >
                       {/* Class Header */}
-                      <div className="flex items-center justify-between border-b border-zinc-200/80 pb-3 mb-3">
-                        <div className="flex items-center space-x-2.5">
-                          <div className="w-7 h-7 rounded-lg bg-black text-white flex items-center justify-center font-bold text-xs font-mono">
+                      <div className="flex items-center justify-between border-b border-zinc-200/80 pb-2.5 mb-2.5">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-6 h-6 rounded-md bg-black text-white flex items-center justify-center font-bold text-xs font-mono shrink-0">
                             {cls.class_number}
                           </div>
                           <div>
-                            <span className="font-bold text-sm text-zinc-900">Class {cls.class_number}</span>
-                            <span className="text-xs text-zinc-400 font-mono ml-2">Section A & B</span>
+                            <span className="font-bold text-xs text-zinc-950">Class {cls.class_number}</span>
+                            <span className="text-[10px] font-mono text-zinc-400 ml-1.5">Sec A & B</span>
                           </div>
                         </div>
 
                         {/* Combined Class Total Badge */}
-                        <div className="flex items-center space-x-3 text-xs font-mono">
-                          <span className="text-zinc-500 hidden sm:inline">Class Total:</span>
-                          <span className="font-bold text-sm bg-white border border-zinc-200 px-2.5 py-0.5 rounded-lg text-zinc-950 shadow-xs">
+                        <div className="flex items-center space-x-2 text-xs font-mono">
+                          <span className="text-zinc-400 text-[10px]">Total:</span>
+                          <span className="font-bold text-xs bg-white border border-zinc-200 px-2 py-0.5 rounded-md text-zinc-950 shadow-2xs">
                             {combined.grand_total} Meals
                           </span>
                         </div>
                       </div>
 
-                      {/* Sections Grid: Section A & Section B */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {/* Sections Stack: Section A & Section B (Stacked for clean mobile display) */}
+                      <div className="space-y-2">
                         {/* Section A */}
-                        <div className={`p-3.5 rounded-lg border transition-all ${
+                        <div className={`p-3 rounded-xl border transition-all ${
                           a 
-                            ? 'bg-white border-zinc-200 shadow-xs' 
+                            ? 'bg-white border-zinc-200 shadow-2xs' 
                             : 'bg-zinc-50/80 border-dashed border-zinc-300'
                         }`}>
-                          <div className="flex items-center justify-between mb-2.5">
-                            <div className="flex items-center space-x-2">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center space-x-1.5">
                               <span className="font-bold text-xs text-zinc-900">Section A</span>
                               {a ? (
-                                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
                                   Recorded
                                 </span>
                               ) : (
-                                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-500 border border-zinc-200">
+                                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-100 text-zinc-500 border border-zinc-200">
                                   Pending
                                 </span>
                               )}
@@ -463,68 +463,80 @@ export const DailySummaryView: React.FC<DailySummaryViewProps> = ({
                             {a ? (
                               <button
                                 onClick={() => onNavigateToEntry(`sec-${cls.class_number}A`, selectedDate)}
-                                className="text-zinc-500 hover:text-black flex items-center space-x-1 text-xs font-medium"
+                                className="text-zinc-600 hover:text-black flex items-center space-x-1 text-xs font-medium px-2 py-0.5 rounded bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 transition-colors"
                                 title="Edit Section A"
                               >
-                                <Edit3 className="w-3.5 h-3.5" />
-                                <span className="hidden sm:inline">Edit</span>
+                                <Edit3 className="w-3 h-3" />
+                                <span>Edit</span>
                               </button>
                             ) : (
                               <button
                                 onClick={() => onNavigateToEntry(`sec-${cls.class_number}A`, selectedDate)}
-                                className="text-black hover:underline flex items-center space-x-1 text-xs font-semibold"
+                                className="text-black hover:underline flex items-center space-x-1 text-xs font-bold"
                               >
-                                <PlusCircle className="w-3.5 h-3.5" />
+                                <PlusCircle className="w-3 h-3" />
                                 <span>Record</span>
                               </button>
                             )}
                           </div>
 
                           {a ? (
-                            <div className="space-y-2">
+                            <div className="space-y-1.5">
                               <div className="flex items-baseline justify-between">
-                                <div className="text-lg font-bold font-mono text-zinc-950">
-                                  {a.totals.grand_total} <span className="text-xs font-normal text-zinc-500 font-sans">meals</span>
+                                <div className="text-base font-extrabold font-mono text-zinc-950">
+                                  {a.totals.grand_total} <span className="text-[10px] font-normal text-zinc-500 font-sans">meals</span>
                                 </div>
-                                <div className="text-xs font-mono text-zinc-500">
+                                <div className="text-[11px] font-mono text-zinc-500">
                                   Boys: <strong className="text-zinc-900">{a.totals.boys_total}</strong> • Girls: <strong className="text-zinc-900">{a.totals.girls_total}</strong>
                                 </div>
                               </div>
-                              {/* Caste chips */}
-                              <div className="flex items-center space-x-1.5 text-[11px] font-mono pt-1 text-zinc-600">
-                                <span className="bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200">SC: {a.totals.sc_total}</span>
-                                <span className="bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200">ST: {a.totals.st_total}</span>
-                                <span className="bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200">BC: {a.totals.bc_total}</span>
-                                <span className="bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200">OC: {a.totals.oc_total}</span>
+                              {/* Caste chips in 4 clean boxes */}
+                              <div className="grid grid-cols-4 gap-1.5 text-center text-[10px] font-mono pt-1 text-zinc-700">
+                                <div className="bg-zinc-50 py-1 px-1 rounded border border-zinc-200">
+                                  <span className="text-zinc-400 block text-[9px]">SC</span>
+                                  <span className="font-bold text-zinc-900">{a.totals.sc_total}</span>
+                                </div>
+                                <div className="bg-zinc-50 py-1 px-1 rounded border border-zinc-200">
+                                  <span className="text-zinc-400 block text-[9px]">ST</span>
+                                  <span className="font-bold text-zinc-900">{a.totals.st_total}</span>
+                                </div>
+                                <div className="bg-zinc-50 py-1 px-1 rounded border border-zinc-200">
+                                  <span className="text-zinc-400 block text-[9px]">BC</span>
+                                  <span className="font-bold text-zinc-900">{a.totals.bc_total}</span>
+                                </div>
+                                <div className="bg-zinc-50 py-1 px-1 rounded border border-zinc-200">
+                                  <span className="text-zinc-400 block text-[9px]">OC</span>
+                                  <span className="font-bold text-zinc-900">{a.totals.oc_total}</span>
+                                </div>
                               </div>
                               {a.remarks && (
-                                <div className="text-[11px] text-zinc-500 italic mt-1 truncate">
+                                <div className="text-[10px] text-zinc-500 italic mt-1 truncate">
                                   Note: {a.remarks}
                                 </div>
                               )}
                             </div>
                           ) : (
-                            <div className="text-xs text-zinc-400 py-2 text-center font-mono">
+                            <div className="text-xs text-zinc-400 py-1.5 text-center font-mono">
                               No meal count recorded for Section A today
                             </div>
                           )}
                         </div>
 
                         {/* Section B */}
-                        <div className={`p-3.5 rounded-lg border transition-all ${
+                        <div className={`p-3 rounded-xl border transition-all ${
                           b 
-                            ? 'bg-white border-zinc-200 shadow-xs' 
+                            ? 'bg-white border-zinc-200 shadow-2xs' 
                             : 'bg-zinc-50/80 border-dashed border-zinc-300'
                         }`}>
-                          <div className="flex items-center justify-between mb-2.5">
-                            <div className="flex items-center space-x-2">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center space-x-1.5">
                               <span className="font-bold text-xs text-zinc-900">Section B</span>
                               {b ? (
-                                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
                                   Recorded
                                 </span>
                               ) : (
-                                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-500 border border-zinc-200">
+                                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-100 text-zinc-500 border border-zinc-200">
                                   Pending
                                 </span>
                               )}
@@ -533,48 +545,60 @@ export const DailySummaryView: React.FC<DailySummaryViewProps> = ({
                             {b ? (
                               <button
                                 onClick={() => onNavigateToEntry(`sec-${cls.class_number}B`, selectedDate)}
-                                className="text-zinc-500 hover:text-black flex items-center space-x-1 text-xs font-medium"
+                                className="text-zinc-600 hover:text-black flex items-center space-x-1 text-xs font-medium px-2 py-0.5 rounded bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 transition-colors"
                                 title="Edit Section B"
                               >
-                                <Edit3 className="w-3.5 h-3.5" />
-                                <span className="hidden sm:inline">Edit</span>
+                                <Edit3 className="w-3 h-3" />
+                                <span>Edit</span>
                               </button>
                             ) : (
                               <button
                                 onClick={() => onNavigateToEntry(`sec-${cls.class_number}B`, selectedDate)}
-                                className="text-black hover:underline flex items-center space-x-1 text-xs font-semibold"
+                                className="text-black hover:underline flex items-center space-x-1 text-xs font-bold"
                               >
-                                <PlusCircle className="w-3.5 h-3.5" />
+                                <PlusCircle className="w-3 h-3" />
                                 <span>Record</span>
                               </button>
                             )}
                           </div>
 
                           {b ? (
-                            <div className="space-y-2">
+                            <div className="space-y-1.5">
                               <div className="flex items-baseline justify-between">
-                                <div className="text-lg font-bold font-mono text-zinc-950">
-                                  {b.totals.grand_total} <span className="text-xs font-normal text-zinc-500 font-sans">meals</span>
+                                <div className="text-base font-extrabold font-mono text-zinc-950">
+                                  {b.totals.grand_total} <span className="text-[10px] font-normal text-zinc-500 font-sans">meals</span>
                                 </div>
-                                <div className="text-xs font-mono text-zinc-500">
+                                <div className="text-[11px] font-mono text-zinc-500">
                                   Boys: <strong className="text-zinc-900">{b.totals.boys_total}</strong> • Girls: <strong className="text-zinc-900">{b.totals.girls_total}</strong>
                                 </div>
                               </div>
-                              {/* Caste chips */}
-                              <div className="flex items-center space-x-1.5 text-[11px] font-mono pt-1 text-zinc-600">
-                                <span className="bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200">SC: {b.totals.sc_total}</span>
-                                <span className="bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200">ST: {b.totals.st_total}</span>
-                                <span className="bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200">BC: {b.totals.bc_total}</span>
-                                <span className="bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200">OC: {b.totals.oc_total}</span>
+                              {/* Caste chips in 4 clean boxes */}
+                              <div className="grid grid-cols-4 gap-1.5 text-center text-[10px] font-mono pt-1 text-zinc-700">
+                                <div className="bg-zinc-50 py-1 px-1 rounded border border-zinc-200">
+                                  <span className="text-zinc-400 block text-[9px]">SC</span>
+                                  <span className="font-bold text-zinc-900">{b.totals.sc_total}</span>
+                                </div>
+                                <div className="bg-zinc-50 py-1 px-1 rounded border border-zinc-200">
+                                  <span className="text-zinc-400 block text-[9px]">ST</span>
+                                  <span className="font-bold text-zinc-900">{b.totals.st_total}</span>
+                                </div>
+                                <div className="bg-zinc-50 py-1 px-1 rounded border border-zinc-200">
+                                  <span className="text-zinc-400 block text-[9px]">BC</span>
+                                  <span className="font-bold text-zinc-900">{b.totals.bc_total}</span>
+                                </div>
+                                <div className="bg-zinc-50 py-1 px-1 rounded border border-zinc-200">
+                                  <span className="text-zinc-400 block text-[9px]">OC</span>
+                                  <span className="font-bold text-zinc-900">{b.totals.oc_total}</span>
+                                </div>
                               </div>
                               {b.remarks && (
-                                <div className="text-[11px] text-zinc-500 italic mt-1 truncate">
+                                <div className="text-[10px] text-zinc-500 italic mt-1 truncate">
                                   Note: {b.remarks}
                                 </div>
                               )}
                             </div>
                           ) : (
-                            <div className="text-xs text-zinc-400 py-2 text-center font-mono">
+                            <div className="text-xs text-zinc-400 py-1.5 text-center font-mono">
                               No meal count recorded for Section B today
                             </div>
                           )}
@@ -588,17 +612,17 @@ export const DailySummaryView: React.FC<DailySummaryViewProps> = ({
 
           {/* GROUP 2: CLASSES 9, 10 */}
           <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
-            <div className="bg-zinc-50 px-5 py-3.5 border-b border-zinc-200 flex items-center justify-between">
+            <div className="bg-zinc-50 px-4 py-3 border-b border-zinc-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center space-x-2">
-                <span className="w-2 h-2 rounded-full bg-black" />
-                <h3 className="font-bold text-sm text-zinc-950 uppercase tracking-wide">
-                  Group 2: High School (Classes 9, 10)
+                <span className="w-2 h-2 rounded-full bg-black shrink-0" />
+                <h3 className="font-bold text-xs text-zinc-950 uppercase tracking-wide">
+                  Group 2: High School (9-10)
                 </h3>
               </div>
-              <div className="flex items-center space-x-3 text-xs font-mono">
-                <span className="text-zinc-500">Boys: <strong className="text-zinc-900">{summary.group2_totals.boys_total}</strong></span>
-                <span className="text-zinc-500">Girls: <strong className="text-zinc-900">{summary.group2_totals.girls_total}</strong></span>
-                <span className="bg-black text-white px-2 py-0.5 rounded font-bold">
+              <div className="flex items-center justify-between sm:justify-end space-x-2.5 text-[11px] font-mono">
+                <span className="text-zinc-500">B: <strong className="text-zinc-900">{summary.group2_totals.boys_total}</strong></span>
+                <span className="text-zinc-500">G: <strong className="text-zinc-900">{summary.group2_totals.girls_total}</strong></span>
+                <span className="bg-black text-white px-2 py-0.5 rounded text-[10px] font-bold">
                   {summary.group2_totals.grand_total} Meals
                 </span>
               </div>
@@ -618,43 +642,43 @@ export const DailySummaryView: React.FC<DailySummaryViewProps> = ({
                       className="border border-zinc-200 rounded-xl p-4 bg-zinc-50/40 hover:bg-zinc-50 transition-colors"
                     >
                       {/* Class Header */}
-                      <div className="flex items-center justify-between border-b border-zinc-200/80 pb-3 mb-3">
-                        <div className="flex items-center space-x-2.5">
-                          <div className="w-7 h-7 rounded-lg bg-black text-white flex items-center justify-center font-bold text-xs font-mono">
+                      <div className="flex items-center justify-between border-b border-zinc-200/80 pb-2.5 mb-2.5">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-6 h-6 rounded-md bg-black text-white flex items-center justify-center font-bold text-xs font-mono shrink-0">
                             {cls.class_number}
                           </div>
                           <div>
-                            <span className="font-bold text-sm text-zinc-900">Class {cls.class_number}</span>
-                            <span className="text-xs text-zinc-400 font-mono ml-2">Section A & B</span>
+                            <span className="font-bold text-xs text-zinc-950">Class {cls.class_number}</span>
+                            <span className="text-[10px] font-mono text-zinc-400 ml-1.5">Sec A & B</span>
                           </div>
                         </div>
 
                         {/* Combined Class Total Badge */}
-                        <div className="flex items-center space-x-3 text-xs font-mono">
-                          <span className="text-zinc-500 hidden sm:inline">Class Total:</span>
-                          <span className="font-bold text-sm bg-white border border-zinc-200 px-2.5 py-0.5 rounded-lg text-zinc-950 shadow-xs">
+                        <div className="flex items-center space-x-2 text-xs font-mono">
+                          <span className="text-zinc-400 text-[10px]">Total:</span>
+                          <span className="font-bold text-xs bg-white border border-zinc-200 px-2 py-0.5 rounded-md text-zinc-950 shadow-2xs">
                             {combined.grand_total} Meals
                           </span>
                         </div>
                       </div>
 
-                      {/* Sections Grid: Section A & Section B */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {/* Sections Stack: Section A & Section B (Stacked for clean mobile display) */}
+                      <div className="space-y-2">
                         {/* Section A */}
-                        <div className={`p-3.5 rounded-lg border transition-all ${
+                        <div className={`p-3 rounded-xl border transition-all ${
                           a 
-                            ? 'bg-white border-zinc-200 shadow-xs' 
+                            ? 'bg-white border-zinc-200 shadow-2xs' 
                             : 'bg-zinc-50/80 border-dashed border-zinc-300'
                         }`}>
-                          <div className="flex items-center justify-between mb-2.5">
-                            <div className="flex items-center space-x-2">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center space-x-1.5">
                               <span className="font-bold text-xs text-zinc-900">Section A</span>
                               {a ? (
-                                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
                                   Recorded
                                 </span>
                               ) : (
-                                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-500 border border-zinc-200">
+                                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-100 text-zinc-500 border border-zinc-200">
                                   Pending
                                 </span>
                               )}
@@ -663,68 +687,80 @@ export const DailySummaryView: React.FC<DailySummaryViewProps> = ({
                             {a ? (
                               <button
                                 onClick={() => onNavigateToEntry(`sec-${cls.class_number}A`, selectedDate)}
-                                className="text-zinc-500 hover:text-black flex items-center space-x-1 text-xs font-medium"
+                                className="text-zinc-600 hover:text-black flex items-center space-x-1 text-xs font-medium px-2 py-0.5 rounded bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 transition-colors"
                                 title="Edit Section A"
                               >
-                                <Edit3 className="w-3.5 h-3.5" />
-                                <span className="hidden sm:inline">Edit</span>
+                                <Edit3 className="w-3 h-3" />
+                                <span>Edit</span>
                               </button>
                             ) : (
                               <button
                                 onClick={() => onNavigateToEntry(`sec-${cls.class_number}A`, selectedDate)}
-                                className="text-black hover:underline flex items-center space-x-1 text-xs font-semibold"
+                                className="text-black hover:underline flex items-center space-x-1 text-xs font-bold"
                               >
-                                <PlusCircle className="w-3.5 h-3.5" />
+                                <PlusCircle className="w-3 h-3" />
                                 <span>Record</span>
                               </button>
                             )}
                           </div>
 
                           {a ? (
-                            <div className="space-y-2">
+                            <div className="space-y-1.5">
                               <div className="flex items-baseline justify-between">
-                                <div className="text-lg font-bold font-mono text-zinc-950">
-                                  {a.totals.grand_total} <span className="text-xs font-normal text-zinc-500 font-sans">meals</span>
+                                <div className="text-base font-extrabold font-mono text-zinc-950">
+                                  {a.totals.grand_total} <span className="text-[10px] font-normal text-zinc-500 font-sans">meals</span>
                                 </div>
-                                <div className="text-xs font-mono text-zinc-500">
+                                <div className="text-[11px] font-mono text-zinc-500">
                                   Boys: <strong className="text-zinc-900">{a.totals.boys_total}</strong> • Girls: <strong className="text-zinc-900">{a.totals.girls_total}</strong>
                                 </div>
                               </div>
-                              {/* Caste chips */}
-                              <div className="flex items-center space-x-1.5 text-[11px] font-mono pt-1 text-zinc-600">
-                                <span className="bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200">SC: {a.totals.sc_total}</span>
-                                <span className="bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200">ST: {a.totals.st_total}</span>
-                                <span className="bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200">BC: {a.totals.bc_total}</span>
-                                <span className="bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200">OC: {a.totals.oc_total}</span>
+                              {/* Caste chips in 4 clean boxes */}
+                              <div className="grid grid-cols-4 gap-1.5 text-center text-[10px] font-mono pt-1 text-zinc-700">
+                                <div className="bg-zinc-50 py-1 px-1 rounded border border-zinc-200">
+                                  <span className="text-zinc-400 block text-[9px]">SC</span>
+                                  <span className="font-bold text-zinc-900">{a.totals.sc_total}</span>
+                                </div>
+                                <div className="bg-zinc-50 py-1 px-1 rounded border border-zinc-200">
+                                  <span className="text-zinc-400 block text-[9px]">ST</span>
+                                  <span className="font-bold text-zinc-900">{a.totals.st_total}</span>
+                                </div>
+                                <div className="bg-zinc-50 py-1 px-1 rounded border border-zinc-200">
+                                  <span className="text-zinc-400 block text-[9px]">BC</span>
+                                  <span className="font-bold text-zinc-900">{a.totals.bc_total}</span>
+                                </div>
+                                <div className="bg-zinc-50 py-1 px-1 rounded border border-zinc-200">
+                                  <span className="text-zinc-400 block text-[9px]">OC</span>
+                                  <span className="font-bold text-zinc-900">{a.totals.oc_total}</span>
+                                </div>
                               </div>
                               {a.remarks && (
-                                <div className="text-[11px] text-zinc-500 italic mt-1 truncate">
+                                <div className="text-[10px] text-zinc-500 italic mt-1 truncate">
                                   Note: {a.remarks}
                                 </div>
                               )}
                             </div>
                           ) : (
-                            <div className="text-xs text-zinc-400 py-2 text-center font-mono">
+                            <div className="text-xs text-zinc-400 py-1.5 text-center font-mono">
                               No meal count recorded for Section A today
                             </div>
                           )}
                         </div>
 
                         {/* Section B */}
-                        <div className={`p-3.5 rounded-lg border transition-all ${
+                        <div className={`p-3 rounded-xl border transition-all ${
                           b 
-                            ? 'bg-white border-zinc-200 shadow-xs' 
+                            ? 'bg-white border-zinc-200 shadow-2xs' 
                             : 'bg-zinc-50/80 border-dashed border-zinc-300'
                         }`}>
-                          <div className="flex items-center justify-between mb-2.5">
-                            <div className="flex items-center space-x-2">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center space-x-1.5">
                               <span className="font-bold text-xs text-zinc-900">Section B</span>
                               {b ? (
-                                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
                                   Recorded
                                 </span>
                               ) : (
-                                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-500 border border-zinc-200">
+                                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-100 text-zinc-500 border border-zinc-200">
                                   Pending
                                 </span>
                               )}
@@ -733,48 +769,60 @@ export const DailySummaryView: React.FC<DailySummaryViewProps> = ({
                             {b ? (
                               <button
                                 onClick={() => onNavigateToEntry(`sec-${cls.class_number}B`, selectedDate)}
-                                className="text-zinc-500 hover:text-black flex items-center space-x-1 text-xs font-medium"
+                                className="text-zinc-600 hover:text-black flex items-center space-x-1 text-xs font-medium px-2 py-0.5 rounded bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 transition-colors"
                                 title="Edit Section B"
                               >
-                                <Edit3 className="w-3.5 h-3.5" />
-                                <span className="hidden sm:inline">Edit</span>
+                                <Edit3 className="w-3 h-3" />
+                                <span>Edit</span>
                               </button>
                             ) : (
                               <button
                                 onClick={() => onNavigateToEntry(`sec-${cls.class_number}B`, selectedDate)}
-                                className="text-black hover:underline flex items-center space-x-1 text-xs font-semibold"
+                                className="text-black hover:underline flex items-center space-x-1 text-xs font-bold"
                               >
-                                <PlusCircle className="w-3.5 h-3.5" />
+                                <PlusCircle className="w-3 h-3" />
                                 <span>Record</span>
                               </button>
                             )}
                           </div>
 
                           {b ? (
-                            <div className="space-y-2">
+                            <div className="space-y-1.5">
                               <div className="flex items-baseline justify-between">
-                                <div className="text-lg font-bold font-mono text-zinc-950">
-                                  {b.totals.grand_total} <span className="text-xs font-normal text-zinc-500 font-sans">meals</span>
+                                <div className="text-base font-extrabold font-mono text-zinc-950">
+                                  {b.totals.grand_total} <span className="text-[10px] font-normal text-zinc-500 font-sans">meals</span>
                                 </div>
-                                <div className="text-xs font-mono text-zinc-500">
+                                <div className="text-[11px] font-mono text-zinc-500">
                                   Boys: <strong className="text-zinc-900">{b.totals.boys_total}</strong> • Girls: <strong className="text-zinc-900">{b.totals.girls_total}</strong>
                                 </div>
                               </div>
-                              {/* Caste chips */}
-                              <div className="flex items-center space-x-1.5 text-[11px] font-mono pt-1 text-zinc-600">
-                                <span className="bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200">SC: {b.totals.sc_total}</span>
-                                <span className="bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200">ST: {b.totals.st_total}</span>
-                                <span className="bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200">BC: {b.totals.bc_total}</span>
-                                <span className="bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200">OC: {b.totals.oc_total}</span>
+                              {/* Caste chips in 4 clean boxes */}
+                              <div className="grid grid-cols-4 gap-1.5 text-center text-[10px] font-mono pt-1 text-zinc-700">
+                                <div className="bg-zinc-50 py-1 px-1 rounded border border-zinc-200">
+                                  <span className="text-zinc-400 block text-[9px]">SC</span>
+                                  <span className="font-bold text-zinc-900">{b.totals.sc_total}</span>
+                                </div>
+                                <div className="bg-zinc-50 py-1 px-1 rounded border border-zinc-200">
+                                  <span className="text-zinc-400 block text-[9px]">ST</span>
+                                  <span className="font-bold text-zinc-900">{b.totals.st_total}</span>
+                                </div>
+                                <div className="bg-zinc-50 py-1 px-1 rounded border border-zinc-200">
+                                  <span className="text-zinc-400 block text-[9px]">BC</span>
+                                  <span className="font-bold text-zinc-900">{b.totals.bc_total}</span>
+                                </div>
+                                <div className="bg-zinc-50 py-1 px-1 rounded border border-zinc-200">
+                                  <span className="text-zinc-400 block text-[9px]">OC</span>
+                                  <span className="font-bold text-zinc-900">{b.totals.oc_total}</span>
+                                </div>
                               </div>
                               {b.remarks && (
-                                <div className="text-[11px] text-zinc-500 italic mt-1 truncate">
+                                <div className="text-[10px] text-zinc-500 italic mt-1 truncate">
                                   Note: {b.remarks}
                                 </div>
                               )}
                             </div>
                           ) : (
-                            <div className="text-xs text-zinc-400 py-2 text-center font-mono">
+                            <div className="text-xs text-zinc-400 py-1.5 text-center font-mono">
                               No meal count recorded for Section B today
                             </div>
                           )}
