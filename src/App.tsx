@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { StorageService } from './lib/storage';
 import { User, School, AcademicYear } from './types';
 import { Sidebar } from './components/Sidebar';
+import { BottomNav } from './components/BottomNav';
+import { InstallPwaPrompt } from './components/InstallPwaPrompt';
 import { Dashboard } from './components/Dashboard';
 import { DailyEntryForm } from './components/DailyEntryForm';
 import { DailySummaryView } from './components/DailySummaryView';
@@ -126,8 +128,10 @@ export function App() {
           </div>
         </header>
 
-        {/* Main Routed Page Content */}
-        <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        {/* Main Routed Page Content with Safe Area Padding for Mobile Bottom Bar */}
+        <main className="flex-1 max-w-6xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-28 md:pb-12">
+          {/* PWA Mobile App Install Prompt */}
+          <InstallPwaPrompt />
           {activeTab === 'dashboard' && (
             <Dashboard
               currentUser={currentUser}
@@ -185,6 +189,14 @@ export function App() {
           )}
         </main>
       </div>
+
+      {/* Native Mobile Bottom Navigation Bar */}
+      <BottomNav
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        currentUser={currentUser}
+        onOpenStaffModal={() => setIsStaffModalOpen(true)}
+      />
 
       {/* Staff Login / Switcher PIN Modal */}
       <LoginPinModal

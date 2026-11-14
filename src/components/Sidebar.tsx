@@ -218,34 +218,54 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
-      {/* Mobile Top Header */}
-      <div className="md:hidden bg-white border-b border-zinc-200 px-4 py-2.5 flex items-center justify-between sticky top-0 z-40">
+      {/* Native-like Mobile Top App Header */}
+      <div className="md:hidden bg-white/95 backdrop-blur-md border-b border-zinc-200 px-3.5 py-2.5 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center space-x-2.5">
-          <button
-            onClick={() => setMobileMenuOpen(true)}
-            className="p-1.5 -ml-1.5 rounded-lg text-zinc-600 hover:text-black hover:bg-zinc-100"
-            aria-label="Open Navigation Menu"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-          <div className="w-6 h-6 rounded-md bg-black text-white flex items-center justify-center font-bold text-xs">
+          <div className="w-7 h-7 rounded-lg bg-black text-white flex items-center justify-center font-bold text-xs font-mono shadow-xs">
             M
           </div>
-          <span className="font-bold text-zinc-950 text-sm">MDM Register</span>
+          <div>
+            <div className="flex items-center space-x-1.5">
+              <span className="font-bold text-zinc-950 text-sm tracking-tight leading-none">MDM Register</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" title={isOnline ? 'Online' : 'Offline'} />
+            </div>
+            <div className="text-[10px] text-zinc-400 font-mono truncate max-w-[140px] leading-tight mt-0.5">
+              {school.name}
+            </div>
+          </div>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1.5">
+          {/* Staff Switcher Chip */}
           <button
             onClick={onOpenStaffModal}
-            className="text-[11px] font-mono font-medium px-2 py-0.5 rounded border border-zinc-200 bg-zinc-50 text-zinc-800"
+            className="flex items-center space-x-1 px-2 py-1 rounded-lg border border-zinc-200 bg-zinc-50 active:scale-95 transition-all text-xs font-mono"
+            title="Switch Staff / Login"
           >
-            {currentUser.name.split(' ')[0]}
+            <span className="w-4 h-4 rounded bg-black text-white flex items-center justify-center font-bold text-[9px]">
+              {currentUser.role === 'headmaster' ? 'HM' : currentUser.assigned_section_name ? currentUser.assigned_section_name.replace('Class ', '') : 'TR'}
+            </span>
+            <span className="font-semibold text-zinc-800 text-[11px] truncate max-w-[70px]">
+              {currentUser.name.split(' ')[0]}
+            </span>
           </button>
+
+          {/* Database Settings Gear */}
           <button
-            onClick={() => handleNavClick('entry')}
-            className="bg-black text-white px-2.5 py-1 rounded text-xs font-semibold shadow-sm"
+            onClick={onOpenSettingsModal}
+            className="p-1.5 rounded-lg text-zinc-500 hover:text-black hover:bg-zinc-100 active:scale-95 transition-all"
+            title="Cloud & Database Settings"
           >
-            Record
+            <Settings className="w-4 h-4" />
+          </button>
+
+          {/* More Menu (Drawer) */}
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            className="p-1.5 rounded-lg text-zinc-600 hover:text-black hover:bg-zinc-100 active:scale-95 transition-all"
+            aria-label="Open Full Menu"
+          >
+            <Menu className="w-4 h-4" />
           </button>
         </div>
       </div>

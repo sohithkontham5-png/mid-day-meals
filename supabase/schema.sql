@@ -336,3 +336,25 @@ BEGIN
     END IF;
 END $$;
 
+-- ====================================================================
+-- ROW LEVEL SECURITY (RLS) & PUBLIC API PERMISSIONS
+-- Ensures full client compatibility whether RLS is enabled or disabled
+-- ====================================================================
+DO $$
+DECLARE
+    tbl text;
+BEGIN
+    FOR tbl IN SELECT unnest(ARRAY[
+        'schools', 'academic_years', 'classes', 'sections', 
+        'users', 'user_sections', 'enrolment', 'mdm_entries', 
+        'holidays', 'audit_log'
+    ])
+    LOOP
+        EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY;', tbl);
+        EXECUTE format('DROP POLICY IF EXISTS "Public full access policy" ON %I;', tbl);
+        EXECUTE format('CREATE POLICY "Public full access policy" ON %I FOR ALL USING (true) WITH CHECK (true);', tbl);
+        EXECUTE format('GRANT ALL ON %I TO anon, authenticated, service_role;', tbl);
+    END LOOP;
+END $$;
+
+

@@ -212,6 +212,25 @@ export const CloudSyncSettings: React.FC<CloudSyncSettingsProps> = ({
                   {testStatus.result}
                 </div>
               )}
+
+              {/* Supabase Settings Checklist Guide */}
+              <div className="p-3 bg-zinc-50 border border-zinc-200 rounded-lg space-y-1.5 font-mono text-[11px] mt-2">
+                <div className="font-bold text-zinc-900 font-sans text-xs flex items-center space-x-1">
+                  <span>Supabase API Settings Checklist:</span>
+                </div>
+                <div className="flex items-start space-x-1.5 text-zinc-800">
+                  <span className="text-emerald-600 font-bold shrink-0">☑</span>
+                  <span><strong>Enable Data API</strong>: Keep CHECKED (for client library REST queries).</span>
+                </div>
+                <div className="flex items-start space-x-1.5 text-zinc-800">
+                  <span className="text-emerald-600 font-bold shrink-0">☑</span>
+                  <span><strong>Automatically expose new tables</strong>: Keep CHECKED (exposes created tables).</span>
+                </div>
+                <div className="flex items-start space-x-1.5 text-zinc-600">
+                  <span className="text-zinc-400 font-bold shrink-0">☐</span>
+                  <span><strong>Enable automatic RLS</strong>: Leave UNCHECKED for effortless setup (or run schema.sql).</span>
+                </div>
+              </div>
             </div>
           </div>
 
