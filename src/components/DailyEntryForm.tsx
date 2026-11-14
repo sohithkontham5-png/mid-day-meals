@@ -25,7 +25,12 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldAlert,
-  Info
+  Info,
+  Users,
+  Utensils,
+  Plus,
+  Minus,
+  Sparkles
 } from 'lucide-react';
 
 interface DailyEntryFormProps {
@@ -52,7 +57,7 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
     initialSectionId || currentUser.assigned_section_id || sections[0].id
   );
 
-  // Form values (null means not entered yet)
+  // Form values (string for input state)
   const [counts, setCounts] = useState<{
     sc_boys: string;
     sc_girls: string;
@@ -93,6 +98,15 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
   // Holiday and Sunday checks
   const holidayCheck = StorageService.isHoliday(selectedDate);
   const sundayCheck = isSunday(selectedDate);
+
+  // Quick menu suggestions
+  const quickMenuTags = [
+    'Egg Curry & Rice',
+    'Sambar & Rice',
+    'Dal Tadka & Rice',
+    'Veg Pulao & Raita',
+    'Special Festival Meal'
+  ];
 
   // Load existing entry and enrolment whenever date or section changes
   useEffect(() => {
@@ -151,29 +165,17 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
 
   const liveTotals = computeTotals(parsedCounts);
 
-  const warnings: string[] = [];
-  if (enrolment) {
-    if (liveTotals.sc_total > enrolment.totals.sc_total) {
-      warnings.push(`SC meals (${liveTotals.sc_total}) exceed enrolled SC (${enrolment.totals.sc_total})`);
-    }
-    if (liveTotals.st_total > enrolment.totals.st_total) {
-      warnings.push(`ST meals (${liveTotals.st_total}) exceed enrolled ST (${enrolment.totals.st_total})`);
-    }
-    if (liveTotals.bc_total > enrolment.totals.bc_total) {
-      warnings.push(`BC meals (${liveTotals.bc_total}) exceed enrolled BC (${enrolment.totals.bc_total})`);
-    }
-    if (liveTotals.oc_total > enrolment.totals.oc_total) {
-      warnings.push(`OC meals (${liveTotals.oc_total}) exceed enrolled OC (${enrolment.totals.oc_total})`);
-    }
-    if (liveTotals.grand_total > enrolment.totals.grand_total) {
-      warnings.push(`Grand total meals (${liveTotals.grand_total}) exceed total enrolled (${enrolment.totals.grand_total})`);
-    }
-  }
-
   const handleInputChange = (field: keyof typeof counts, rawValue: string) => {
     const sanitized = rawValue.replace(/[^0-9]/g, '');
     setCounts((prev) => ({ ...prev, [field]: sanitized }));
     setErrorMsg('');
+  };
+
+  const handleStep = (field: keyof typeof counts, delta: number) => {
+    if (isReadonlyForTeacher) return;
+    const current = parseVal(counts[field]) || 0;
+    const nextVal = Math.max(0, current + delta);
+    setCounts((prev) => ({ ...prev, [field]: String(nextVal) }));
   };
 
   const handleSave = (moveToNext: boolean = false) => {
@@ -229,438 +231,517 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
     }
   };
 
+  // 4 Categories config for card rendering
+  const categories = [
+    {
+      key: 'sc',
+      name: 'SC',
+      fullName: 'Scheduled Caste',
+      boysKey: 'sc_boys' as keyof typeof counts,
+      girlsKey: 'sc_girls' as keyof typeof counts,
+      boysVal: counts.sc_boys,
+      girlsVal: counts.sc_girls,
+      total: liveTotals.sc_total,
+      enrolledBoys: enrolment?.sc_boys ?? null,
+      enrolledGirls: enrolment?.sc_girls ?? null,
+      enrolledTotal: enrolment?.totals.sc_total ?? null,
+    },
+    {
+      key: 'st',
+      name: 'ST',
+      fullName: 'Scheduled Tribe',
+      boysKey: 'st_boys' as keyof typeof counts,
+      girlsKey: 'st_girls' as keyof typeof counts,
+      boysVal: counts.st_boys,
+      girlsVal: counts.st_girls,
+      total: liveTotals.st_total,
+      enrolledBoys: enrolment?.st_boys ?? null,
+      enrolledGirls: enrolment?.st_girls ?? null,
+      enrolledTotal: enrolment?.totals.st_total ?? null,
+    },
+    {
+      key: 'bc',
+      name: 'BC',
+      fullName: 'Backward Class',
+      boysKey: 'bc_boys' as keyof typeof counts,
+      girlsKey: 'bc_girls' as keyof typeof counts,
+      boysVal: counts.bc_boys,
+      girlsVal: counts.bc_girls,
+      total: liveTotals.bc_total,
+      enrolledBoys: enrolment?.bc_boys ?? null,
+      enrolledGirls: enrolment?.bc_girls ?? null,
+      enrolledTotal: enrolment?.totals.bc_total ?? null,
+    },
+    {
+      key: 'oc',
+      name: 'OC',
+      fullName: 'Other Castes / General',
+      boysKey: 'oc_boys' as keyof typeof counts,
+      girlsKey: 'oc_girls' as keyof typeof counts,
+      boysVal: counts.oc_boys,
+      girlsVal: counts.oc_girls,
+      total: liveTotals.oc_total,
+      enrolledBoys: enrolment?.oc_boys ?? null,
+      enrolledGirls: enrolment?.oc_girls ?? null,
+      enrolledTotal: enrolment?.totals.oc_total ?? null,
+    },
+  ];
+
+  // Visual percentages
+  const grandTotal = liveTotals.grand_total;
+  const boysPercent = grandTotal > 0 ? Math.round((liveTotals.boys_total / grandTotal) * 100) : 0;
+  const girlsPercent = grandTotal > 0 ? 100 - boysPercent : 0;
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-16">
+    <div className="max-w-4xl mx-auto space-y-6 pb-20">
       {/* Header and Back navigation */}
       <div className="flex items-center justify-between">
         <button
           onClick={onBackToDashboard}
-          className="text-xs font-medium text-zinc-600 hover:text-black bg-white border border-zinc-200 px-3 py-1.5 rounded-lg flex items-center space-x-1.5 shadow-sm transition-all"
+          className="text-xs font-medium text-zinc-600 hover:text-black bg-white border border-zinc-200 px-3 py-1.5 rounded-lg flex items-center space-x-1.5 shadow-xs transition-all"
         >
           <ChevronLeft className="w-3.5 h-3.5" />
           <span>Dashboard</span>
         </button>
 
-        <span className="text-xs font-mono text-zinc-400">Fast Entry Mode</span>
+        <div className="flex items-center space-x-2 text-xs font-mono text-zinc-500">
+          <Utensils className="w-3.5 h-3.5 text-zinc-400" />
+          <span>Daily Meal Record</span>
+        </div>
       </div>
 
-      {/* Main Entry Card */}
-      <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
-        {/* Top Controls: Section & Date */}
-        <div className="bg-zinc-50/60 p-4 sm:p-5 border-b border-zinc-200 space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Section Pills */}
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">
-                Class & Section
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {sections.map((sec) => {
-                  const isSelected = sec.id === selectedSectionId;
-                  const isAssigned = sec.id === currentUser.assigned_section_id;
-                  return (
-                    <button
-                      key={sec.id}
-                      onClick={() => setSelectedSectionId(sec.id)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold transition-all ${
-                        isSelected
-                          ? 'bg-black text-white shadow-sm'
-                          : 'bg-white border border-zinc-200 text-zinc-700 hover:border-zinc-400'
-                      }`}
-                    >
-                      <span>{sec.display_name.replace('Class ', '')}</span>
-                      {isAssigned && (
-                        <span className={`ml-1 text-[9px] uppercase px-1 rounded ${
-                          isSelected ? 'bg-zinc-800 text-zinc-200' : 'bg-zinc-100 text-zinc-600'
-                        }`}>
-                          Mine
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
+      {/* SECTION & DATE SELECTOR (Modern Vercel Card) */}
+      <div className="bg-white rounded-xl border border-zinc-200 p-5 shadow-sm space-y-5">
+        {/* Date Row */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-100">
+          <div>
+            <label className="block text-[11px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1">
+              Date of Attendance
+            </label>
+            <div className="flex items-center space-x-2">
+              <input
+                type="date"
+                max={todayStr}
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="px-3 py-1.5 text-sm font-mono font-semibold bg-zinc-50 border border-zinc-200 rounded-lg text-zinc-950 focus:border-black focus:ring-1 focus:ring-black focus:outline-none cursor-pointer"
+              />
+              <button
+                type="button"
+                onClick={() => setSelectedDate(todayStr)}
+                className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-all ${
+                  selectedDate === todayStr
+                    ? 'bg-black text-white border-black font-semibold'
+                    : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50'
+                }`}
+              >
+                Today
+              </button>
+            </div>
+          </div>
 
-              {isTeacher && currentUser.assigned_section_id && currentUser.assigned_section_id !== selectedSectionId && (
-                <div className="mt-2 text-[11px] text-zinc-600 bg-zinc-100 border border-zinc-200 px-2.5 py-1 rounded-md flex items-center space-x-1.5">
-                  <Info className="w-3.5 h-3.5 shrink-0 text-zinc-500" />
-                  <span>Entering for colleague as substitute. Activity is logged.</span>
+          {/* Date alerts */}
+          <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+            {sundayCheck && (
+              <span className="text-zinc-600 font-mono text-xs font-semibold bg-zinc-100 px-2.5 py-1 rounded-md border border-zinc-200">
+                Sunday (Closed)
+              </span>
+            )}
+            {holidayCheck.is_holiday && (
+              <span className="text-zinc-900 font-mono text-xs font-semibold bg-zinc-100 px-2.5 py-1 rounded-md border border-zinc-300">
+                Holiday: {holidayCheck.reason}
+              </span>
+            )}
+            {isReadonlyForTeacher && (
+              <span className="text-amber-800 font-mono text-xs font-semibold bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200 flex items-center space-x-1">
+                <Lock className="w-3 h-3" />
+                <span>Locked</span>
+              </span>
+            )}
+            {isHeadmaster && existingEntry && (
+              <button
+                onClick={handleToggleLock}
+                className="flex items-center space-x-1 px-3 py-1 rounded-lg border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 text-zinc-800 text-xs font-medium transition-colors"
+              >
+                {existingEntry.locked ? <Unlock className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
+                <span>{existingEntry.locked ? 'Unlock' : 'Lock Entry'}</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Section Picker Pills Grid (Classes 6-10 with Section A and B) */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-[11px] font-mono font-semibold uppercase tracking-wider text-zinc-400">
+              Select Class & Section
+            </label>
+            <span className="text-xs font-mono text-zinc-500">
+              Currently: <strong className="text-zinc-950 font-bold">{currentSection.display_name}</strong>
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            {[6, 7, 8, 9, 10].map((classNum) => {
+              const secA = sections.find((s) => s.class_number === classNum && s.name === 'A');
+              const secB = sections.find((s) => s.class_number === classNum && s.name === 'B');
+
+              const isASelected = secA?.id === selectedSectionId;
+              const isBSelected = secB?.id === selectedSectionId;
+
+              // Check if entry exists for this date
+              const entryA = secA ? StorageService.getEntry(selectedDate, secA.id) : null;
+              const entryB = secB ? StorageService.getEntry(selectedDate, secB.id) : null;
+
+              return (
+                <div 
+                  key={classNum} 
+                  className="bg-zinc-50 border border-zinc-200/80 rounded-xl p-2 flex flex-col justify-between"
+                >
+                  <div className="text-[10px] font-mono font-bold text-zinc-400 uppercase mb-1.5 px-1">
+                    Class {classNum}
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {/* Section A Button */}
+                    {secA && (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedSectionId(secA.id)}
+                        className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold transition-all flex items-center justify-center space-x-1 ${
+                          isASelected
+                            ? 'bg-black text-white shadow-xs'
+                            : 'bg-white border border-zinc-200 text-zinc-700 hover:border-zinc-400'
+                        }`}
+                        title={`Class ${classNum} - Section A`}
+                      >
+                        <span>A</span>
+                        {entryA && (
+                          <span className={`w-1.5 h-1.5 rounded-full ${isASelected ? 'bg-white' : 'bg-emerald-500'}`} />
+                        )}
+                      </button>
+                    )}
+
+                    {/* Section B Button */}
+                    {secB && (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedSectionId(secB.id)}
+                        className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold transition-all flex items-center justify-center space-x-1 ${
+                          isBSelected
+                            ? 'bg-black text-white shadow-xs'
+                            : 'bg-white border border-zinc-200 text-zinc-700 hover:border-zinc-400'
+                        }`}
+                        title={`Class ${classNum} - Section B`}
+                      >
+                        <span>B</span>
+                        {entryB && (
+                          <span className={`w-1.5 h-1.5 rounded-full ${isBSelected ? 'bg-white' : 'bg-emerald-500'}`} />
+                        )}
+                      </button>
+                    )}
+                  </div>
                 </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* FEEDBACK ALERTS */}
+      {successMsg && (
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-3.5 flex items-center space-x-2 text-xs font-medium animate-in fade-in">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span>{successMsg}</span>
+        </div>
+      )}
+
+      {errorMsg && (
+        <div className="bg-zinc-900 border border-black text-white rounded-xl p-3.5 flex items-center space-x-2 text-xs font-medium">
+          <ShieldAlert className="w-4 h-4 text-white shrink-0" />
+          <span>{errorMsg}</span>
+        </div>
+      )}
+
+      {/* LIVE SECTION SUMMARY DOCK (Executive, high contrast) */}
+      <div className="bg-zinc-950 text-white rounded-xl p-5 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center space-x-2">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400">
+                {currentSection.display_name} • Live Meal Count
+              </span>
+              {enrolment && (
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">
+                  Enrolled: {enrolment.totals.grand_total}
+                </span>
               )}
             </div>
+            <div className="text-3xl sm:text-4xl font-black font-mono mt-1 text-white tracking-tight">
+              {grandTotal} <span className="text-sm font-normal font-sans text-zinc-400">meals entered</span>
+            </div>
+          </div>
 
-            {/* Date Picker */}
+          {/* Gender Split */}
+          <div className="flex items-center space-x-4 text-sm font-mono sm:text-right">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">
-                Date of Attendance
-              </label>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="date"
-                  max={todayStr}
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="w-full px-3 py-1.5 text-xs font-mono bg-white border border-zinc-200 rounded-lg font-medium text-zinc-900 focus:border-black focus:ring-1 focus:ring-black focus:outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={() => setSelectedDate(todayStr)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-lg border shrink-0 transition-colors ${
-                    selectedDate === todayStr
-                      ? 'bg-black text-white border-black'
-                      : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50'
-                  }`}
-                >
-                  Today
-                </button>
-              </div>
-
-              <div className="mt-2 text-xs flex items-center space-x-2">
-                {sundayCheck && (
-                  <span className="text-zinc-700 font-mono text-[11px] font-semibold bg-zinc-100 px-2 py-0.5 rounded border border-zinc-200">
-                    Sunday (School Closed)
-                  </span>
-                )}
-                {holidayCheck.is_holiday && (
-                  <span className="text-zinc-900 font-mono text-[11px] font-semibold bg-zinc-100 px-2 py-0.5 rounded border border-zinc-300">
-                    Holiday: {holidayCheck.reason}
-                  </span>
-                )}
-              </div>
+              <div className="text-zinc-400 text-xs font-sans">Boys</div>
+              <div className="text-xl font-bold text-white">{liveTotals.boys_total}</div>
+            </div>
+            <div className="text-zinc-600">/</div>
+            <div>
+              <div className="text-zinc-400 text-xs font-sans">Girls</div>
+              <div className="text-xl font-bold text-white">{liveTotals.girls_total}</div>
             </div>
           </div>
         </div>
 
-        {/* Lock Notice Banner */}
-        {isReadonlyForTeacher && (
-          <div className="bg-zinc-100 border-b border-zinc-200 p-3.5 flex items-center space-x-2.5 text-zinc-800 text-xs">
-            <Lock className="w-4 h-4 text-zinc-600 shrink-0" />
-            <div>
-              <span className="font-semibold">Entry Locked for Teachers: </span>
-              <span className="text-zinc-600">
-                {isExplicitlyLocked
-                  ? 'Locked by Headmaster.'
-                  : 'Entries older than 1 day are locked. Contact Headmaster to edit.'}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Headmaster Lock/Unlock Controls */}
-        {isHeadmaster && existingEntry && (
-          <div className="bg-zinc-50 px-4 py-2 border-b border-zinc-200 flex items-center justify-between text-xs font-mono">
-            <div className="flex items-center space-x-2 text-zinc-500">
-              <span>Status: <strong className={existingEntry.locked ? 'text-black' : 'text-zinc-800'}>
-                {existingEntry.locked ? 'Locked' : 'Unlocked'}
-              </strong></span>
-            </div>
-            <button
-              onClick={handleToggleLock}
-              className="flex items-center space-x-1 px-2.5 py-1 rounded border border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-800 font-sans font-medium text-xs transition-colors"
-            >
-              {existingEntry.locked ? <Unlock className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
-              <span>{existingEntry.locked ? 'Unlock for Staff' : 'Lock Entry'}</span>
-            </button>
-          </div>
-        )}
-
-        {/* Enrolment Warnings */}
-        {warnings.length > 0 && (
-          <div className="bg-zinc-50 border-b border-zinc-200 p-3 sm:px-5">
-            <div className="flex items-start space-x-2 text-zinc-800 text-xs">
-              <AlertTriangle className="w-4 h-4 text-zinc-600 shrink-0 mt-0.5" />
-              <div>
-                <span className="font-bold">Threshold Alert:</span>
-                <ul className="list-disc list-inside mt-0.5 space-y-0.5 text-zinc-600 font-mono text-[11px]">
-                  {warnings.map((w, i) => (
-                    <li key={i}>{w}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Success and Error Alerts */}
-        {successMsg && (
-          <div className="bg-zinc-100 border-b border-zinc-200 p-3 sm:px-5 flex items-center space-x-2 text-zinc-900 text-xs font-medium animate-in fade-in">
-            <CheckCircle2 className="w-4 h-4 text-black shrink-0" />
-            <span>{successMsg}</span>
-          </div>
-        )}
-
-        {errorMsg && (
-          <div className="bg-zinc-900 border-b border-black p-3 sm:px-5 flex items-center space-x-2 text-white text-xs font-medium">
-            <ShieldAlert className="w-4 h-4 text-white shrink-0" />
-            <span>{errorMsg}</span>
-          </div>
-        )}
-
-        {/* 8 Numbers Entry Grid */}
-        <div className="p-4 sm:p-6 space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-base font-bold text-zinc-950">
-                {currentSection.display_name} Meal Counts
-              </h3>
-              <p className="text-xs text-zinc-500 font-mono">
-                Enter counts (whole numbers ≥ 0). Totals calculate automatically.
-              </p>
-            </div>
-
-            {enrolment && (
-              <div className="text-right text-xs bg-zinc-50 px-3 py-1.5 rounded-lg border border-zinc-200 font-mono">
-                <span className="text-zinc-500">Enrolled: </span>
-                <strong className="text-zinc-950 font-bold">{enrolment.totals.grand_total}</strong>
-                <span className="text-zinc-400"> (B:{enrolment.totals.boys_total} / G:{enrolment.totals.girls_total})</span>
-              </div>
-            )}
-          </div>
-
-          {/* Form Table */}
-          <div className="border border-zinc-200 rounded-xl overflow-hidden shadow-sm">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-zinc-50 text-zinc-600 text-xs font-semibold uppercase border-b border-zinc-200">
-                  <th className="py-2.5 px-3 sm:px-4">Category</th>
-                  <th className="py-2.5 px-2 sm:px-4 text-center">Boys Count</th>
-                  <th className="py-2.5 px-2 sm:px-4 text-center">Girls Count</th>
-                  <th className="py-2.5 px-3 sm:px-4 text-center bg-zinc-100/70">Caste Total</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-200 text-sm">
-                
-                {/* 1. SC Row */}
-                <tr className="hover:bg-zinc-50/50 transition-colors">
-                  <td className="py-3 px-3 sm:px-4 font-semibold text-zinc-900">
-                    <div>SC (Scheduled Caste)</div>
-                    {enrolment && (
-                      <div className="text-[10px] text-zinc-400 font-mono">
-                        Enrolled: {enrolment.totals.sc_total} (B:{enrolment.sc_boys} G:{enrolment.sc_girls})
-                      </div>
-                    )}
-                  </td>
-                  <td className="py-2.5 px-2 sm:px-4 text-center">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      placeholder="0"
-                      disabled={isReadonlyForTeacher}
-                      value={counts.sc_boys}
-                      onFocus={(e) => e.target.select()}
-                      onChange={(e) => handleInputChange('sc_boys', e.target.value)}
-                      className="w-16 sm:w-24 h-10 text-center font-mono font-bold text-base bg-white border border-zinc-200 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none transition-all disabled:opacity-50"
-                    />
-                  </td>
-                  <td className="py-2.5 px-2 sm:px-4 text-center">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      placeholder="0"
-                      disabled={isReadonlyForTeacher}
-                      value={counts.sc_girls}
-                      onFocus={(e) => e.target.select()}
-                      onChange={(e) => handleInputChange('sc_girls', e.target.value)}
-                      className="w-16 sm:w-24 h-10 text-center font-mono font-bold text-base bg-white border border-zinc-200 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none transition-all disabled:opacity-50"
-                    />
-                  </td>
-                  <td className="py-2.5 px-3 sm:px-4 text-center font-bold font-mono text-base text-zinc-950 bg-zinc-50">
-                    {liveTotals.sc_total}
-                  </td>
-                </tr>
-
-                {/* 2. ST Row */}
-                <tr className="hover:bg-zinc-50/50 transition-colors">
-                  <td className="py-3 px-3 sm:px-4 font-semibold text-zinc-900">
-                    <div>ST (Scheduled Tribe)</div>
-                    {enrolment && (
-                      <div className="text-[10px] text-zinc-400 font-mono">
-                        Enrolled: {enrolment.totals.st_total} (B:{enrolment.st_boys} G:{enrolment.st_girls})
-                      </div>
-                    )}
-                  </td>
-                  <td className="py-2.5 px-2 sm:px-4 text-center">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      placeholder="0"
-                      disabled={isReadonlyForTeacher}
-                      value={counts.st_boys}
-                      onFocus={(e) => e.target.select()}
-                      onChange={(e) => handleInputChange('st_boys', e.target.value)}
-                      className="w-16 sm:w-24 h-10 text-center font-mono font-bold text-base bg-white border border-zinc-200 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none transition-all disabled:opacity-50"
-                    />
-                  </td>
-                  <td className="py-2.5 px-2 sm:px-4 text-center">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      placeholder="0"
-                      disabled={isReadonlyForTeacher}
-                      value={counts.st_girls}
-                      onFocus={(e) => e.target.select()}
-                      onChange={(e) => handleInputChange('st_girls', e.target.value)}
-                      className="w-16 sm:w-24 h-10 text-center font-mono font-bold text-base bg-white border border-zinc-200 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none transition-all disabled:opacity-50"
-                    />
-                  </td>
-                  <td className="py-2.5 px-3 sm:px-4 text-center font-bold font-mono text-base text-zinc-950 bg-zinc-50">
-                    {liveTotals.st_total}
-                  </td>
-                </tr>
-
-                {/* 3. BC Row */}
-                <tr className="hover:bg-zinc-50/50 transition-colors">
-                  <td className="py-3 px-3 sm:px-4 font-semibold text-zinc-900">
-                    <div>BC (Backward Class)</div>
-                    {enrolment && (
-                      <div className="text-[10px] text-zinc-400 font-mono">
-                        Enrolled: {enrolment.totals.bc_total} (B:{enrolment.bc_boys} G:{enrolment.bc_girls})
-                      </div>
-                    )}
-                  </td>
-                  <td className="py-2.5 px-2 sm:px-4 text-center">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      placeholder="0"
-                      disabled={isReadonlyForTeacher}
-                      value={counts.bc_boys}
-                      onFocus={(e) => e.target.select()}
-                      onChange={(e) => handleInputChange('bc_boys', e.target.value)}
-                      className="w-16 sm:w-24 h-10 text-center font-mono font-bold text-base bg-white border border-zinc-200 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none transition-all disabled:opacity-50"
-                    />
-                  </td>
-                  <td className="py-2.5 px-2 sm:px-4 text-center">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      placeholder="0"
-                      disabled={isReadonlyForTeacher}
-                      value={counts.bc_girls}
-                      onFocus={(e) => e.target.select()}
-                      onChange={(e) => handleInputChange('bc_girls', e.target.value)}
-                      className="w-16 sm:w-24 h-10 text-center font-mono font-bold text-base bg-white border border-zinc-200 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none transition-all disabled:opacity-50"
-                    />
-                  </td>
-                  <td className="py-2.5 px-3 sm:px-4 text-center font-bold font-mono text-base text-zinc-950 bg-zinc-50">
-                    {liveTotals.bc_total}
-                  </td>
-                </tr>
-
-                {/* 4. OC Row */}
-                <tr className="hover:bg-zinc-50/50 transition-colors">
-                  <td className="py-3 px-3 sm:px-4 font-semibold text-zinc-900">
-                    <div>OC (Other Castes / General)</div>
-                    {enrolment && (
-                      <div className="text-[10px] text-zinc-400 font-mono">
-                        Enrolled: {enrolment.totals.oc_total} (B:{enrolment.oc_boys} G:{enrolment.oc_girls})
-                      </div>
-                    )}
-                  </td>
-                  <td className="py-2.5 px-2 sm:px-4 text-center">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      placeholder="0"
-                      disabled={isReadonlyForTeacher}
-                      value={counts.oc_boys}
-                      onFocus={(e) => e.target.select()}
-                      onChange={(e) => handleInputChange('oc_boys', e.target.value)}
-                      className="w-16 sm:w-24 h-10 text-center font-mono font-bold text-base bg-white border border-zinc-200 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none transition-all disabled:opacity-50"
-                    />
-                  </td>
-                  <td className="py-2.5 px-2 sm:px-4 text-center">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      placeholder="0"
-                      disabled={isReadonlyForTeacher}
-                      value={counts.oc_girls}
-                      onFocus={(e) => e.target.select()}
-                      onChange={(e) => handleInputChange('oc_girls', e.target.value)}
-                      className="w-16 sm:w-24 h-10 text-center font-mono font-bold text-base bg-white border border-zinc-200 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none transition-all disabled:opacity-50"
-                    />
-                  </td>
-                  <td className="py-2.5 px-3 sm:px-4 text-center font-bold font-mono text-base text-zinc-950 bg-zinc-50">
-                    {liveTotals.oc_total}
-                  </td>
-                </tr>
-
-                {/* Computed Totals Row (High Contrast Vercel Black/White) */}
-                <tr className="bg-zinc-950 text-white font-mono">
-                  <td className="py-3 px-3 sm:px-4 uppercase tracking-wider text-xs font-sans font-bold">
-                    Computed Totals
-                  </td>
-                  <td className="py-3 px-2 sm:px-4 text-center text-lg font-bold">
-                    {liveTotals.boys_total} <span className="text-[10px] block font-sans text-zinc-400">Boys</span>
-                  </td>
-                  <td className="py-3 px-2 sm:px-4 text-center text-lg font-bold">
-                    {liveTotals.girls_total} <span className="text-[10px] block font-sans text-zinc-400">Girls</span>
-                  </td>
-                  <td className="py-3 px-3 sm:px-4 text-center bg-zinc-900 font-extrabold text-xl">
-                    {liveTotals.grand_total} <span className="text-[10px] block font-sans text-zinc-400 font-semibold">SECTION TOTAL</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          {/* Remarks */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
-              Remarks / Menu Items (Optional)
-            </label>
-            <input
-              type="text"
-              disabled={isReadonlyForTeacher}
-              value={remarks}
-              onChange={(e) => setRemarks(e.target.value)}
-              placeholder="e.g. Sambar, Egg Curry served..."
-              className="w-full px-3 py-2 text-xs font-medium bg-white border border-zinc-200 rounded-lg text-zinc-900 focus:border-black focus:ring-1 focus:ring-black focus:outline-none transition-all disabled:opacity-50"
+        {/* Visual Progress Bar & Category Badges */}
+        <div className="space-y-2 pt-2 border-t border-zinc-800">
+          <div className="w-full h-2 rounded-full bg-zinc-800 overflow-hidden flex">
+            <div 
+              style={{ width: `${boysPercent}%` }} 
+              className="bg-white h-full transition-all" 
+              title={`Boys: ${liveTotals.boys_total} (${boysPercent}%)`} 
+            />
+            <div 
+              style={{ width: `${girlsPercent}%` }} 
+              className="bg-zinc-500 h-full transition-all" 
+              title={`Girls: ${liveTotals.girls_total} (${girlsPercent}%)`} 
             />
           </div>
 
-          {/* Action Buttons */}
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="text-xs font-mono text-zinc-400">
-              {existingEntry ? (
-                <span>Recorded: {formatDateIndian(existingEntry.entry_date)} by {existingEntry.created_by_name}</span>
-              ) : (
-                <span>New entry for {currentSection.display_name}</span>
+          <div className="flex flex-wrap items-center justify-between text-xs font-mono text-zinc-400 pt-1">
+            <div className="flex items-center space-x-2">
+              <span className="bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700 text-zinc-200">
+                SC: <strong className="text-white">{liveTotals.sc_total}</strong>
+              </span>
+              <span className="bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700 text-zinc-200">
+                ST: <strong className="text-white">{liveTotals.st_total}</strong>
+              </span>
+              <span className="bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700 text-zinc-200">
+                BC: <strong className="text-white">{liveTotals.bc_total}</strong>
+              </span>
+              <span className="bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700 text-zinc-200">
+                OC: <strong className="text-white">{liveTotals.oc_total}</strong>
+              </span>
+            </div>
+
+            {enrolment && grandTotal > enrolment.totals.grand_total && (
+              <span className="text-amber-400 font-sans text-xs flex items-center space-x-1">
+                <AlertTriangle className="w-3.5 h-3.5" />
+                <span>Exceeds enrolment ({enrolment.totals.grand_total})</span>
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 4 CATEGORY INPUT CARDS (NO EXCEL TABLE!) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {categories.map((cat) => {
+          const isOverCapacity = cat.enrolledTotal !== null && cat.total > cat.enrolledTotal;
+
+          return (
+            <div
+              key={cat.key}
+              className={`bg-white rounded-xl border p-5 shadow-sm transition-all space-y-4 ${
+                isOverCapacity 
+                  ? 'border-amber-300 ring-1 ring-amber-300/50' 
+                  : 'border-zinc-200 hover:border-zinc-300'
+              }`}
+            >
+              {/* Category Card Header */}
+              <div className="flex items-start justify-between border-b border-zinc-100 pb-3">
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <span className="w-2 h-2 rounded-full bg-black" />
+                    <h4 className="font-bold text-base text-zinc-950 tracking-tight">
+                      {cat.name}
+                    </h4>
+                    <span className="text-xs text-zinc-400 font-medium">
+                      ({cat.fullName})
+                    </span>
+                  </div>
+                  {cat.enrolledTotal !== null && (
+                    <div className="text-[11px] font-mono text-zinc-400 mt-0.5">
+                      Enrolled: {cat.enrolledTotal} ({cat.enrolledBoys} B • {cat.enrolledGirls} G)
+                    </div>
+                  )}
+                </div>
+
+                {/* Live Category Total Badge */}
+                <div className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold border transition-colors ${
+                  isOverCapacity
+                    ? 'bg-amber-50 text-amber-900 border-amber-200'
+                    : 'bg-zinc-100 text-zinc-900 border-zinc-200'
+                }`}>
+                  {cat.total} Meals
+                </div>
+              </div>
+
+              {/* 2 Touch-Friendly Number Inputs (Boys & Girls) */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Boys Input Block */}
+                <div className="bg-zinc-50/80 rounded-xl p-3 border border-zinc-200/80 focus-within:border-black focus-within:bg-white transition-all">
+                  <div className="flex items-center justify-between text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 font-mono">
+                    <span>Boys</span>
+                    {cat.enrolledBoys !== null && (
+                      <span className="text-[10px] text-zinc-400 lowercase">max ~{cat.enrolledBoys}</span>
+                    )}
+                  </div>
+                  <div className="flex items-center space-x-1.5">
+                    <button
+                      type="button"
+                      disabled={isReadonlyForTeacher}
+                      onClick={() => handleStep(cat.boysKey, -1)}
+                      className="w-8 h-8 rounded-lg bg-white border border-zinc-200 text-zinc-600 hover:text-black hover:border-zinc-300 flex items-center justify-center shrink-0 transition-colors disabled:opacity-30 active:scale-95"
+                      title="Decrease by 1"
+                    >
+                      <Minus className="w-3.5 h-3.5" />
+                    </button>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      placeholder="0"
+                      disabled={isReadonlyForTeacher}
+                      value={cat.boysVal}
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => handleInputChange(cat.boysKey, e.target.value)}
+                      className="w-full text-center font-mono font-black text-xl text-zinc-950 bg-transparent focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      disabled={isReadonlyForTeacher}
+                      onClick={() => handleStep(cat.boysKey, 1)}
+                      className="w-8 h-8 rounded-lg bg-white border border-zinc-200 text-zinc-600 hover:text-black hover:border-zinc-300 flex items-center justify-center shrink-0 transition-colors disabled:opacity-30 active:scale-95"
+                      title="Increase by 1"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Girls Input Block */}
+                <div className="bg-zinc-50/80 rounded-xl p-3 border border-zinc-200/80 focus-within:border-black focus-within:bg-white transition-all">
+                  <div className="flex items-center justify-between text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 font-mono">
+                    <span>Girls</span>
+                    {cat.enrolledGirls !== null && (
+                      <span className="text-[10px] text-zinc-400 lowercase">max ~{cat.enrolledGirls}</span>
+                    )}
+                  </div>
+                  <div className="flex items-center space-x-1.5">
+                    <button
+                      type="button"
+                      disabled={isReadonlyForTeacher}
+                      onClick={() => handleStep(cat.girlsKey, -1)}
+                      className="w-8 h-8 rounded-lg bg-white border border-zinc-200 text-zinc-600 hover:text-black hover:border-zinc-300 flex items-center justify-center shrink-0 transition-colors disabled:opacity-30 active:scale-95"
+                      title="Decrease by 1"
+                    >
+                      <Minus className="w-3.5 h-3.5" />
+                    </button>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      placeholder="0"
+                      disabled={isReadonlyForTeacher}
+                      value={cat.girlsVal}
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => handleInputChange(cat.girlsKey, e.target.value)}
+                      className="w-full text-center font-mono font-black text-xl text-zinc-950 bg-transparent focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      disabled={isReadonlyForTeacher}
+                      onClick={() => handleStep(cat.girlsKey, 1)}
+                      className="w-8 h-8 rounded-lg bg-white border border-zinc-200 text-zinc-600 hover:text-black hover:border-zinc-300 flex items-center justify-center shrink-0 transition-colors disabled:opacity-30 active:scale-95"
+                      title="Increase by 1"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Inline Over Capacity Warning */}
+              {isOverCapacity && (
+                <div className="text-[11px] font-mono text-amber-800 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200 flex items-center space-x-1.5">
+                  <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-600" />
+                  <span>Count ({cat.total}) exceeds enrolled strength ({cat.enrolledTotal})</span>
+                </div>
               )}
             </div>
+          );
+        })}
+      </div>
 
-            <div className="flex items-center space-x-2 w-full sm:w-auto">
-              <button
-                type="button"
-                disabled={isReadonlyForTeacher}
-                onClick={() => handleSave(false)}
-                className="flex-1 sm:flex-initial bg-black hover:bg-zinc-800 text-white px-5 py-2 rounded-lg font-semibold text-xs shadow-sm flex items-center justify-center space-x-1.5 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <Save className="w-3.5 h-3.5" />
-                <span>Save Entry</span>
-              </button>
+      {/* REMARKS & QUICK MENU SUGGESTIONS CARD */}
+      <div className="bg-white rounded-xl border border-zinc-200 p-5 shadow-sm space-y-3">
+        <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 font-mono">
+          Remarks / Menu Served
+        </label>
 
-              <button
-                type="button"
-                disabled={isReadonlyForTeacher}
-                onClick={() => handleSave(true)}
-                className="flex-1 sm:flex-initial bg-white border border-zinc-300 hover:bg-zinc-50 text-zinc-900 px-4 py-2 rounded-lg font-semibold text-xs shadow-sm flex items-center justify-center space-x-1.5 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                title="Save and advance to next section"
-              >
-                <span>Save & Next</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
+        {/* Quick Menu Selection Chips */}
+        <div className="flex flex-wrap gap-1.5">
+          {quickMenuTags.map((tag) => (
+            <button
+              key={tag}
+              type="button"
+              disabled={isReadonlyForTeacher}
+              onClick={() => setRemarks(tag)}
+              className={`text-xs px-2.5 py-1 rounded-lg border transition-all ${
+                remarks === tag
+                  ? 'bg-black text-white border-black font-semibold'
+                  : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-700 border-zinc-200'
+              }`}
+            >
+              {tag}
+            </button>
+          ))}
+        </div>
+
+        <input
+          type="text"
+          disabled={isReadonlyForTeacher}
+          value={remarks}
+          onChange={(e) => setRemarks(e.target.value)}
+          placeholder="Custom notes, e.g. Special sweet distributed, Rice with sambar..."
+          className="w-full px-3.5 py-2.5 text-xs font-medium bg-zinc-50 border border-zinc-200 rounded-lg text-zinc-900 focus:bg-white focus:border-black focus:ring-1 focus:ring-black focus:outline-none transition-all disabled:opacity-50"
+        />
+      </div>
+
+      {/* ACTION BAR (Vercel Style Floating Dock) */}
+      <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="text-xs font-mono text-zinc-500 text-center sm:text-left">
+          {existingEntry ? (
+            <span>Recorded: {formatDateIndian(existingEntry.entry_date)} by <strong>{existingEntry.created_by_name}</strong></span>
+          ) : (
+            <span>Ready to save entry for <strong>{currentSection.display_name}</strong></span>
+          )}
+        </div>
+
+        <div className="flex items-center space-x-2.5 w-full sm:w-auto">
+          <button
+            type="button"
+            disabled={isReadonlyForTeacher}
+            onClick={() => handleSave(false)}
+            className="flex-1 sm:flex-initial bg-black hover:bg-zinc-800 text-white px-6 py-2.5 rounded-lg font-semibold text-xs shadow-sm flex items-center justify-center space-x-2 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Save className="w-3.5 h-3.5" />
+            <span>Save Entry</span>
+          </button>
+
+          <button
+            type="button"
+            disabled={isReadonlyForTeacher}
+            onClick={() => handleSave(true)}
+            className="flex-1 sm:flex-initial bg-white border border-zinc-300 hover:bg-zinc-50 text-zinc-900 px-5 py-2.5 rounded-lg font-semibold text-xs shadow-sm flex items-center justify-center space-x-1.5 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            title="Save and advance to next section"
+          >
+            <span>Save & Next</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
     </div>
