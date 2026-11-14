@@ -653,17 +653,10 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
 
       {/* LIVE SECTION SUMMARY DOCK (Clean, High-End Mobile Card) */}
       <div className="bg-white rounded-2xl p-4 border border-zinc-200/90 shadow-xs space-y-3">
-        {/* Header Row: Label & Enrolment Badge */}
-        <div className="flex items-center justify-between text-zinc-500 text-[11px] font-mono font-semibold uppercase tracking-wider">
-          <div className="flex items-center space-x-1.5 min-w-0">
-            <Utensils className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
-            <span className="truncate">Live Meal Attendance</span>
-          </div>
-          {enrolment && (
-            <span className="font-mono text-zinc-700 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-md font-bold text-[10px] shrink-0">
-              Max: {enrolment.totals.grand_total} Enrolled
-            </span>
-          )}
+        {/* Header Row: Label */}
+        <div className="flex items-center space-x-1.5 text-zinc-500 text-[11px] font-mono font-semibold uppercase tracking-wider">
+          <Utensils className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
+          <span>Live Meal Attendance</span>
         </div>
 
         {/* Main Number & Gender Split */}
@@ -721,14 +714,6 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
             <span className="font-extrabold text-zinc-900 text-sm mt-0.5 block">{liveTotals.oc_total}</span>
           </div>
         </div>
-
-        {/* Alert if exceeding enrolment */}
-        {enrolment && grandTotal > enrolment.totals.grand_total && (
-          <div className="text-[11px] font-mono text-amber-800 bg-amber-50 px-2.5 py-1.5 rounded-xl border border-amber-200 flex items-center space-x-1.5 mt-1">
-            <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-600" />
-            <span>Exceeds enrolled capacity ({enrolment.totals.grand_total})</span>
-          </div>
-        )}
       </div>
 
       {/* 4 CATEGORY INPUT CARDS (NO EXCEL TABLE!) */}
@@ -739,16 +724,10 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
 
       <div className="grid grid-cols-1 gap-3.5">
         {categories.map((cat) => {
-          const isOverCapacity = cat.enrolledTotal !== null && cat.total > cat.enrolledTotal;
-
           return (
             <div
               key={cat.key}
-              className={`bg-white rounded-2xl border p-4 shadow-xs transition-all space-y-3 ${
-                isOverCapacity 
-                  ? 'border-amber-400 ring-2 ring-amber-300/40' 
-                  : 'border-zinc-200 hover:border-zinc-300'
-              }`}
+              className="bg-white rounded-2xl border border-zinc-200 hover:border-zinc-300 p-4 shadow-xs transition-all space-y-3"
             >
               {/* Category Card Header */}
               <div className="flex items-center justify-between border-b border-zinc-100 pb-2.5">
@@ -763,20 +742,11 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                         ({cat.fullName})
                       </span>
                     </div>
-                    {cat.enrolledTotal !== null && (
-                      <div className="text-[10px] font-mono text-zinc-400">
-                        Enrolled: {cat.enrolledTotal} ({cat.enrolledBoys} B • {cat.enrolledGirls} G)
-                      </div>
-                    )}
                   </div>
                 </div>
 
                 {/* Live Category Total Badge */}
-                <div className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold border transition-colors shrink-0 ${
-                  isOverCapacity
-                    ? 'bg-amber-50 text-amber-900 border-amber-200'
-                    : 'bg-zinc-100 text-zinc-900 border-zinc-200'
-                }`}>
+                <div className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold border bg-zinc-100 text-zinc-900 border-zinc-200 shrink-0">
                   {cat.total} Meals
                 </div>
               </div>
@@ -788,11 +758,8 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                   onClick={() => inputRefs.current[cat.boysKey]?.focus()}
                   className="bg-zinc-50/90 rounded-xl p-2.5 border border-zinc-200/80 focus-within:border-black focus-within:ring-1 focus-within:ring-black focus-within:bg-white transition-all cursor-text"
                 >
-                  <div className="flex items-center justify-between text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1 font-mono">
+                  <div className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1 font-mono">
                     <span>Boys</span>
-                    {cat.enrolledBoys !== null && (
-                      <span className="text-[10px] text-zinc-400 lowercase">max ~{cat.enrolledBoys}</span>
-                    )}
                   </div>
                   <div className="flex items-center justify-between gap-1" onClick={(e) => e.stopPropagation()}>
                     <button
@@ -834,11 +801,8 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                   onClick={() => inputRefs.current[cat.girlsKey]?.focus()}
                   className="bg-zinc-50/90 rounded-xl p-2.5 border border-zinc-200/80 focus-within:border-black focus-within:ring-1 focus-within:ring-black focus-within:bg-white transition-all cursor-text"
                 >
-                  <div className="flex items-center justify-between text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1 font-mono">
+                  <div className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1 font-mono">
                     <span>Girls</span>
-                    {cat.enrolledGirls !== null && (
-                      <span className="text-[10px] text-zinc-400 lowercase">max ~{cat.enrolledGirls}</span>
-                    )}
                   </div>
                   <div className="flex items-center justify-between gap-1" onClick={(e) => e.stopPropagation()}>
                     <button
@@ -875,14 +839,6 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                   </div>
                 </div>
               </div>
-
-              {/* Inline Over Capacity Warning */}
-              {isOverCapacity && (
-                <div className="text-[11px] font-mono text-amber-800 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200 flex items-center space-x-1.5">
-                  <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-600" />
-                  <span>Count ({cat.total}) exceeds enrolled strength ({cat.enrolledTotal})</span>
-                </div>
-              )}
             </div>
           );
         })}
