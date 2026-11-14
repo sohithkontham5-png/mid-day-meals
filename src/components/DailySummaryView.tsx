@@ -96,54 +96,44 @@ export const DailySummaryView: React.FC<DailySummaryViewProps> = ({
 
   return (
     <div className="space-y-6 pb-20 print:p-0">
-      {/* Controls Bar (Hidden during printing) */}
-      <div className="print:hidden bg-white rounded-xl p-4 sm:p-5 border border-zinc-200 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-zinc-900 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded">
+      {/* Control Card (Hidden on Print) */}
+      <div className="print:hidden bg-white rounded-2xl p-4 border border-zinc-200/90 shadow-xs space-y-3">
+        {/* Title & Status */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-900 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-md">
               Daily Summary
             </span>
-            {summary.is_sunday && (
-              <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-zinc-600 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded">
-                Sunday
-              </span>
-            )}
-            {summary.is_holiday && (
-              <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-zinc-900 bg-zinc-100 border border-zinc-300 px-2 py-0.5 rounded">
-                Holiday: {summary.holiday_reason}
-              </span>
-            )}
             {summary.entered_sections_count === 10 ? (
-              <span className="text-[11px] font-mono font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded flex items-center space-x-1">
+              <span className="text-[11px] font-mono font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md flex items-center space-x-1">
                 <CheckCircle2 className="w-3 h-3" />
                 <span>All 10 Sections Recorded</span>
               </span>
             ) : summary.entered_sections_count > 0 ? (
-              <span className="text-[11px] font-mono font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded flex items-center space-x-1">
+              <span className="text-[11px] font-mono font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md flex items-center space-x-1">
                 <Clock className="w-3 h-3" />
                 <span>{summary.entered_sections_count} / 10 Sections Done</span>
               </span>
             ) : (
-              <span className="text-[11px] font-mono font-semibold text-zinc-500 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded">
+              <span className="text-[11px] font-mono font-semibold text-zinc-500 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-md">
                 Pending Entry
               </span>
             )}
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-950 mt-1.5">
+          <h2 className="text-xl font-bold tracking-tight text-zinc-950">
             {formatDateIndian(selectedDate)}
           </h2>
-          <p className="text-xs text-zinc-500 font-mono mt-0.5">
+          <p className="text-xs text-zinc-400 font-mono truncate">
             {school.name} • AY {academicYear.name}
           </p>
         </div>
 
-        {/* Date Selector & Action Controls */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Day Navigation */}
-          <div className="flex items-center space-x-1 bg-white border border-zinc-200 p-0.5 rounded-lg shadow-sm">
+        {/* Date Selector Navigation Row */}
+        <div className="flex items-center space-x-2">
+          <div className="flex-1 flex items-center space-x-1 bg-zinc-50 border border-zinc-200 p-0.5 rounded-xl">
             <button
               onClick={handlePrevDay}
-              className="p-1.5 hover:bg-zinc-100 rounded text-zinc-600 transition-colors"
+              className="p-1.5 hover:bg-white rounded-lg text-zinc-600 transition-colors active:scale-95"
               title="Previous Day"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
@@ -153,15 +143,15 @@ export const DailySummaryView: React.FC<DailySummaryViewProps> = ({
               max={todayStr}
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="px-2 py-1 text-xs font-mono bg-transparent border-none text-zinc-900 focus:outline-none cursor-pointer"
+              className="flex-1 px-2 py-1 text-xs font-mono bg-transparent border-none text-zinc-900 focus:outline-none cursor-pointer text-center"
             />
             <button
               onClick={handleNextDay}
               disabled={selectedDate >= todayStr}
-              className={`p-1.5 rounded transition-colors ${
+              className={`p-1.5 rounded-lg transition-colors active:scale-95 ${
                 selectedDate >= todayStr
                   ? 'text-zinc-300 cursor-not-allowed'
-                  : 'hover:bg-zinc-100 text-zinc-600'
+                  : 'hover:bg-white text-zinc-600'
               }`}
               title="Next Day"
             >
@@ -169,81 +159,81 @@ export const DailySummaryView: React.FC<DailySummaryViewProps> = ({
             </button>
           </div>
 
-          {/* View Mode Switcher */}
-          <div className="flex items-center bg-zinc-100 p-0.5 rounded-lg border border-zinc-200">
-            <button
-              onClick={() => setViewMode('cards')}
-              className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all ${
-                viewMode === 'cards'
-                  ? 'bg-white text-zinc-950 font-semibold shadow-xs'
-                  : 'text-zinc-600 hover:text-zinc-950'
-              }`}
-            >
-              <LayoutGrid className="w-3.5 h-3.5" />
-              <span>Cards</span>
-            </button>
-            <button
-              onClick={() => setViewMode('register')}
-              className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all ${
-                viewMode === 'register'
-                  ? 'bg-white text-zinc-950 font-semibold shadow-xs'
-                  : 'text-zinc-600 hover:text-zinc-950'
-              }`}
-            >
-              <TableIcon className="w-3.5 h-3.5" />
-              <span>Register</span>
-            </button>
-          </div>
+          {/* Lock / Unlock buttons for Headmaster */}
+          {currentUser.role === 'headmaster' && summary.entered_sections_count > 0 && (
+            <div className="flex items-center space-x-1 shrink-0">
+              <button
+                onClick={() => handleLockAllForDate(true)}
+                className="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border border-zinc-200 text-xs font-medium p-2 rounded-xl transition-all"
+                title="Lock all entries for this date"
+              >
+                <Lock className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => handleLockAllForDate(false)}
+                className="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border border-zinc-200 text-xs font-medium p-2 rounded-xl transition-all"
+                title="Unlock all entries for this date"
+              >
+                <Unlock className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+        </div>
 
-          {/* Exports */}
+        {/* View Mode Switcher: Cards vs Register (2 Equal Tabs) */}
+        <div className="grid grid-cols-2 gap-1 bg-zinc-100 p-1 rounded-xl">
+          <button
+            onClick={() => setViewMode('cards')}
+            className={`flex items-center justify-center space-x-1.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              viewMode === 'cards'
+                ? 'bg-white text-zinc-950 font-bold shadow-xs'
+                : 'text-zinc-600 hover:text-zinc-950'
+            }`}
+          >
+            <LayoutGrid className="w-3.5 h-3.5" />
+            <span>Cards</span>
+          </button>
+          <button
+            onClick={() => setViewMode('register')}
+            className={`flex items-center justify-center space-x-1.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              viewMode === 'register'
+                ? 'bg-white text-zinc-950 font-bold shadow-xs'
+                : 'text-zinc-600 hover:text-zinc-950'
+            }`}
+          >
+            <TableIcon className="w-3.5 h-3.5" />
+            <span>Register</span>
+          </button>
+        </div>
+
+        {/* Action Buttons: Excel, PDF, Print */}
+        <div className="flex items-center space-x-2 pt-0.5">
           <button
             onClick={() => exportDailySummaryToExcel(summary, school, academicYear)}
-            className="bg-black hover:bg-zinc-800 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-sm flex items-center space-x-1.5 transition-all"
+            className="flex-1 bg-black hover:bg-zinc-800 text-white text-xs font-semibold py-2 px-3 rounded-xl shadow-xs flex items-center justify-center space-x-1.5 transition-all active:scale-95"
             title="Download Excel spreadsheet"
           >
             <FileSpreadsheet className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Excel</span>
+            <span>Excel</span>
           </button>
 
           <button
             onClick={() => exportDailySummaryToPDF(summary, school, academicYear)}
-            className="bg-white hover:bg-zinc-50 border border-zinc-300 text-zinc-900 text-xs font-semibold px-2.5 py-1.5 rounded-lg shadow-sm flex items-center space-x-1.5 transition-all"
+            className="flex-1 bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-900 text-xs font-semibold py-2 px-3 rounded-xl shadow-xs flex items-center justify-center space-x-1.5 transition-all active:scale-95"
             title="Download PDF"
           >
             <FileText className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">PDF</span>
+            <span>PDF</span>
           </button>
 
           <button
             onClick={handlePrint}
-            className="bg-white hover:bg-zinc-50 border border-zinc-300 text-zinc-900 text-xs font-semibold px-2.5 py-1.5 rounded-lg shadow-sm flex items-center space-x-1.5 transition-all"
+            className="bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-900 text-xs font-semibold py-2 px-3 rounded-xl shadow-xs flex items-center justify-center space-x-1.5 transition-all active:scale-95 shrink-0"
             title="Print"
           >
             <Printer className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Print</span>
+            <span>Print</span>
           </button>
-
-          {/* Lock / Unlock (Headmaster only) */}
-          {currentUser.role === 'headmaster' && summary.entered_sections_count > 0 && (
-            <div className="flex items-center space-x-1 border-l border-zinc-200 pl-2">
-              <button
-                onClick={() => handleLockAllForDate(true)}
-                className="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border border-zinc-200 text-xs font-medium px-2 py-1.5 rounded-lg flex items-center space-x-1"
-                title="Lock all entries for this date"
-              >
-                <Lock className="w-3 h-3" />
-                <span className="hidden md:inline">Lock All</span>
-              </button>
-              <button
-                onClick={() => handleLockAllForDate(false)}
-                className="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border border-zinc-200 text-xs font-medium px-2 py-1.5 rounded-lg flex items-center space-x-1"
-                title="Unlock all entries for this date"
-              >
-                <Unlock className="w-3 h-3" />
-                <span className="hidden md:inline">Unlock All</span>
-              </button>
-            </div>
-          )}
         </div>
       </div>
 

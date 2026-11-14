@@ -104,42 +104,43 @@ export const MonthlySummaryView: React.FC<MonthlySummaryViewProps> = ({
 
   return (
     <div className="space-y-6 pb-20 print:p-0">
-      {/* Control Bar (Hidden on Print) */}
-      <div className="print:hidden bg-white rounded-xl p-4 sm:p-5 border border-zinc-200 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center space-x-2">
-            <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-zinc-900 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded">
+      {/* Control Card (Hidden on Print) */}
+      <div className="print:hidden bg-white rounded-2xl p-4 border border-zinc-200/90 shadow-xs space-y-3">
+        {/* Title Header */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-900 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-md">
               Monthly Register
             </span>
             <span className="text-[11px] font-mono text-zinc-500">
-              {summary.working_days} Working Days • {summary.days_with_meals} Recorded
+              {summary.working_days} Days • {summary.days_with_meals} Recorded
             </span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-950 mt-1.5">
+          <h2 className="text-xl font-bold tracking-tight text-zinc-950">
             {monthNames[selectedMonth - 1]} {selectedYear}
           </h2>
-          <p className="text-xs text-zinc-500 font-mono mt-0.5">
+          <p className="text-xs text-zinc-400 font-mono truncate">
             {school.name} • AY {academicYear.name}
           </p>
         </div>
 
-        {/* Filter and Export buttons */}
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Month Selector Navigation & Scope Filter Row */}
+        <div className="flex items-center space-x-2">
           {/* Month selector navigation */}
-          <div className="flex items-center space-x-1 bg-white border border-zinc-200 p-0.5 rounded-lg shadow-sm">
+          <div className="flex items-center space-x-1 bg-zinc-50 border border-zinc-200 p-0.5 rounded-xl shrink-0">
             <button
               onClick={handlePrevMonth}
-              className="p-1.5 hover:bg-zinc-100 rounded text-zinc-600 transition-colors"
+              className="p-1.5 hover:bg-white rounded-lg text-zinc-600 transition-colors active:scale-95"
               title="Previous Month"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
             </button>
-            <span className="text-xs font-mono font-semibold text-zinc-900 px-2 min-w-[85px] text-center">
+            <span className="text-xs font-mono font-bold text-zinc-900 px-2 min-w-[75px] text-center">
               {monthNames[selectedMonth - 1].substring(0, 3)} {selectedYear}
             </span>
             <button
               onClick={handleNextMonth}
-              className="p-1.5 hover:bg-zinc-100 rounded text-zinc-600 transition-colors"
+              className="p-1.5 hover:bg-white rounded-lg text-zinc-600 transition-colors active:scale-95"
               title="Next Month"
             >
               <ChevronRight className="w-3.5 h-3.5" />
@@ -147,12 +148,11 @@ export const MonthlySummaryView: React.FC<MonthlySummaryViewProps> = ({
           </div>
 
           {/* Scope Filter */}
-          <div className="flex items-center space-x-1.5">
-            <Filter className="w-3.5 h-3.5 text-zinc-400" />
+          <div className="flex-1 min-w-0">
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className="text-xs font-medium bg-white border border-zinc-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-black focus:ring-1 focus:ring-black cursor-pointer"
+              className="w-full text-xs font-medium bg-zinc-50 border border-zinc-200 rounded-xl px-2.5 py-1.5 focus:bg-white focus:outline-none focus:border-black focus:ring-1 focus:ring-black cursor-pointer truncate"
             >
               <option value="all">All Classes (Grand Total)</option>
               <option value="G1">Group 1 (Classes 6-8)</option>
@@ -166,73 +166,75 @@ export const MonthlySummaryView: React.FC<MonthlySummaryViewProps> = ({
               </optgroup>
             </select>
           </div>
+        </div>
 
-          {/* View Mode Switcher */}
-          <div className="flex items-center bg-zinc-100 p-0.5 rounded-lg border border-zinc-200">
-            <button
-              onClick={() => setViewMode('cards')}
-              className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all ${
-                viewMode === 'cards'
-                  ? 'bg-white text-zinc-950 font-semibold shadow-xs'
-                  : 'text-zinc-600 hover:text-zinc-950'
-              }`}
-              title="Calendar Cards"
-            >
-              <LayoutGrid className="w-3.5 h-3.5" />
-              <span>Cards</span>
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all ${
-                viewMode === 'list'
-                  ? 'bg-white text-zinc-950 font-semibold shadow-xs'
-                  : 'text-zinc-600 hover:text-zinc-950'
-              }`}
-              title="Daily List Feed"
-            >
-              <List className="w-3.5 h-3.5" />
-              <span>List</span>
-            </button>
-            <button
-              onClick={() => setViewMode('ledger')}
-              className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all ${
-                viewMode === 'ledger'
-                  ? 'bg-white text-zinc-950 font-semibold shadow-xs'
-                  : 'text-zinc-600 hover:text-zinc-950'
-              }`}
-              title="Official Ledger Table"
-            >
-              <TableIcon className="w-3.5 h-3.5" />
-              <span>Ledger</span>
-            </button>
-          </div>
+        {/* View Mode Switcher (Full Width 3 Equal Tabs) */}
+        <div className="grid grid-cols-3 gap-1 bg-zinc-100 p-1 rounded-xl">
+          <button
+            onClick={() => setViewMode('cards')}
+            className={`flex items-center justify-center space-x-1.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              viewMode === 'cards'
+                ? 'bg-white text-zinc-950 font-bold shadow-xs'
+                : 'text-zinc-600 hover:text-zinc-950'
+            }`}
+            title="Calendar Cards"
+          >
+            <LayoutGrid className="w-3.5 h-3.5" />
+            <span>Cards</span>
+          </button>
+          <button
+            onClick={() => setViewMode('list')}
+            className={`flex items-center justify-center space-x-1.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              viewMode === 'list'
+                ? 'bg-white text-zinc-950 font-bold shadow-xs'
+                : 'text-zinc-600 hover:text-zinc-950'
+            }`}
+            title="Daily List Feed"
+          >
+            <List className="w-3.5 h-3.5" />
+            <span>List</span>
+          </button>
+          <button
+            onClick={() => setViewMode('ledger')}
+            className={`flex items-center justify-center space-x-1.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              viewMode === 'ledger'
+                ? 'bg-white text-zinc-950 font-bold shadow-xs'
+                : 'text-zinc-600 hover:text-zinc-950'
+            }`}
+            title="Official Ledger Table"
+          >
+            <TableIcon className="w-3.5 h-3.5" />
+            <span>Ledger</span>
+          </button>
+        </div>
 
-          {/* Export Actions */}
+        {/* Export Actions Row */}
+        <div className="flex items-center space-x-2 pt-0.5">
           <button
             onClick={() => exportMonthlySummaryToExcel(selectedYear, selectedMonth, school)}
-            className="bg-black hover:bg-zinc-800 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-sm flex items-center space-x-1.5 transition-all"
+            className="flex-1 bg-black hover:bg-zinc-800 text-white text-xs font-semibold py-2 px-3 rounded-xl shadow-xs flex items-center justify-center space-x-1.5 transition-all active:scale-95"
             title="Download Excel spreadsheet"
           >
             <FileSpreadsheet className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Excel</span>
+            <span>Excel</span>
           </button>
 
           <button
             onClick={() => exportMonthlySummaryToPDF(selectedYear, selectedMonth, school)}
-            className="bg-white hover:bg-zinc-50 border border-zinc-300 text-zinc-900 text-xs font-semibold px-2.5 py-1.5 rounded-lg shadow-sm flex items-center space-x-1.5 transition-all"
+            className="flex-1 bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-900 text-xs font-semibold py-2 px-3 rounded-xl shadow-xs flex items-center justify-center space-x-1.5 transition-all active:scale-95"
             title="Download PDF"
           >
             <FileText className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">PDF</span>
+            <span>PDF</span>
           </button>
 
           <button
             onClick={handlePrint}
-            className="bg-white hover:bg-zinc-50 border border-zinc-300 text-zinc-900 text-xs font-semibold px-2.5 py-1.5 rounded-lg shadow-sm flex items-center space-x-1.5 transition-all"
+            className="bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-900 text-xs font-semibold py-2 px-3 rounded-xl shadow-xs flex items-center justify-center space-x-1.5 transition-all active:scale-95 shrink-0"
             title="Print Monthly Register"
           >
             <Printer className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Print</span>
+            <span>Print</span>
           </button>
         </div>
       </div>
