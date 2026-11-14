@@ -650,7 +650,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               <span className="text-[11px] text-zinc-400">Click "Edit" on any section to configure capacity</span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-3.5">
               {sections.map((sec) => {
                 const enr = enrolments.find((e) => e.section_id === sec.id);
                 const isSelectedForEdit = editingEnrSectionId === sec.id;
@@ -855,7 +855,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           )}
 
           {/* Staff Directory Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          <div className="grid grid-cols-1 gap-3">
             {users.map((u) => {
               const isEditing = editingUserId === u.id;
               const isSelf = u.id === currentUser.id;

@@ -131,7 +131,7 @@ export const AuditLogView: React.FC<AuditLogViewProps> = ({ currentUser }) => {
 
                   {/* Expanded JSON details */}
                   {isExpanded && (
-                    <div className="mt-3 pt-3 border-t border-zinc-100 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
+                    <div className="mt-3 pt-3 border-t border-zinc-100 grid grid-cols-1 gap-2.5 text-xs font-mono">
                       <div className="bg-zinc-50 p-3 rounded-lg border border-zinc-200">
                         <div className="text-[10px] font-semibold text-zinc-500 uppercase mb-1">
                           Previous State (Old)
