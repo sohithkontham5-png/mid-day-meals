@@ -13,7 +13,6 @@ import { MonthlySummaryView } from './components/MonthlySummaryView';
 import { AdminPanel } from './components/AdminPanel';
 import { AuditLogView } from './components/AuditLogView';
 import { LoginPinModal } from './components/LoginPinModal';
-import { CloudSyncSettings } from './components/CloudSyncSettings';
 import { getTodayDateStr } from './lib/calculations';
 import { Smartphone, Maximize2 } from 'lucide-react';
 
@@ -37,7 +36,6 @@ export function App() {
 
   // Modals & Drawer
   const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
-  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // Desktop Simulator Display Mode: 'phone' (realistic iPhone/Android chassis) or 'full' (responsive mobile view)
@@ -201,7 +199,7 @@ export function App() {
         {/* Mobile Top Status Bar (Time, Dynamic Island, 5G, Wi-Fi, Battery) */}
         <MobileStatusBar />
 
-        {/* Mobile Top App Bar (Brand, Title, Staff Badge, Settings, Drawer Menu) */}
+        {/* Mobile Top App Bar (Brand, Title, Staff Badge, Drawer Menu) */}
         <MobileTopBar
           currentUser={currentUser}
           school={school}
@@ -209,7 +207,6 @@ export function App() {
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           onOpenStaffModal={() => setIsStaffModalOpen(true)}
-          onOpenSettingsModal={() => setIsSettingsModalOpen(true)}
           onOpenDrawer={() => setIsDrawerOpen(true)}
           isOnline={isOnline}
         />
@@ -238,7 +235,6 @@ export function App() {
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           onOpenStaffModal={() => setIsStaffModalOpen(true)}
-          onOpenSettingsModal={() => setIsSettingsModalOpen(true)}
         />
       </div>
 
@@ -248,17 +244,6 @@ export function App() {
         onClose={() => setIsStaffModalOpen(false)}
         onLoginSuccess={handleLoginSuccess}
         currentUser={currentUser}
-      />
-
-      {/* Database & Cloud Sync Settings Modal */}
-      <CloudSyncSettings
-        isOpen={isSettingsModalOpen}
-        onClose={() => setIsSettingsModalOpen(false)}
-        onDataReset={() => {
-          setCurrentUser(StorageService.getCurrentUser());
-          setSchool(StorageService.getSchool());
-          setAcademicYear(StorageService.getAcademicYear());
-        }}
       />
     </div>
   );

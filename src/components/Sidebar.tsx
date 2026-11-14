@@ -6,7 +6,6 @@ import {
   FileText, 
   Shield, 
   History, 
-  Settings, 
   UserCheck, 
   Wifi, 
   WifiOff, 
@@ -26,7 +25,6 @@ interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   onOpenStaffModal: () => void;
-  onOpenSettingsModal: () => void;
   isOnline: boolean;
 }
 
@@ -37,7 +35,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   setActiveTab,
   onOpenStaffModal,
-  onOpenSettingsModal,
   isOnline,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -48,7 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'entry', label: 'Daily Entry', icon: Utensils },
     { id: 'daily-summary', label: 'Daily Summary', icon: Calendar },
-    { id: 'monthly-summary', label: 'Monthly Register', icon: FileText },
+    { id: 'monthly-summary', label: 'Monthly Summary', icon: FileText },
   ];
 
   const adminNavItems = [
@@ -203,13 +200,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
               <UserCheck className="w-3.5 h-3.5" />
             </button>
-            <button
-              onClick={onOpenSettingsModal}
-              className="p-1 hover:bg-zinc-100 rounded text-zinc-400 hover:text-black transition-colors"
-              title="Database Settings"
-            >
-              <Settings className="w-3.5 h-3.5" />
-            </button>
           </div>
         </div>
       </div>
@@ -248,15 +238,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <span className="font-semibold text-zinc-800 text-[11px] truncate max-w-[70px]">
               {currentUser.name.split(' ')[0]}
             </span>
-          </button>
-
-          {/* Database Settings Gear */}
-          <button
-            onClick={onOpenSettingsModal}
-            className="p-1.5 rounded-lg text-zinc-500 hover:text-black hover:bg-zinc-100 active:scale-95 transition-all"
-            title="Cloud & Database Settings"
-          >
-            <Settings className="w-4 h-4" />
           </button>
 
           {/* More Menu (Drawer) */}

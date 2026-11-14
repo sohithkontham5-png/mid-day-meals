@@ -1,6 +1,5 @@
 import React from 'react';
 import { 
-  Settings, 
   Menu, 
   ArrowLeft, 
   UserCheck 
@@ -14,7 +13,6 @@ interface MobileTopBarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   onOpenStaffModal: () => void;
-  onOpenSettingsModal: () => void;
   onOpenDrawer: () => void;
   isOnline: boolean;
 }
@@ -25,7 +23,6 @@ export const MobileTopBar: React.FC<MobileTopBarProps> = ({
   activeTab,
   setActiveTab,
   onOpenStaffModal,
-  onOpenSettingsModal,
   onOpenDrawer,
   isOnline,
 }) => {
@@ -36,7 +33,7 @@ export const MobileTopBar: React.FC<MobileTopBarProps> = ({
     'dashboard': 'MDM Register',
     'entry': 'Meal Entry',
     'daily-summary': 'Daily Summary',
-    'monthly-summary': 'Monthly Register',
+    'monthly-summary': 'Monthly Summary',
     'admin': 'School Admin',
     'audit': 'Audit Trail',
   };
@@ -66,7 +63,7 @@ export const MobileTopBar: React.FC<MobileTopBarProps> = ({
             </span>
             <span 
               className={`w-1.5 h-1.5 rounded-full shrink-0 ${isOnline ? 'bg-emerald-500' : 'bg-amber-500'}`} 
-              title={isOnline ? 'Online (Supabase Ready)' : 'Offline (Local Storage)'} 
+              title={isOnline ? 'Online' : 'Offline'} 
             />
           </div>
           <div className="text-[10px] text-zinc-400 font-mono truncate max-w-[150px] leading-tight mt-0.5">
@@ -75,7 +72,7 @@ export const MobileTopBar: React.FC<MobileTopBarProps> = ({
         </div>
       </div>
 
-      {/* Right side: Staff Switcher Pill + Settings Gear + Menu Drawer */}
+      {/* Right side: Staff Switcher Pill + Menu Drawer */}
       <div className="flex items-center space-x-1.5 shrink-0">
         {/* Staff Switcher Chip */}
         <button
@@ -89,15 +86,6 @@ export const MobileTopBar: React.FC<MobileTopBarProps> = ({
           <span className="font-semibold text-zinc-800 text-[11px] truncate max-w-[65px]">
             {currentUser.name.split(' ')[0]}
           </span>
-        </button>
-
-        {/* Database Settings Gear */}
-        <button
-          onClick={onOpenSettingsModal}
-          className="p-1.5 rounded-lg text-zinc-500 hover:text-black hover:bg-zinc-100 active:scale-95 transition-all"
-          title="Cloud Database & Backup Settings"
-        >
-          <Settings className="w-4 h-4" />
         </button>
 
         {/* Drawer Menu Button */}

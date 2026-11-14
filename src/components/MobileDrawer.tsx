@@ -7,16 +7,10 @@ import {
   FileText, 
   Shield, 
   History, 
-  Settings, 
   UserCheck, 
-  Download, 
-  RotateCcw,
-  Sparkles,
-  School as SchoolIcon,
   ChevronRight
 } from 'lucide-react';
 import { User, School, AcademicYear } from '../types';
-import { StorageService } from '../lib/storage';
 
 interface MobileDrawerProps {
   isOpen: boolean;
@@ -27,7 +21,6 @@ interface MobileDrawerProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   onOpenStaffModal: () => void;
-  onOpenSettingsModal: () => void;
 }
 
 export const MobileDrawer: React.FC<MobileDrawerProps> = ({
@@ -39,7 +32,6 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
   activeTab,
   setActiveTab,
   onOpenStaffModal,
-  onOpenSettingsModal,
 }) => {
   if (!isOpen) return null;
 
@@ -49,17 +41,6 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
     setActiveTab(tab);
     onClose();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleExportBackup = () => {
-    const backup = StorageService.exportFullBackup();
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(backup, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute('href', dataStr);
-    downloadAnchor.setAttribute('download', `MDM_School_Backup_${new Date().toISOString().split('T')[0]}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
   };
 
   return (
@@ -197,41 +178,6 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
               </button>
             </div>
           )}
-
-          {/* Data & Database Tools */}
-          <div className="space-y-1 pt-2 border-t border-zinc-100">
-            <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 px-3 py-1 font-semibold">
-              Data & Cloud
-            </div>
-
-            <button
-              onClick={() => {
-                onOpenSettingsModal();
-                onClose();
-              }}
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium text-zinc-700 hover:bg-zinc-100 transition-colors"
-            >
-              <div className="flex items-center space-x-2.5">
-                <Settings className="w-4 h-4 text-zinc-500" />
-                <span>Supabase Database & Sync</span>
-              </div>
-              <ChevronRight className="w-3.5 h-3.5 opacity-50" />
-            </button>
-
-            <button
-              onClick={() => {
-                handleExportBackup();
-                onClose();
-              }}
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium text-zinc-700 hover:bg-zinc-100 transition-colors"
-            >
-              <div className="flex items-center space-x-2.5">
-                <Download className="w-4 h-4 text-zinc-500" />
-                <span>Download Offline Backup</span>
-              </div>
-              <span className="text-[9px] font-mono px-1 bg-zinc-100 rounded text-zinc-600">JSON</span>
-            </button>
-          </div>
         </div>
 
         {/* Footer: User profile info & switch button */}
