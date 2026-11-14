@@ -51,11 +51,29 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
   const sections = StorageService.getSections();
   const todayStr = getTodayDateStr();
 
-  // Selected date & section
+  // Selected date, class & section
   const [selectedDate, setSelectedDate] = useState<string>(initialDate || todayStr);
-  const [selectedSectionId, setSelectedSectionId] = useState<string>(
-    initialSectionId || currentUser.assigned_section_id || sections[0].id
-  );
+  
+  const initialSec = sections.find((s) => s.id === (initialSectionId || currentUser.assigned_section_id)) || sections[0];
+  const [selectedClass, setSelectedClass] = useState<number>(initialSec.class_number);
+  const [selectedSectionName, setSelectedSectionName] = useState<'A' | 'B'>(initialSec.name);
+
+  // Synchronize when initialSectionId changes from outside
+  useEffect(() => {
+    if (initialSectionId) {
+      const sec = sections.find((s) => s.id === initialSectionId);
+      if (sec) {
+        setSelectedClass(sec.class_number);
+        setSelectedSectionName(sec.name);
+      }
+    }
+  }, [initialSectionId]);
+
+  // Active section item
+  const currentSection = sections.find(
+    (s) => s.class_number === selectedClass && s.name === selectedSectionName
+  ) || sections[0];
+  const selectedSectionId = currentSection.id;
 
   // Form values (string for input state)
   const [counts, setCounts] = useState<{
@@ -86,7 +104,6 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
   const [successMsg, setSuccessMsg] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string>('');
 
-  const currentSection = sections.find((s) => s.id === selectedSectionId) || sections[0];
   const isTeacher = currentUser.role === 'teacher';
   const isHeadmaster = currentUser.role === 'headmaster';
 
@@ -242,9 +259,13 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
       if (onSaved) onSaved();
 
       if (moveToNext) {
-        const currentIndex = sections.findIndex((s) => s.id === selectedSectionId);
-        const nextIndex = (currentIndex + 1) % sections.length;
-        setSelectedSectionId(sections[nextIndex].id);
+        if (selectedSectionName === 'A') {
+          setSelectedSectionName('B');
+        } else {
+          const nextClass = selectedClass < 10 ? selectedClass + 1 : 6;
+          setSelectedClass(nextClass);
+          setSelectedSectionName('A');
+        }
       }
     } else {
       setErrorMsg(result.message || 'Failed to save entry.');
@@ -400,74 +421,123 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
           </div>
         </div>
 
-        {/* Section Picker Pills Grid (Classes 6-10 with Section A and B) */}
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <label className="text-[11px] font-mono font-semibold uppercase tracking-wider text-zinc-400">
-              Select Class & Section
-            </label>
+        {/* Step 1: Select Class (Classes 6 to 10) */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-zinc-500">
+              Step 1: Select Class
+            </span>
             <span className="text-xs font-mono text-zinc-500">
-              Currently: <strong className="text-zinc-950 font-bold">{currentSection.display_name}</strong>
+              Active: <strong className="text-zinc-950 font-bold">Class {selectedClass}</strong>
             </span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+          <div className="grid grid-cols-5 gap-2">
             {[6, 7, 8, 9, 10].map((classNum) => {
               const secA = sections.find((s) => s.class_number === classNum && s.name === 'A');
               const secB = sections.find((s) => s.class_number === classNum && s.name === 'B');
-
-              const isASelected = secA?.id === selectedSectionId;
-              const isBSelected = secB?.id === selectedSectionId;
-
-              // Check if entry exists for this date
               const entryA = secA ? StorageService.getEntry(selectedDate, secA.id) : null;
               const entryB = secB ? StorageService.getEntry(selectedDate, secB.id) : null;
+              const isSelected = selectedClass === classNum;
+              const doneCount = (entryA ? 1 : 0) + (entryB ? 1 : 0);
+              const classTotalMeals = (entryA?.totals.grand_total ?? 0) + (entryB?.totals.grand_total ?? 0);
 
               return (
-                <div 
-                  key={classNum} 
-                  className="bg-zinc-50 border border-zinc-200/80 rounded-xl p-2 flex flex-col justify-between"
+                <button
+                  key={classNum}
+                  type="button"
+                  onClick={() => setSelectedClass(classNum)}
+                  className={`p-3 rounded-xl border text-center transition-all flex flex-col justify-between ${
+                    isSelected
+                      ? 'bg-black text-white border-black shadow-md ring-2 ring-black/20'
+                      : 'bg-zinc-50/80 border-zinc-200 text-zinc-700 hover:border-zinc-400 hover:bg-white'
+                  }`}
                 >
-                  <div className="text-[10px] font-mono font-bold text-zinc-400 uppercase mb-1.5 px-1">
+                  <div className="flex items-center justify-between w-full">
+                    <span className="text-[10px] font-mono uppercase opacity-70">
+                      {classNum <= 8 ? 'UP' : 'HS'}
+                    </span>
+                    {doneCount === 2 ? (
+                      <span className="w-2 h-2 rounded-full bg-emerald-400" title="Both sections recorded" />
+                    ) : doneCount === 1 ? (
+                      <span className="w-2 h-2 rounded-full bg-amber-400" title="1 section recorded" />
+                    ) : (
+                      <span className="w-2 h-2 rounded-full bg-zinc-300" title="Pending" />
+                    )}
+                  </div>
+
+                  <div className="text-base sm:text-lg font-black font-mono my-1">
                     Class {classNum}
                   </div>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {/* Section A Button */}
-                    {secA && (
-                      <button
-                        type="button"
-                        onClick={() => setSelectedSectionId(secA.id)}
-                        className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold transition-all flex items-center justify-center space-x-1 ${
-                          isASelected
-                            ? 'bg-black text-white shadow-xs'
-                            : 'bg-white border border-zinc-200 text-zinc-700 hover:border-zinc-400'
-                        }`}
-                        title={`Class ${classNum} - Section A`}
-                      >
-                        <span>A</span>
-                        {entryA && (
-                          <span className={`w-1.5 h-1.5 rounded-full ${isASelected ? 'bg-white' : 'bg-emerald-500'}`} />
-                        )}
-                      </button>
-                    )}
 
-                    {/* Section B Button */}
-                    {secB && (
-                      <button
-                        type="button"
-                        onClick={() => setSelectedSectionId(secB.id)}
-                        className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold transition-all flex items-center justify-center space-x-1 ${
-                          isBSelected
-                            ? 'bg-black text-white shadow-xs'
-                            : 'bg-white border border-zinc-200 text-zinc-700 hover:border-zinc-400'
-                        }`}
-                        title={`Class ${classNum} - Section B`}
-                      >
-                        <span>B</span>
-                        {entryB && (
-                          <span className={`w-1.5 h-1.5 rounded-full ${isBSelected ? 'bg-white' : 'bg-emerald-500'}`} />
+                  <div className={`text-[10px] font-mono truncate ${isSelected ? 'text-zinc-300' : 'text-zinc-500'}`}>
+                    {doneCount > 0 ? `${classTotalMeals} meals` : 'Pending'}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Step 2: Select Section (Section A and Section B of the selected Class) */}
+        <div className="space-y-2 pt-2 border-t border-zinc-100">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-zinc-500">
+              Step 2: Select Section for Class {selectedClass}
+            </span>
+            <span className="text-xs font-mono text-zinc-500">
+              Currently Editing: <strong className="text-zinc-950 font-bold">{currentSection.display_name}</strong>
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {(['A', 'B'] as const).map((secName) => {
+              const secItem = sections.find((s) => s.class_number === selectedClass && s.name === secName);
+              if (!secItem) return null;
+              const entry = StorageService.getEntry(selectedDate, secItem.id);
+              const enr = StorageService.getEnrolmentForSection(secItem.id);
+              const isSelected = selectedSectionName === secName;
+              const isRecorded = !!entry;
+
+              return (
+                <div
+                  key={secName}
+                  onClick={() => setSelectedSectionName(secName)}
+                  className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
+                    isSelected
+                      ? 'border-black ring-2 ring-black bg-white shadow-sm'
+                      : 'border-zinc-200 bg-zinc-50/70 hover:bg-white hover:border-zinc-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2.5">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs font-mono ${
+                        isSelected ? 'bg-black text-white' : 'bg-zinc-200 text-zinc-800'
+                      }`}>
+                        {secName}
+                      </div>
+                      <div>
+                        <div className="font-bold text-sm text-zinc-950">
+                          Class {selectedClass} - Section {secName}
+                        </div>
+                        {enr && (
+                          <div className="text-[11px] font-mono text-zinc-400">
+                            Enrolled: {enr.totals.grand_total} Students
+                          </div>
                         )}
-                      </button>
+                      </div>
+                    </div>
+
+                    {isRecorded ? (
+                      <span className="text-[11px] font-mono font-semibold px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center space-x-1">
+                        <CheckCircle2 className="w-3 h-3" />
+                        <span>{entry.totals.grand_total} Meals</span>
+                      </span>
+                    ) : (
+                      <span className="text-[11px] font-mono font-semibold px-2.5 py-1 rounded bg-amber-50 text-amber-700 border border-amber-200 flex items-center space-x-1">
+                        <Clock className="w-3 h-3" />
+                        <span>Pending</span>
+                      </span>
                     )}
                   </div>
                 </div>
@@ -775,7 +845,7 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
             className="flex-1 sm:flex-initial bg-black hover:bg-zinc-800 text-white px-6 py-2.5 rounded-lg font-semibold text-xs shadow-sm flex items-center justify-center space-x-2 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Save className="w-3.5 h-3.5" />
-            <span>Save Entry</span>
+            <span>Save Section {selectedSectionName}</span>
           </button>
 
           <button
@@ -785,7 +855,11 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
             className="flex-1 sm:flex-initial bg-white border border-zinc-300 hover:bg-zinc-50 text-zinc-900 px-5 py-2.5 rounded-lg font-semibold text-xs shadow-sm flex items-center justify-center space-x-1.5 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             title="Save and advance to next section"
           >
-            <span>Save & Next</span>
+            <span>
+              {selectedSectionName === 'A' 
+                ? 'Save & Go to Section B' 
+                : `Save & Go to Class ${selectedClass < 10 ? selectedClass + 1 : 6}`}
+            </span>
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>

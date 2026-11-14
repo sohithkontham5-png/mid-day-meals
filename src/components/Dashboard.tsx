@@ -266,56 +266,114 @@ export const Dashboard: React.FC<DashboardProps> = ({
           />
         </div>
 
-        {/* 10 Sections Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-1">
-          {tracker.sections.map((sec) => {
-            const isEntered = sec.is_entered;
-            const isUserAssigned = sec.section_id === currentUser.assigned_section_id;
+        {/* Class-wise Sections Grid (Classes 6 to 10) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-1">
+          {[6, 7, 8, 9, 10].map((classNum) => {
+            const secA = tracker.sections.find((s) => s.class_number === classNum && s.section_name === 'A');
+            const secB = tracker.sections.find((s) => s.class_number === classNum && s.section_name === 'B');
+            const classTotalMeals = (secA?.grand_total ?? 0) + (secB?.grand_total ?? 0);
+            const bothDone = secA?.is_entered && secB?.is_entered;
+            const oneDone = (secA?.is_entered || secB?.is_entered) && !bothDone;
 
             return (
               <div
-                key={sec.section_id}
-                onClick={() => onNavigateToEntry(sec.section_id, selectedDate)}
-                className={`group p-3.5 rounded-xl border transition-all cursor-pointer hover:border-black flex flex-col justify-between ${
-                  isEntered
-                    ? 'border-zinc-200 bg-white hover:shadow-sm'
-                    : 'border-dashed border-zinc-300 bg-zinc-50/50 hover:bg-white'
-                } ${isUserAssigned ? 'ring-1 ring-black' : ''}`}
+                key={classNum}
+                className="bg-white rounded-xl border border-zinc-200 p-4 shadow-xs hover:border-zinc-300 transition-all space-y-3 flex flex-col justify-between"
               >
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-zinc-900 text-xs sm:text-sm">
-                    {sec.display_name}
-                  </span>
-                  {isEntered ? (
-                    <span className="w-4 h-4 rounded-full bg-black text-white flex items-center justify-center">
-                      <CheckCircle2 className="w-3 h-3" />
+                {/* Class Header */}
+                <div className="flex items-center justify-between border-b border-zinc-100 pb-2.5">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-7 h-7 rounded-lg bg-black text-white flex items-center justify-center font-bold text-xs font-mono">
+                      {classNum}
+                    </div>
+                    <div>
+                      <span className="font-bold text-sm text-zinc-950">Class {classNum}</span>
+                      <span className="text-[10px] font-mono text-zinc-400 ml-1.5">
+                        {classNum <= 8 ? 'Upper Primary' : 'High School'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <span className="font-mono text-xs font-bold text-zinc-950 bg-zinc-50 border border-zinc-200 px-2 py-0.5 rounded-md">
+                      {classTotalMeals} Meals
                     </span>
-                  ) : (
-                    <span className="w-4 h-4 rounded-full border border-zinc-400 text-zinc-400 flex items-center justify-center">
-                      <Clock className="w-2.5 h-2.5" />
-                    </span>
-                  )}
+                    {bothDone ? (
+                      <span className="w-2 h-2 rounded-full bg-emerald-500" title="Both sections recorded" />
+                    ) : oneDone ? (
+                      <span className="w-2 h-2 rounded-full bg-amber-500" title="1 of 2 recorded" />
+                    ) : (
+                      <span className="w-2 h-2 rounded-full bg-zinc-300" title="Pending entry" />
+                    )}
+                  </div>
                 </div>
 
-                <div className="mt-3">
-                  {isEntered ? (
-                    <div>
-                      <div className="text-xl font-bold font-mono text-zinc-950">
-                        {sec.grand_total} <span className="text-[10px] font-sans font-normal text-zinc-500">meals</span>
+                {/* Section A & Section B Interactive Cards */}
+                <div className="grid grid-cols-2 gap-2">
+                  {/* Section A */}
+                  {secA && (
+                    <button
+                      type="button"
+                      onClick={() => onNavigateToEntry(secA.section_id, selectedDate)}
+                      className={`p-2.5 rounded-lg border text-left transition-all flex flex-col justify-between ${
+                        secA.is_entered
+                          ? 'bg-zinc-50/70 border-zinc-200 hover:bg-zinc-100 hover:border-black'
+                          : 'bg-white border-dashed border-zinc-300 hover:border-black hover:bg-zinc-50'
+                      } ${secA.section_id === currentUser.assigned_section_id ? 'ring-1 ring-black' : ''}`}
+                    >
+                      <div className="flex items-center justify-between text-xs font-mono">
+                        <span className="font-bold text-zinc-900">Sec A</span>
+                        {secA.is_entered ? (
+                          <CheckCircle2 className="w-3.5 h-3.5 text-black" />
+                        ) : (
+                          <Clock className="w-3.5 h-3.5 text-zinc-400" />
+                        )}
                       </div>
-                      <div className="text-[11px] text-zinc-500 truncate mt-0.5">
-                        By: {sec.entry?.created_by_name?.split(' ')?.[0] || 'Teacher'}
+                      <div className="mt-2">
+                        {secA.is_entered ? (
+                          <div className="text-base font-extrabold font-mono text-zinc-950">
+                            {secA.grand_total} <span className="text-[10px] font-sans font-normal text-zinc-400">meals</span>
+                          </div>
+                        ) : (
+                          <div className="text-[11px] font-medium text-zinc-500 hover:text-black">
+                            + Enter &rarr;
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  ) : (
-                    <div>
-                      <div className="text-xs font-medium text-zinc-500 font-mono">
-                        Pending
+                    </button>
+                  )}
+
+                  {/* Section B */}
+                  {secB && (
+                    <button
+                      type="button"
+                      onClick={() => onNavigateToEntry(secB.section_id, selectedDate)}
+                      className={`p-2.5 rounded-lg border text-left transition-all flex flex-col justify-between ${
+                        secB.is_entered
+                          ? 'bg-zinc-50/70 border-zinc-200 hover:bg-zinc-100 hover:border-black'
+                          : 'bg-white border-dashed border-zinc-300 hover:border-black hover:bg-zinc-50'
+                      } ${secB.section_id === currentUser.assigned_section_id ? 'ring-1 ring-black' : ''}`}
+                    >
+                      <div className="flex items-center justify-between text-xs font-mono">
+                        <span className="font-bold text-zinc-900">Sec B</span>
+                        {secB.is_entered ? (
+                          <CheckCircle2 className="w-3.5 h-3.5 text-black" />
+                        ) : (
+                          <Clock className="w-3.5 h-3.5 text-zinc-400" />
+                        )}
                       </div>
-                      <div className="text-[11px] text-zinc-400 mt-0.5 group-hover:text-black font-medium">
-                        Record count &rarr;
+                      <div className="mt-2">
+                        {secB.is_entered ? (
+                          <div className="text-base font-extrabold font-mono text-zinc-950">
+                            {secB.grand_total} <span className="text-[10px] font-sans font-normal text-zinc-400">meals</span>
+                          </div>
+                        ) : (
+                          <div className="text-[11px] font-medium text-zinc-500 hover:text-black">
+                            + Enter &rarr;
+                          </div>
+                        )}
                       </div>
-                    </div>
+                    </button>
                   )}
                 </div>
               </div>
