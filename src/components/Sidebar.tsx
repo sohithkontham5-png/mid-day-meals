@@ -236,7 +236,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {currentUser.role === 'headmaster' ? 'HM' : currentUser.assigned_section_name ? currentUser.assigned_section_name.replace('Class ', '') : 'TR'}
             </span>
             <span className="font-semibold text-zinc-800 text-[11px] truncate max-w-[70px]">
-              {currentUser.name.split(' ')[0]}
+              {(currentUser?.name || 'Staff').split(' ')[0]}
             </span>
           </button>
 

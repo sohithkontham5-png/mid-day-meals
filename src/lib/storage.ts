@@ -307,73 +307,84 @@ export class StorageService {
   }
 
   public static initialize(): void {
-    if (!localStorage.getItem(STORAGE_KEYS.SCHOOL)) {
-      this.set(STORAGE_KEYS.SCHOOL, SEED_SCHOOL);
-    }
-    if (!localStorage.getItem(STORAGE_KEYS.ACADEMIC_YEAR)) {
-      this.set(STORAGE_KEYS.ACADEMIC_YEAR, SEED_ACADEMIC_YEAR);
-    }
-    if (!localStorage.getItem(STORAGE_KEYS.CLASSES)) {
-      this.set(STORAGE_KEYS.CLASSES, SEED_CLASSES);
-    }
-    if (!localStorage.getItem(STORAGE_KEYS.SECTIONS)) {
-      this.set(STORAGE_KEYS.SECTIONS, SEED_SECTIONS);
-    }
-    // Clean up any old mock users from previous storage
-    const existingUsers = this.get<User[]>(STORAGE_KEYS.USERS, []);
-    if (existingUsers.some(u => u.name.includes('Lakshmi Devi') || u.name.includes('Rama Rao') || u.name.includes('Suresh Kumar'))) {
-      this.set(STORAGE_KEYS.USERS, SEED_USERS);
-      this.set(STORAGE_KEYS.CURRENT_USER, SEED_USERS[0]);
-    } else if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
-      this.set(STORAGE_KEYS.USERS, SEED_USERS);
-    }
-    if (!localStorage.getItem(STORAGE_KEYS.ENROLMENT)) {
-      this.set(STORAGE_KEYS.ENROLMENT, SEED_ENROLMENT);
-    }
-    if (!localStorage.getItem(STORAGE_KEYS.HOLIDAYS)) {
-      this.set(STORAGE_KEYS.HOLIDAYS, SEED_HOLIDAYS);
-    }
-    if (!localStorage.getItem(STORAGE_KEYS.ENTRIES)) {
-      this.set(STORAGE_KEYS.ENTRIES, generateSampleEntries());
-    } else {
-      // Clean up any legacy menu/remarks (e.g. 'Egg Curry & Rice served') from stored entries
-      const existingEntries = this.get<MdmEntry[]>(STORAGE_KEYS.ENTRIES, []);
-      let modified = false;
-      for (const e of existingEntries) {
-        if (e.remarks) {
-          e.remarks = '';
-          modified = true;
+    try {
+      if (!localStorage.getItem(STORAGE_KEYS.SCHOOL)) {
+        this.set(STORAGE_KEYS.SCHOOL, SEED_SCHOOL);
+      }
+      if (!localStorage.getItem(STORAGE_KEYS.ACADEMIC_YEAR)) {
+        this.set(STORAGE_KEYS.ACADEMIC_YEAR, SEED_ACADEMIC_YEAR);
+      }
+      if (!localStorage.getItem(STORAGE_KEYS.CLASSES)) {
+        this.set(STORAGE_KEYS.CLASSES, SEED_CLASSES);
+      }
+      if (!localStorage.getItem(STORAGE_KEYS.SECTIONS)) {
+        this.set(STORAGE_KEYS.SECTIONS, SEED_SECTIONS);
+      }
+      // Clean up any old mock users from previous storage
+      const existingUsers = this.get<User[]>(STORAGE_KEYS.USERS, []);
+      if (Array.isArray(existingUsers) && existingUsers.some(u => u?.name?.includes('Lakshmi Devi') || u?.name?.includes('Rama Rao') || u?.name?.includes('Suresh Kumar'))) {
+        this.set(STORAGE_KEYS.USERS, SEED_USERS);
+        this.set(STORAGE_KEYS.CURRENT_USER, SEED_USERS[0]);
+      } else if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
+        this.set(STORAGE_KEYS.USERS, SEED_USERS);
+      }
+      if (!localStorage.getItem(STORAGE_KEYS.ENROLMENT)) {
+        this.set(STORAGE_KEYS.ENROLMENT, SEED_ENROLMENT);
+      }
+      if (!localStorage.getItem(STORAGE_KEYS.HOLIDAYS)) {
+        this.set(STORAGE_KEYS.HOLIDAYS, SEED_HOLIDAYS);
+      }
+      if (!localStorage.getItem(STORAGE_KEYS.ENTRIES)) {
+        this.set(STORAGE_KEYS.ENTRIES, generateSampleEntries());
+      } else {
+        // Clean up any legacy menu/remarks (e.g. 'Egg Curry & Rice served') from stored entries
+        const existingEntries = this.get<MdmEntry[]>(STORAGE_KEYS.ENTRIES, []);
+        if (Array.isArray(existingEntries)) {
+          let modified = false;
+          for (const e of existingEntries) {
+            if (e && e.remarks) {
+              e.remarks = '';
+              modified = true;
+            }
+          }
+          if (modified) {
+            this.set(STORAGE_KEYS.ENTRIES, existingEntries);
+          }
         }
       }
-      if (modified) {
-        this.set(STORAGE_KEYS.ENTRIES, existingEntries);
+      if (!localStorage.getItem(STORAGE_KEYS.AUDIT_LOGS)) {
+        const sampleLogs: AuditLog[] = [
+          {
+            id: 'log-1',
+            entity: 'mdm_entries',
+            entity_id: 'seed-init',
+            action: 'CREATE',
+            old_json: null,
+            new_json: { status: 'System Initialized' },
+            user_id: 'user-admin',
+            user_name: 'Headmaster / Admin',
+            timestamp: new Date().toISOString(),
+          },
+        ];
+        this.set(STORAGE_KEYS.AUDIT_LOGS, sampleLogs);
       }
-    }
-    if (!localStorage.getItem(STORAGE_KEYS.AUDIT_LOGS)) {
-      const sampleLogs: AuditLog[] = [
-        {
-          id: 'log-1',
-          entity: 'mdm_entries',
-          entity_id: 'seed-init',
-          action: 'CREATE',
-          old_json: null,
-          new_json: { status: 'System Initialized' },
-          user_id: 'user-admin',
-          user_name: 'Headmaster / Admin',
-          timestamp: new Date().toISOString(),
-        },
-      ];
-      this.set(STORAGE_KEYS.AUDIT_LOGS, sampleLogs);
-    }
-    // Default current user to Headmaster if not set
-    if (!localStorage.getItem(STORAGE_KEYS.CURRENT_USER)) {
-      this.set(STORAGE_KEYS.CURRENT_USER, SEED_USERS[0]);
+      // Default current user to Headmaster if not set
+      if (!localStorage.getItem(STORAGE_KEYS.CURRENT_USER)) {
+        this.set(STORAGE_KEYS.CURRENT_USER, SEED_USERS[0]);
+      }
+    } catch (e) {
+      console.error('StorageService initialize failed:', e);
     }
   }
 
   // School & Metadata
   public static getSchool(): School {
-    return this.get<School>(STORAGE_KEYS.SCHOOL, SEED_SCHOOL);
+    const s = this.get<School>(STORAGE_KEYS.SCHOOL, SEED_SCHOOL);
+    if (!s || !s.name) {
+      this.set(STORAGE_KEYS.SCHOOL, SEED_SCHOOL);
+      return SEED_SCHOOL;
+    }
+    return s;
   }
 
   public static updateSchool(school: School): void {
@@ -381,7 +392,12 @@ export class StorageService {
   }
 
   public static getAcademicYear(): AcademicYear {
-    return this.get<AcademicYear>(STORAGE_KEYS.ACADEMIC_YEAR, SEED_ACADEMIC_YEAR);
+    const ay = this.get<AcademicYear>(STORAGE_KEYS.ACADEMIC_YEAR, SEED_ACADEMIC_YEAR);
+    if (!ay || !ay.name) {
+      this.set(STORAGE_KEYS.ACADEMIC_YEAR, SEED_ACADEMIC_YEAR);
+      return SEED_ACADEMIC_YEAR;
+    }
+    return ay;
   }
 
   public static getClasses(): ClassItem[] {
@@ -454,7 +470,12 @@ export class StorageService {
   }
 
   public static getCurrentUser(): User {
-    return this.get<User>(STORAGE_KEYS.CURRENT_USER, SEED_USERS[0]);
+    const user = this.get<User>(STORAGE_KEYS.CURRENT_USER, SEED_USERS[0]);
+    if (!user || !user.id || !user.name || !user.role) {
+      this.set(STORAGE_KEYS.CURRENT_USER, SEED_USERS[0]);
+      return SEED_USERS[0];
+    }
+    return user;
   }
 
   public static setCurrentUser(user: User): void {
@@ -473,7 +494,17 @@ export class StorageService {
 
   // Enrolment
   public static getEnrolments(): Enrolment[] {
-    return this.get<Enrolment[]>(STORAGE_KEYS.ENROLMENT, SEED_ENROLMENT);
+    const list = this.get<Enrolment[]>(STORAGE_KEYS.ENROLMENT, SEED_ENROLMENT);
+    if (!Array.isArray(list) || list.length === 0) {
+      this.set(STORAGE_KEYS.ENROLMENT, SEED_ENROLMENT);
+      return SEED_ENROLMENT;
+    }
+    return list.map((e) => {
+      if (!e.totals) {
+        e.totals = computeTotals(e);
+      }
+      return e;
+    });
   }
 
   public static getEnrolmentForSection(sectionId: string): Enrolment | undefined {

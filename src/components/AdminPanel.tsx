@@ -291,13 +291,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   };
 
   // Overall School Enrolment Metrics
-  const schoolTotalEnrolled = enrolments.reduce((sum, e) => sum + e.totals.grand_total, 0);
-  const schoolBoysEnrolled = enrolments.reduce((sum, e) => sum + e.totals.boys_total, 0);
-  const schoolGirlsEnrolled = enrolments.reduce((sum, e) => sum + e.totals.girls_total, 0);
-  const schoolScEnrolled = enrolments.reduce((sum, e) => sum + e.totals.sc_total, 0);
-  const schoolStEnrolled = enrolments.reduce((sum, e) => sum + e.totals.st_total, 0);
-  const schoolBcEnrolled = enrolments.reduce((sum, e) => sum + e.totals.bc_total, 0);
-  const schoolOcEnrolled = enrolments.reduce((sum, e) => sum + e.totals.oc_total, 0);
+  const schoolTotalEnrolled = enrolments.reduce((sum, e) => sum + (e.totals?.grand_total ?? 0), 0);
+  const schoolBoysEnrolled = enrolments.reduce((sum, e) => sum + (e.totals?.boys_total ?? 0), 0);
+  const schoolGirlsEnrolled = enrolments.reduce((sum, e) => sum + (e.totals?.girls_total ?? 0), 0);
+  const schoolScEnrolled = enrolments.reduce((sum, e) => sum + (e.totals?.sc_total ?? 0), 0);
+  const schoolStEnrolled = enrolments.reduce((sum, e) => sum + (e.totals?.st_total ?? 0), 0);
+  const schoolBcEnrolled = enrolments.reduce((sum, e) => sum + (e.totals?.bc_total ?? 0), 0);
+  const schoolOcEnrolled = enrolments.reduce((sum, e) => sum + (e.totals?.oc_total ?? 0), 0);
   const schoolBoysPercent = schoolTotalEnrolled > 0 ? Math.round((schoolBoysEnrolled / schoolTotalEnrolled) * 100) : 0;
   const schoolGirlsPercent = schoolTotalEnrolled > 0 ? 100 - schoolBoysPercent : 0;
 
@@ -678,11 +678,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       </div>
                       <div className="w-full h-1.5 rounded-full bg-zinc-100 overflow-hidden flex">
                         <div 
-                          style={{ width: `${enr?.totals.grand_total ? Math.round((enr.totals.boys_total / enr.totals.grand_total) * 100) : 50}%` }} 
+                          style={{ width: `${enr?.totals?.grand_total ? Math.round(((enr?.totals?.boys_total || 0) / enr.totals.grand_total) * 100) : 50}%` }} 
                           className="bg-black h-full" 
                         />
                         <div 
-                          style={{ width: `${enr?.totals.grand_total ? 100 - Math.round((enr.totals.boys_total / enr.totals.grand_total) * 100) : 50}%` }} 
+                          style={{ width: `${enr?.totals?.grand_total ? 100 - Math.round(((enr?.totals?.boys_total || 0) / enr.totals.grand_total) * 100) : 50}%` }} 
                           className="bg-zinc-400 h-full" 
                         />
                       </div>

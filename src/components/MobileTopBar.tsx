@@ -84,7 +84,7 @@ export const MobileTopBar: React.FC<MobileTopBarProps> = ({
             {isHeadmaster ? 'HM' : currentUser.assigned_section_name ? currentUser.assigned_section_name.replace('Class ', '') : 'TR'}
           </span>
           <span className="font-semibold text-zinc-800 text-[11px] truncate max-w-[65px]">
-            {currentUser.name.split(' ')[0]}
+            {(currentUser?.name || 'Staff').split(' ')[0]}
           </span>
         </button>
 
