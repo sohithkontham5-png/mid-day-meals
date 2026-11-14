@@ -110,7 +110,7 @@ export const MonthlySummaryView: React.FC<MonthlySummaryViewProps> = ({
         <div className="space-y-1">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-900 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-md">
-              Monthly Register
+              Monthly Summary
             </span>
             <span className="text-[11px] font-mono text-zinc-500">
               {summary.working_days} Days • {summary.days_with_meals} Recorded
