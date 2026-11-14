@@ -14,6 +14,7 @@ interface BottomNavProps {
   setActiveTab: (tab: string) => void;
   currentUser: User;
   onOpenStaffModal: () => void;
+  isInsidePhoneFrame?: boolean;
 }
 
 export const BottomNav: React.FC<BottomNavProps> = ({
@@ -21,6 +22,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   setActiveTab,
   currentUser,
   onOpenStaffModal,
+  isInsidePhoneFrame = false,
 }) => {
   const isHeadmaster = currentUser.role === 'headmaster';
 
@@ -36,8 +38,12 @@ export const BottomNav: React.FC<BottomNavProps> = ({
 
   return (
     <nav 
-      aria-label="Mobile Navigation"
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-zinc-200/90 shadow-[0_-4px_20px_rgba(0,0,0,0.04)] px-2 pt-1.5 pb-safe"
+      aria-label="Mobile Navigation Bar"
+      className={`${
+        isInsidePhoneFrame
+          ? 'sticky bottom-0 left-0 right-0 w-full pb-2 pt-1.5'
+          : 'fixed bottom-0 left-0 right-0 pb-safe pt-1.5'
+      } z-40 bg-white/95 backdrop-blur-lg border-t border-zinc-200 shadow-[0_-4px_20px_rgba(0,0,0,0.04)] px-2 select-none`}
     >
       <div className="flex items-center justify-around max-w-md mx-auto">
         {navItems.map((item) => {
@@ -54,7 +60,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
                 }}
                 className="flex flex-col items-center justify-center -mt-5 active:scale-90 transition-transform focus:outline-none"
               >
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all ${
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-md transition-all ${
                   isActive
                     ? 'bg-black text-white ring-4 ring-zinc-200'
                     : 'bg-black text-white hover:bg-zinc-800'
@@ -88,7 +94,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
                   isActive ? 'text-black' : 'text-zinc-400'
                 }`} />
                 {isActive && (
-                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-black" />
+                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-black" />
                 )}
               </div>
               <span className={`text-[10px] font-medium mt-1 transition-colors ${
