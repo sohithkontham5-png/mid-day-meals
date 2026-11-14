@@ -499,11 +499,6 @@ export const DailySummaryView: React.FC<DailySummaryViewProps> = ({
                                   <span className="font-bold text-zinc-900">{a.totals.oc_total}</span>
                                 </div>
                               </div>
-                              {a.remarks && (
-                                <div className="text-[10px] text-zinc-500 italic mt-1 truncate">
-                                  Note: {a.remarks}
-                                </div>
-                              )}
                             </div>
                           ) : (
                             <div className="text-xs text-zinc-400 py-1.5 text-center font-mono">
@@ -581,11 +576,6 @@ export const DailySummaryView: React.FC<DailySummaryViewProps> = ({
                                   <span className="font-bold text-zinc-900">{b.totals.oc_total}</span>
                                 </div>
                               </div>
-                              {b.remarks && (
-                                <div className="text-[10px] text-zinc-500 italic mt-1 truncate">
-                                  Note: {b.remarks}
-                                </div>
-                              )}
                             </div>
                           ) : (
                             <div className="text-xs text-zinc-400 py-1.5 text-center font-mono">
@@ -723,11 +713,6 @@ export const DailySummaryView: React.FC<DailySummaryViewProps> = ({
                                   <span className="font-bold text-zinc-900">{a.totals.oc_total}</span>
                                 </div>
                               </div>
-                              {a.remarks && (
-                                <div className="text-[10px] text-zinc-500 italic mt-1 truncate">
-                                  Note: {a.remarks}
-                                </div>
-                              )}
                             </div>
                           ) : (
                             <div className="text-xs text-zinc-400 py-1.5 text-center font-mono">
@@ -805,11 +790,6 @@ export const DailySummaryView: React.FC<DailySummaryViewProps> = ({
                                   <span className="font-bold text-zinc-900">{b.totals.oc_total}</span>
                                 </div>
                               </div>
-                              {b.remarks && (
-                                <div className="text-[10px] text-zinc-500 italic mt-1 truncate">
-                                  Note: {b.remarks}
-                                </div>
-                              )}
                             </div>
                           ) : (
                             <div className="text-xs text-zinc-400 py-1.5 text-center font-mono">

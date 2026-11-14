@@ -239,7 +239,7 @@ function generateSampleEntries(): MdmEntry[] {
       class_number: sec.class_number,
       section_name: sec.name,
       entry_date: yesterday,
-      remarks: 'Nutritious meal served with egg and fruit',
+      remarks: '',
       locked: false,
       created_by: 'user-admin',
       created_by_name: 'Headmaster / Admin',
@@ -270,7 +270,7 @@ function generateSampleEntries(): MdmEntry[] {
       class_number: sec.class_number,
       section_name: sec.name,
       entry_date: today,
-      remarks: 'Egg Curry & Rice served',
+      remarks: '',
       locked: false,
       created_by: 'user-admin',
       created_by_name: 'Headmaster / Admin',
@@ -335,6 +335,19 @@ export class StorageService {
     }
     if (!localStorage.getItem(STORAGE_KEYS.ENTRIES)) {
       this.set(STORAGE_KEYS.ENTRIES, generateSampleEntries());
+    } else {
+      // Clean up any legacy menu/remarks (e.g. 'Egg Curry & Rice served') from stored entries
+      const existingEntries = this.get<MdmEntry[]>(STORAGE_KEYS.ENTRIES, []);
+      let modified = false;
+      for (const e of existingEntries) {
+        if (e.remarks) {
+          e.remarks = '';
+          modified = true;
+        }
+      }
+      if (modified) {
+        this.set(STORAGE_KEYS.ENTRIES, existingEntries);
+      }
     }
     if (!localStorage.getItem(STORAGE_KEYS.AUDIT_LOGS)) {
       const sampleLogs: AuditLog[] = [

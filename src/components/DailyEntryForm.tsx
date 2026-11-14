@@ -96,7 +96,6 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
     oc_girls: '',
   });
 
-  const [remarks, setRemarks] = useState<string>('');
   const [existingEntry, setExistingEntry] = useState<MdmEntry | null>(null);
   const [enrolment, setEnrolment] = useState<Enrolment | null>(null);
 
@@ -115,15 +114,6 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
   // Holiday and Sunday checks
   const holidayCheck = StorageService.isHoliday(selectedDate);
   const sundayCheck = isSunday(selectedDate);
-
-  // Quick menu suggestions
-  const quickMenuTags = [
-    'Egg Curry & Rice',
-    'Sambar & Rice',
-    'Dal Tadka & Rice',
-    'Veg Pulao & Raita',
-    'Special Festival Meal'
-  ];
 
   // Load existing entry and enrolment whenever date or section changes
   useEffect(() => {
@@ -147,7 +137,6 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
         oc_boys: entry.oc_boys !== null ? String(entry.oc_boys) : '',
         oc_girls: entry.oc_girls !== null ? String(entry.oc_girls) : '',
       });
-      setRemarks(entry.remarks || '');
     } else {
       setCounts({
         sc_boys: '',
@@ -159,7 +148,6 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
         oc_boys: '',
         oc_girls: '',
       });
-      setRemarks('');
     }
   }, [selectedDate, selectedSectionId]);
 
@@ -196,7 +184,6 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
   ];
 
   const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
-  const remarksRef = useRef<HTMLInputElement | null>(null);
 
   const handleKeyDown = (field: keyof typeof counts, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -207,7 +194,7 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
         inputRefs.current[nextField]?.focus();
         inputRefs.current[nextField]?.select();
       } else {
-        remarksRef.current?.focus();
+        inputRefs.current[field]?.blur();
       }
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
@@ -248,7 +235,7 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
         bc_girls: parsedCounts.bc_girls,
         oc_boys: parsedCounts.oc_boys,
         oc_girls: parsedCounts.oc_girls,
-        remarks,
+        remarks: '',
       },
       currentUser
     );
@@ -786,42 +773,6 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
             </div>
           );
         })}
-      </div>
-
-      {/* REMARKS & QUICK MENU SUGGESTIONS CARD */}
-      <div className="bg-white rounded-xl border border-zinc-200 p-5 shadow-sm space-y-3">
-        <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 font-mono">
-          Remarks / Menu Served
-        </label>
-
-        {/* Quick Menu Selection Chips */}
-        <div className="flex flex-wrap gap-1.5">
-          {quickMenuTags.map((tag) => (
-            <button
-              key={tag}
-              type="button"
-              disabled={isReadonlyForTeacher}
-              onClick={() => setRemarks(tag)}
-              className={`text-xs px-2.5 py-1 rounded-lg border transition-all ${
-                remarks === tag
-                  ? 'bg-black text-white border-black font-semibold'
-                  : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-700 border-zinc-200'
-              }`}
-            >
-              {tag}
-            </button>
-          ))}
-        </div>
-
-        <input
-          ref={remarksRef}
-          type="text"
-          disabled={isReadonlyForTeacher}
-          value={remarks}
-          onChange={(e) => setRemarks(e.target.value)}
-          placeholder="Custom notes, e.g. Special sweet distributed, Rice with sambar..."
-          className="w-full px-3.5 py-2.5 text-xs font-medium bg-zinc-50 border border-zinc-200 rounded-lg text-zinc-900 focus:bg-white focus:border-black focus:ring-1 focus:ring-black focus:outline-none transition-all disabled:opacity-50"
-        />
       </div>
 
       {/* ACTION BAR (Vercel Style Floating Dock) */}
