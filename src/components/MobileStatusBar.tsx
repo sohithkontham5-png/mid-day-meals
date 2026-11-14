@@ -17,7 +17,9 @@ export const MobileStatusBar: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full bg-white text-zinc-950 px-6 pt-3 pb-1 flex items-center justify-between text-xs font-semibold select-none shrink-0 z-30">
+    // Hide on real mobile devices so it doesn't clash with the phone's real status bar / notch;
+    // show only on desktop simulator mode (sm:flex)
+    <div className="hidden sm:flex w-full bg-white text-zinc-950 px-6 pt-3 pb-1 items-center justify-between text-xs font-semibold select-none shrink-0 z-30">
       {/* Time */}
       <span className="font-mono text-[13px] tracking-tight pl-1">{timeStr || '09:41'}</span>
 
