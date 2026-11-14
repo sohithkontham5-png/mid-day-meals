@@ -112,3 +112,4 @@ export const MobileTopBar: React.FC<MobileTopBarProps> = ({
     </header>
   );
 };
+

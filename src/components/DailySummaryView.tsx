@@ -265,7 +265,7 @@ export const DailySummaryView: React.FC<DailySummaryViewProps> = ({
       )}
 
       {/* Executive Key Metric Cards (Clean, Modern, Visual) */}
-      <div className="print:hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="print:hidden grid grid-cols-1 gap-3">
         {/* Card 1: Grand Total Meals */}
         <div className="bg-white rounded-xl p-5 border border-zinc-200 shadow-sm flex flex-col justify-between">
           <div>

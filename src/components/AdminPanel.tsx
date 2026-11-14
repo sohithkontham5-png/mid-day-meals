@@ -353,7 +353,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       {activeTab === 'enrolment' && (
         <div className="space-y-6">
           {/* Executive Enrolment Overview Hero Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 gap-3">
             {/* Card 1: Total Enrolled */}
             <div className="bg-white rounded-xl p-5 border border-zinc-200 shadow-sm flex flex-col justify-between">
               <div>
@@ -471,7 +471,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               </div>
 
               {/* 4 Category Input Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 gap-3">
                 {/* SC */}
                 <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3.5 space-y-3">
                   <div className="flex items-center justify-between">
@@ -769,7 +769,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               <div className="font-semibold text-zinc-900 text-xs uppercase tracking-wider font-mono">
                 New Staff Details
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+              <div className="space-y-3">
                 <div>
                   <label className="block text-[11px] font-mono font-semibold uppercase text-zinc-500 mb-1">Teacher Name *</label>
                   <input
@@ -1050,7 +1050,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           </div>
 
           {/* Holiday Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-2.5">
             {holidays.map((h) => (
               <div
                 key={h.id}

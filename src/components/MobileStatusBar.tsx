@@ -53,3 +53,4 @@ export const MobileStatusBar: React.FC = () => {
     </div>
   );
 };
+
