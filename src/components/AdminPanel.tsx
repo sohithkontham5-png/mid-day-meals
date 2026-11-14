@@ -19,7 +19,8 @@ import {
   Shield,
   KeyRound,
   Phone,
-  LayoutGrid
+  LayoutGrid,
+  Download
 } from 'lucide-react';
 
 interface AdminPanelProps {
@@ -275,6 +276,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     StorageService.updateSchool(updated);
     onUpdateSchool(updated);
     showFeedback('School details updated.');
+  };
+
+  const handleExportBackup = () => {
+    const backup = StorageService.exportFullBackup();
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(backup, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute('href', dataStr);
+    downloadAnchor.setAttribute('download', `MDM_School_Backup_${new Date().toISOString().split('T')[0]}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    showFeedback('Offline backup downloaded.');
   };
 
   // Overall School Enrolment Metrics
@@ -1133,6 +1146,24 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               <span>Save School Information</span>
             </button>
           </form>
+
+          {/* Offline Data Backup */}
+          <div className="pt-3 border-t border-zinc-200/90 space-y-2">
+            <div className="text-[11px] font-semibold uppercase text-zinc-500 font-mono">
+              Offline Data Backup
+            </div>
+            <button
+              type="button"
+              onClick={handleExportBackup}
+              className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium text-zinc-700 bg-zinc-50 border border-zinc-200 hover:bg-zinc-100 transition-colors"
+            >
+              <div className="flex items-center space-x-2.5">
+                <Download className="w-4 h-4 text-zinc-500" />
+                <span>Download Offline Backup</span>
+              </div>
+              <span className="text-[9px] font-mono px-1.5 py-0.5 bg-zinc-200 rounded font-semibold text-zinc-600">JSON</span>
+            </button>
+          </div>
         </div>
       )}
     </div>
