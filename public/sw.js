@@ -1,5 +1,5 @@
 // Service Worker for Offline MDM Register App
-const CACHE_NAME = 'mdm-register-v1';
+const CACHE_NAME = 'mdm-register-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -27,21 +27,29 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Navigation or static asset fallback
-  if (event.request.mode === 'navigate') {
+  // Navigation / HTML pages: Network First, fallback to cache if offline
+  if (event.request.mode === 'navigate' || event.request.destination === 'document') {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match('/index.html'))
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match('/index.html'))
     );
     return;
   }
 
+  // Other assets (hashed JS, CSS, images): Cache first, fallback to network
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
         return cachedResponse;
       }
       return fetch(event.request).then((networkResponse) => {
-        // Cache same-origin GET responses
         if (
           networkResponse &&
           networkResponse.status === 200 &&
@@ -60,4 +68,3 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
-
