@@ -58,6 +58,11 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
   const [selectedClass, setSelectedClass] = useState<number>(initialSec.class_number);
   const [selectedSectionName, setSelectedSectionName] = useState<'A' | 'B'>(initialSec.name);
 
+  // Navigation mode: true = editing form for selected section, false = selecting from classes directory
+  const [isEditingForm, setIsEditingForm] = useState<boolean>(() => {
+    return Boolean(initialSectionId || currentUser.assigned_section_id);
+  });
+
   // Synchronize when initialSectionId changes from outside
   useEffect(() => {
     if (initialSectionId) {
@@ -65,6 +70,7 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
       if (sec) {
         setSelectedClass(sec.class_number);
         setSelectedSectionName(sec.name);
+        setIsEditingForm(true);
       }
     }
   }, [initialSectionId]);
@@ -330,202 +336,303 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
   const boysPercent = grandTotal > 0 ? Math.round((liveTotals.boys_total / grandTotal) * 100) : 0;
   const girlsPercent = grandTotal > 0 ? 100 - boysPercent : 0;
 
+  // Completed count for selected date
+  const completedSectionsCount = sections.reduce((acc, sec) => {
+    const entry = StorageService.getEntry(selectedDate, sec.id);
+    return acc + (entry ? 1 : 0);
+  }, 0);
+
+  // VIEW 1: DIRECTORY OF ALL CLASSES (When selecting which class to record)
+  if (!isEditingForm) {
+    return (
+      <div className="space-y-4 pb-20">
+        {/* Top Header */}
+        <div className="flex items-center justify-between">
+          <button
+            onClick={onBackToDashboard}
+            className="text-xs font-medium text-zinc-600 hover:text-black bg-white border border-zinc-200 px-3 py-1.5 rounded-xl flex items-center space-x-1.5 shadow-xs transition-all active:scale-95"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" />
+            <span>Dashboard</span>
+          </button>
+
+          <div className="flex items-center space-x-2 text-xs font-mono text-zinc-500">
+            <Utensils className="w-3.5 h-3.5 text-zinc-400" />
+            <span>Meal Attendance</span>
+          </div>
+        </div>
+
+        {/* Date & Completion Header Card */}
+        <div className="bg-white rounded-2xl p-4 border border-zinc-200/90 shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-500">
+              Attendance Date
+            </span>
+            <span className="text-[10px] font-mono text-zinc-700 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-md font-bold">
+              {completedSectionsCount} / 10 Recorded
+            </span>
+          </div>
+
+          {/* Date Selector */}
+          <div className="flex items-center space-x-2">
+            <input
+              type="date"
+              max={todayStr}
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="flex-1 px-3 py-2 text-xs font-mono font-semibold bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-950 focus:bg-white focus:border-black focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={() => setSelectedDate(todayStr)}
+              className={`px-3 py-2 text-xs font-medium rounded-xl border transition-all ${
+                selectedDate === todayStr
+                  ? 'bg-black text-white border-black font-semibold shadow-xs'
+                  : 'bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50'
+              }`}
+            >
+              Today
+            </button>
+          </div>
+
+          {/* Ratio Progress Bar */}
+          <div className="space-y-1 pt-1">
+            <div className="w-full h-1.5 rounded-full bg-zinc-100 overflow-hidden">
+              <div
+                style={{ width: `${Math.round((completedSectionsCount / 10) * 100)}%` }}
+                className="bg-black h-full transition-all"
+              />
+            </div>
+            <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400">
+              <span>{Math.round((completedSectionsCount / 10) * 100)}% Recorded</span>
+              <span>{10 - completedSectionsCount} Sections Pending</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 5 Classes Directory (Click on section to record) */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between text-xs font-mono text-zinc-500 px-1">
+            <span>Classes (6 to 10)</span>
+            <span className="text-[11px] text-zinc-400">Tap a section to enter meals</span>
+          </div>
+
+          {[6, 7, 8, 9, 10].map((classNum) => {
+            const secA = sections.find((s) => s.class_number === classNum && s.name === 'A');
+            const secB = sections.find((s) => s.class_number === classNum && s.name === 'B');
+            const entryA = secA ? StorageService.getEntry(selectedDate, secA.id) : null;
+            const entryB = secB ? StorageService.getEntry(selectedDate, secB.id) : null;
+            const enrA = secA ? StorageService.getEnrolmentForSection(secA.id) : null;
+            const enrB = secB ? StorageService.getEnrolmentForSection(secB.id) : null;
+            const classTotalMeals = (entryA?.totals.grand_total ?? 0) + (entryB?.totals.grand_total ?? 0);
+
+            return (
+              <div
+                key={classNum}
+                className="bg-white rounded-2xl border border-zinc-200/90 p-4 shadow-xs space-y-3"
+              >
+                {/* Class Header */}
+                <div className="flex items-center justify-between border-b border-zinc-100 pb-2.5">
+                  <div className="flex items-center space-x-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-black text-white flex items-center justify-center font-mono font-bold text-xs shrink-0">
+                      {classNum}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-zinc-950">
+                        Class {classNum}
+                      </h4>
+                      <span className="text-[10px] font-mono text-zinc-400">
+                        {classNum <= 8 ? 'Upper Primary' : 'High School'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <span className="font-mono font-bold text-xs bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-lg text-zinc-900">
+                      {classTotalMeals} Meals
+                    </span>
+                  </div>
+                </div>
+
+                {/* Sections A & B Cards */}
+                <div className="grid grid-cols-2 gap-2">
+                  {/* Section A */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedClass(classNum);
+                      setSelectedSectionName('A');
+                      setIsEditingForm(true);
+                    }}
+                    className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between active:scale-95 ${
+                      entryA
+                        ? 'bg-zinc-50/80 border-zinc-200 hover:border-black'
+                        : 'bg-white border-zinc-300 hover:border-black shadow-2xs'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <span className="w-6 h-6 rounded-md bg-zinc-200 text-zinc-900 font-mono font-bold text-xs flex items-center justify-center shrink-0">
+                        A
+                      </span>
+                      <div className="min-w-0">
+                        <div className="font-bold text-xs text-zinc-950 truncate">Sec A</div>
+                        <div className="text-[10px] font-mono text-zinc-400 truncate">
+                          {enrA?.totals.grand_total ?? 0} Enr
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-2.5 pt-2 border-t border-zinc-200/60 flex items-center justify-between text-[11px] font-mono">
+                      {entryA ? (
+                        <span className="text-emerald-700 font-bold bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded text-[10px]">
+                          {entryA.totals.grand_total}m
+                        </span>
+                      ) : (
+                        <span className="text-zinc-500 font-semibold bg-zinc-100 px-1.5 py-0.2 rounded text-[10px]">
+                          + Record
+                        </span>
+                      )}
+                      <span className="text-[10px] text-zinc-400 font-sans">Enter →</span>
+                    </div>
+                  </button>
+
+                  {/* Section B */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedClass(classNum);
+                      setSelectedSectionName('B');
+                      setIsEditingForm(true);
+                    }}
+                    className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between active:scale-95 ${
+                      entryB
+                        ? 'bg-zinc-50/80 border-zinc-200 hover:border-black'
+                        : 'bg-white border-zinc-300 hover:border-black shadow-2xs'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <span className="w-6 h-6 rounded-md bg-zinc-200 text-zinc-900 font-mono font-bold text-xs flex items-center justify-center shrink-0">
+                        B
+                      </span>
+                      <div className="min-w-0">
+                        <div className="font-bold text-xs text-zinc-950 truncate">Sec B</div>
+                        <div className="text-[10px] font-mono text-zinc-400 truncate">
+                          {enrB?.totals.grand_total ?? 0} Enr
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-2.5 pt-2 border-t border-zinc-200/60 flex items-center justify-between text-[11px] font-mono">
+                      {entryB ? (
+                        <span className="text-emerald-700 font-bold bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded text-[10px]">
+                          {entryB.totals.grand_total}m
+                        </span>
+                      ) : (
+                        <span className="text-zinc-500 font-semibold bg-zinc-100 px-1.5 py-0.2 rounded text-[10px]">
+                          + Record
+                        </span>
+                      )}
+                      <span className="text-[10px] text-zinc-400 font-sans">Enter →</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  // VIEW 2: MEAL ATTENDANCE ENTRY FORM (Clean, focused form for current section)
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-20">
-      {/* Header and Back navigation */}
+    <div className="space-y-4 pb-20">
+      {/* Top Header Bar */}
       <div className="flex items-center justify-between">
         <button
-          onClick={onBackToDashboard}
-          className="text-xs font-medium text-zinc-600 hover:text-black bg-white border border-zinc-200 px-3 py-1.5 rounded-lg flex items-center space-x-1.5 shadow-xs transition-all"
+          onClick={() => setIsEditingForm(false)}
+          className="text-xs font-medium text-zinc-600 hover:text-black bg-white border border-zinc-200 px-3 py-1.5 rounded-xl flex items-center space-x-1.5 shadow-xs transition-all active:scale-95"
         >
           <ChevronLeft className="w-3.5 h-3.5" />
-          <span>Dashboard</span>
+          <span>All Classes</span>
         </button>
 
         <div className="flex items-center space-x-2 text-xs font-mono text-zinc-500">
-          <Utensils className="w-3.5 h-3.5 text-zinc-400" />
-          <span>Daily Meal Record</span>
+          <span className="text-[11px] font-bold text-zinc-900 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-md">
+            {formatDateIndian(selectedDate)}
+          </span>
+          {isHeadmaster && existingEntry && (
+            <button
+              onClick={handleToggleLock}
+              className="flex items-center space-x-1 px-2.5 py-1 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-800 text-xs font-medium transition-colors"
+              title={existingEntry.locked ? 'Unlock entry' : 'Lock entry'}
+            >
+              {existingEntry.locked ? <Unlock className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
+              <span>{existingEntry.locked ? 'Unlock' : 'Lock'}</span>
+            </button>
+          )}
         </div>
       </div>
 
-      {/* SECTION & DATE SELECTOR (Modern Vercel Card) */}
-      <div className="bg-white rounded-xl border border-zinc-200 p-5 shadow-sm space-y-5">
-        {/* Date Row */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-100">
-          <div>
-            <label className="block text-[11px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1">
-              Date of Attendance
-            </label>
-            <div className="flex items-center space-x-2">
-              <input
-                type="date"
-                max={todayStr}
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="px-3 py-1.5 text-sm font-mono font-semibold bg-zinc-50 border border-zinc-200 rounded-lg text-zinc-950 focus:border-black focus:ring-1 focus:ring-black focus:outline-none cursor-pointer"
-              />
-              <button
-                type="button"
-                onClick={() => setSelectedDate(todayStr)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-all ${
-                  selectedDate === todayStr
-                    ? 'bg-black text-white border-black font-semibold'
-                    : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50'
-                }`}
-              >
-                Today
-              </button>
+      {/* Class & Section Header Card (With Instant Section A / B Switcher) */}
+      <div className="bg-white rounded-2xl p-4 border border-zinc-200/90 shadow-xs space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center font-mono font-bold text-sm shrink-0">
+              {selectedClass}{selectedSectionName}
+            </div>
+            <div className="min-w-0">
+              <h2 className="font-extrabold text-base text-zinc-950 tracking-tight truncate">
+                {currentSection.display_name}
+              </h2>
+              <span className="text-[10px] font-mono text-zinc-400 block truncate">
+                {enrolment ? `${enrolment.totals.grand_total} Enrolled (${enrolment.totals.boys_total}B • ${enrolment.totals.girls_total}G)` : 'Enrolment Benchmark'}
+              </span>
             </div>
           </div>
 
-          {/* Date alerts */}
-          <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-            {sundayCheck && (
-              <span className="text-zinc-600 font-mono text-xs font-semibold bg-zinc-100 px-2.5 py-1 rounded-md border border-zinc-200">
-                Sunday (Closed)
-              </span>
-            )}
-            {holidayCheck.is_holiday && (
-              <span className="text-zinc-900 font-mono text-xs font-semibold bg-zinc-100 px-2.5 py-1 rounded-md border border-zinc-300">
-                Holiday: {holidayCheck.reason}
-              </span>
-            )}
-            {isReadonlyForTeacher && (
-              <span className="text-amber-800 font-mono text-xs font-semibold bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200 flex items-center space-x-1">
-                <Lock className="w-3 h-3" />
-                <span>Locked</span>
-              </span>
-            )}
-            {isHeadmaster && existingEntry && (
-              <button
-                onClick={handleToggleLock}
-                className="flex items-center space-x-1 px-3 py-1 rounded-lg border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 text-zinc-800 text-xs font-medium transition-colors"
-              >
-                {existingEntry.locked ? <Unlock className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
-                <span>{existingEntry.locked ? 'Unlock' : 'Lock Entry'}</span>
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Step 1: Select Class (Classes 6 to 10) */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-zinc-500">
-              Step 1: Select Class
-            </span>
-            <span className="text-xs font-mono text-zinc-500">
-              Active: <strong className="text-zinc-950 font-bold">Class {selectedClass}</strong>
-            </span>
-          </div>
-
-          <div className="grid grid-cols-5 gap-1.5">
-            {[6, 7, 8, 9, 10].map((classNum) => {
-              const secA = sections.find((s) => s.class_number === classNum && s.name === 'A');
-              const secB = sections.find((s) => s.class_number === classNum && s.name === 'B');
-              const entryA = secA ? StorageService.getEntry(selectedDate, secA.id) : null;
-              const entryB = secB ? StorageService.getEntry(selectedDate, secB.id) : null;
-              const isSelected = selectedClass === classNum;
-              const doneCount = (entryA ? 1 : 0) + (entryB ? 1 : 0);
-              const classTotalMeals = (entryA?.totals.grand_total ?? 0) + (entryB?.totals.grand_total ?? 0);
-
+          {/* Quick Section A / B Toggle Pills */}
+          <div className="flex items-center bg-zinc-100 p-0.5 rounded-xl border border-zinc-200 shrink-0">
+            {(['A', 'B'] as const).map((secName) => {
+              const isSecActive = selectedSectionName === secName;
               return (
                 <button
-                  key={classNum}
+                  key={secName}
                   type="button"
-                  onClick={() => setSelectedClass(classNum)}
-                  className={`p-2 rounded-xl border text-center transition-all flex flex-col items-center justify-between ${
-                    isSelected
-                      ? 'bg-black text-white border-black shadow-xs ring-2 ring-black/20'
-                      : 'bg-zinc-50/80 border-zinc-200 text-zinc-700 hover:border-zinc-400 hover:bg-white'
+                  onClick={() => setSelectedSectionName(secName)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all ${
+                    isSecActive
+                      ? 'bg-black text-white shadow-xs'
+                      : 'text-zinc-600 hover:text-black'
                   }`}
                 >
-                  <div className="flex items-center justify-between w-full text-[9px] font-mono uppercase opacity-70">
-                    <span>{classNum <= 8 ? 'UP' : 'HS'}</span>
-                    <span 
-                      className={`w-1.5 h-1.5 rounded-full ${
-                        doneCount === 2 ? 'bg-emerald-400' : doneCount === 1 ? 'bg-amber-400' : 'bg-zinc-300'
-                      }`} 
-                    />
-                  </div>
-
-                  <div className="text-base font-black font-mono my-0.5">
-                    {classNum}
-                  </div>
-
-                  <div className={`text-[9px] font-mono truncate max-w-full ${isSelected ? 'text-zinc-300' : 'text-zinc-400'}`}>
-                    {doneCount > 0 ? `${classTotalMeals}m` : 'Empty'}
-                  </div>
+                  Sec {secName}
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* Step 2: Select Section (Section A and Section B of the selected Class) */}
-        <div className="space-y-2 pt-2 border-t border-zinc-100">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-zinc-500">
-              Step 2: Select Section for Class {selectedClass}
-            </span>
-            <span className="text-xs font-mono text-zinc-500">
-              Active: <strong className="text-zinc-950 font-bold">{currentSection.display_name}</strong>
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            {(['A', 'B'] as const).map((secName) => {
-              const secItem = sections.find((s) => s.class_number === selectedClass && s.name === secName);
-              if (!secItem) return null;
-              const entry = StorageService.getEntry(selectedDate, secItem.id);
-              const enr = StorageService.getEnrolmentForSection(secItem.id);
-              const isSelected = selectedSectionName === secName;
-              const isRecorded = !!entry;
-
-              return (
-                <div
-                  key={secName}
-                  onClick={() => setSelectedSectionName(secName)}
-                  className={`p-3 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
-                    isSelected
-                      ? 'border-black ring-2 ring-black bg-white shadow-xs'
-                      : 'border-zinc-200 bg-zinc-50/70 hover:bg-white hover:border-zinc-300'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2">
-                    <div className={`w-6 h-6 rounded-md flex items-center justify-center font-bold text-xs font-mono shrink-0 ${
-                      isSelected ? 'bg-black text-white' : 'bg-zinc-200 text-zinc-800'
-                    }`}>
-                      {secName}
-                    </div>
-                    <div className="overflow-hidden">
-                      <div className="font-bold text-xs text-zinc-950 truncate">
-                        Section {secName}
-                      </div>
-                      {enr && (
-                        <div className="text-[10px] font-mono text-zinc-400 truncate">
-                          {enr.totals.grand_total} Enrolled
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="mt-2 text-right">
-                    {isRecorded ? (
-                      <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center space-x-1">
-                        <CheckCircle2 className="w-2.5 h-2.5" />
-                        <span>{entry.totals.grand_total} Meals</span>
-                      </span>
-                    ) : (
-                      <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-600 border border-zinc-200 inline-block">
-                        Pending
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+        {/* Date Selector Row inside Card */}
+        <div className="flex items-center space-x-2 pt-2 border-t border-zinc-100">
+          <input
+            type="date"
+            max={todayStr}
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="flex-1 px-3 py-1.5 text-xs font-mono font-semibold bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-900 focus:bg-white focus:border-black focus:outline-none"
+          />
+          <button
+            type="button"
+            onClick={() => setSelectedDate(todayStr)}
+            className={`px-3 py-1.5 text-xs font-medium rounded-xl border transition-all ${
+              selectedDate === todayStr
+                ? 'bg-black text-white border-black font-semibold shadow-xs'
+                : 'bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50'
+            }`}
+          >
+            Today
+          </button>
         </div>
       </div>
 
@@ -775,9 +882,9 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
         })}
       </div>
 
-      {/* ACTION BAR (Vercel Style Floating Dock) */}
-      <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="text-xs font-mono text-zinc-500 text-center sm:text-left">
+      {/* ACTION BAR (Mobile Floating Dock) */}
+      <div className="bg-white border border-zinc-200/90 rounded-2xl p-4 shadow-xs space-y-2.5">
+        <div className="text-xs font-mono text-zinc-500 text-center">
           {existingEntry ? (
             <span>Recorded: {formatDateIndian(existingEntry.entry_date)} by <strong>{existingEntry.created_by_name}</strong></span>
           ) : (
@@ -785,28 +892,28 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
           )}
         </div>
 
-        <div className="flex items-center space-x-2.5 w-full sm:w-auto">
+        <div className="space-y-2">
           <button
             type="button"
             disabled={isReadonlyForTeacher}
             onClick={() => handleSave(false)}
-            className="flex-1 sm:flex-initial bg-black hover:bg-zinc-800 text-white px-6 py-2.5 rounded-lg font-semibold text-xs shadow-sm flex items-center justify-center space-x-2 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full bg-black hover:bg-zinc-800 text-white py-3 px-4 rounded-xl font-bold text-xs shadow-xs flex items-center justify-center space-x-2 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <Save className="w-3.5 h-3.5" />
-            <span>Save Section {selectedSectionName}</span>
+            <Save className="w-4 h-4" />
+            <span>Save Section {selectedSectionName} Meals</span>
           </button>
 
           <button
             type="button"
             disabled={isReadonlyForTeacher}
             onClick={() => handleSave(true)}
-            className="flex-1 sm:flex-initial bg-white border border-zinc-300 hover:bg-zinc-50 text-zinc-900 px-5 py-2.5 rounded-lg font-semibold text-xs shadow-sm flex items-center justify-center space-x-1.5 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-900 py-2.5 px-4 rounded-xl font-bold text-xs shadow-2xs flex items-center justify-center space-x-1.5 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             title="Save and advance to next section"
           >
             <span>
               {selectedSectionName === 'A' 
-                ? 'Save & Go to Section B' 
-                : `Save & Go to Class ${selectedClass < 10 ? selectedClass + 1 : 6}`}
+                ? 'Save & Next: Section B' 
+                : `Save & Next: Class ${selectedClass < 10 ? selectedClass + 1 : 6}`}
             </span>
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
