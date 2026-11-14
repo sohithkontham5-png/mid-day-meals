@@ -27,45 +27,44 @@ export const AuditLogView: React.FC<AuditLogViewProps> = ({ currentUser }) => {
   };
 
   return (
-    <div className="space-y-6 pb-16">
+    <div className="space-y-4 pb-20">
       {/* Title */}
-      <div className="bg-white rounded-xl p-4 sm:p-5 border border-zinc-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-zinc-900 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded">
+      <div className="bg-white rounded-2xl p-4 border border-zinc-200/90 shadow-xs space-y-1">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-500">
             Security & Audit
           </span>
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-950 mt-1.5">
-            System Audit Trail
-          </h2>
-          <p className="text-xs text-zinc-500 font-mono mt-0.5">
-            Immutable log of all creates, updates, locks, and deletes with timestamps and values
-          </p>
+          <span className="text-[10px] font-mono text-zinc-700 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-md font-bold">
+            {logs.length} Events
+          </span>
         </div>
-
-        <div className="flex items-center space-x-2 font-mono text-xs text-zinc-600 bg-zinc-50 px-3 py-1.5 rounded-lg border border-zinc-200">
-          <span>Logged Events: <strong className="text-zinc-950">{logs.length}</strong></span>
-        </div>
+        <h2 className="text-lg font-extrabold text-zinc-950 tracking-tight">
+          System Audit Trail
+        </h2>
+        <p className="text-xs text-zinc-500 font-mono">
+          Immutable history of all meal records, locks, and updates
+        </p>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white rounded-xl p-3 border border-zinc-200 shadow-sm flex flex-col sm:flex-row items-center gap-3">
-        <div className="relative flex-1 w-full">
+      <div className="bg-white rounded-2xl p-3 border border-zinc-200/90 shadow-xs space-y-2">
+        <div className="relative w-full">
           <Search className="w-3.5 h-3.5 text-zinc-400 absolute left-3 top-2.5" />
           <input
             type="text"
-            placeholder="Search by teacher name, action, or section..."
+            placeholder="Search teacher, action, or section..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-zinc-200 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none"
+            className="w-full pl-8 pr-3 py-2 text-xs bg-zinc-50 border border-zinc-200 rounded-xl focus:bg-white focus:border-black focus:outline-none"
           />
         </div>
 
-        <div className="flex items-center space-x-2 w-full sm:w-auto">
-          <Filter className="w-3.5 h-3.5 text-zinc-400" />
+        <div className="flex items-center space-x-2">
+          <Filter className="w-3.5 h-3.5 text-zinc-400 shrink-0 ml-1" />
           <select
             value={filterAction}
             onChange={(e) => setFilterAction(e.target.value)}
-            className="text-xs font-medium bg-white border border-zinc-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-black focus:ring-1 focus:ring-black w-full sm:w-auto"
+            className="text-xs font-medium bg-zinc-50 border border-zinc-200 rounded-xl px-2.5 py-1.5 focus:bg-white focus:border-black focus:outline-none flex-1"
           >
             <option value="all">All Actions</option>
             <option value="CREATE">CREATE</option>
@@ -78,7 +77,7 @@ export const AuditLogView: React.FC<AuditLogViewProps> = ({ currentUser }) => {
       </div>
 
       {/* Logs List */}
-      <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-zinc-200/90 shadow-xs overflow-hidden">
         <div className="divide-y divide-zinc-100">
           {filteredLogs.length === 0 ? (
             <div className="p-8 text-center text-zinc-400 text-xs font-mono">
