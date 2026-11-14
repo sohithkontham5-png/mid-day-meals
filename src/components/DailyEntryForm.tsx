@@ -651,78 +651,84 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
         </div>
       )}
 
-      {/* LIVE SECTION SUMMARY DOCK (Executive, high contrast) */}
-      <div className="bg-zinc-950 text-white rounded-xl p-5 shadow-sm space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <div className="flex items-center space-x-2">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400">
-                {currentSection.display_name} • Live Meal Count
-              </span>
-              {enrolment && (
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">
-                  Enrolled: {enrolment.totals.grand_total}
-                </span>
-              )}
-            </div>
-            <div className="text-3xl sm:text-4xl font-black font-mono mt-1 text-white tracking-tight">
-              {grandTotal} <span className="text-sm font-normal font-sans text-zinc-400">meals entered</span>
-            </div>
+      {/* LIVE SECTION SUMMARY DOCK (Clean, High-End Mobile Card) */}
+      <div className="bg-white rounded-2xl p-4 border border-zinc-200/90 shadow-xs space-y-3">
+        {/* Header Row: Label & Enrolment Badge */}
+        <div className="flex items-center justify-between text-zinc-500 text-[11px] font-mono font-semibold uppercase tracking-wider">
+          <div className="flex items-center space-x-1.5 min-w-0">
+            <Utensils className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
+            <span className="truncate">Live Meal Attendance</span>
           </div>
+          {enrolment && (
+            <span className="font-mono text-zinc-700 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-md font-bold text-[10px] shrink-0">
+              Max: {enrolment.totals.grand_total} Enrolled
+            </span>
+          )}
+        </div>
 
-          {/* Gender Split */}
-          <div className="flex items-center space-x-4 text-sm font-mono sm:text-right">
-            <div>
-              <div className="text-zinc-400 text-xs font-sans">Boys</div>
-              <div className="text-xl font-bold text-white">{liveTotals.boys_total}</div>
-            </div>
-            <div className="text-zinc-600">/</div>
-            <div>
-              <div className="text-zinc-400 text-xs font-sans">Girls</div>
-              <div className="text-xl font-bold text-white">{liveTotals.girls_total}</div>
-            </div>
+        {/* Main Number & Gender Split */}
+        <div className="flex items-baseline justify-between">
+          <div className="flex items-baseline space-x-2">
+            <span className="text-4xl font-extrabold font-mono text-zinc-950 tracking-tight">
+              {grandTotal}
+            </span>
+            <span className="text-xs text-zinc-500 font-sans">
+              meals entered
+            </span>
+          </div>
+          <div className="text-xs font-mono text-zinc-500 text-right">
+            <div>Boys: <strong className="text-zinc-900">{liveTotals.boys_total}</strong> <span className="text-[10px] text-zinc-400">({boysPercent}%)</span></div>
+            <div>Girls: <strong className="text-zinc-900">{liveTotals.girls_total}</strong> <span className="text-[10px] text-zinc-400">({girlsPercent}%)</span></div>
           </div>
         </div>
 
-        {/* Visual Progress Bar & Category Badges */}
-        <div className="space-y-2 pt-2 border-t border-zinc-800">
-          <div className="w-full h-2 rounded-full bg-zinc-800 overflow-hidden flex">
+        {/* Visual Ratio Progress Bar */}
+        <div className="space-y-1 pt-0.5">
+          <div className="w-full h-2 rounded-full bg-zinc-100 overflow-hidden flex">
             <div 
               style={{ width: `${boysPercent}%` }} 
-              className="bg-white h-full transition-all" 
+              className="bg-black h-full transition-all" 
               title={`Boys: ${liveTotals.boys_total} (${boysPercent}%)`} 
             />
             <div 
               style={{ width: `${girlsPercent}%` }} 
-              className="bg-zinc-500 h-full transition-all" 
+              className="bg-zinc-400 h-full transition-all" 
               title={`Girls: ${liveTotals.girls_total} (${girlsPercent}%)`} 
             />
           </div>
-
-          <div className="flex flex-wrap items-center justify-between text-xs font-mono text-zinc-400 pt-1">
-            <div className="flex items-center space-x-2">
-              <span className="bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700 text-zinc-200">
-                SC: <strong className="text-white">{liveTotals.sc_total}</strong>
-              </span>
-              <span className="bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700 text-zinc-200">
-                ST: <strong className="text-white">{liveTotals.st_total}</strong>
-              </span>
-              <span className="bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700 text-zinc-200">
-                BC: <strong className="text-white">{liveTotals.bc_total}</strong>
-              </span>
-              <span className="bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700 text-zinc-200">
-                OC: <strong className="text-white">{liveTotals.oc_total}</strong>
-              </span>
-            </div>
-
-            {enrolment && grandTotal > enrolment.totals.grand_total && (
-              <span className="text-amber-400 font-sans text-xs flex items-center space-x-1">
-                <AlertTriangle className="w-3.5 h-3.5" />
-                <span>Exceeds enrolment ({enrolment.totals.grand_total})</span>
-              </span>
-            )}
+          <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400">
+            <span>Boys ({boysPercent}%)</span>
+            <span>Girls ({girlsPercent}%)</span>
           </div>
         </div>
+
+        {/* 4 Clean Caste Breakdown Boxes (SC, ST, BC, OC) */}
+        <div className="grid grid-cols-4 gap-1.5 text-center text-xs font-mono pt-1">
+          <div className="bg-zinc-50 border border-zinc-200 rounded-xl py-2 px-1">
+            <span className="text-zinc-400 block text-[10px] font-bold">SC</span>
+            <span className="font-extrabold text-zinc-900 text-sm mt-0.5 block">{liveTotals.sc_total}</span>
+          </div>
+          <div className="bg-zinc-50 border border-zinc-200 rounded-xl py-2 px-1">
+            <span className="text-zinc-400 block text-[10px] font-bold">ST</span>
+            <span className="font-extrabold text-zinc-900 text-sm mt-0.5 block">{liveTotals.st_total}</span>
+          </div>
+          <div className="bg-zinc-50 border border-zinc-200 rounded-xl py-2 px-1">
+            <span className="text-zinc-400 block text-[10px] font-bold">BC</span>
+            <span className="font-extrabold text-zinc-900 text-sm mt-0.5 block">{liveTotals.bc_total}</span>
+          </div>
+          <div className="bg-zinc-50 border border-zinc-200 rounded-xl py-2 px-1">
+            <span className="text-zinc-400 block text-[10px] font-bold">OC</span>
+            <span className="font-extrabold text-zinc-900 text-sm mt-0.5 block">{liveTotals.oc_total}</span>
+          </div>
+        </div>
+
+        {/* Alert if exceeding enrolment */}
+        {enrolment && grandTotal > enrolment.totals.grand_total && (
+          <div className="text-[11px] font-mono text-amber-800 bg-amber-50 px-2.5 py-1.5 rounded-xl border border-amber-200 flex items-center space-x-1.5 mt-1">
+            <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-600" />
+            <span>Exceeds enrolled capacity ({enrolment.totals.grand_total})</span>
+          </div>
+        )}
       </div>
 
       {/* 4 CATEGORY INPUT CARDS (NO EXCEL TABLE!) */}
