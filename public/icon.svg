@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#16a34a"/>
+      <stop offset="100%" stop-color="#14532d"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="110" fill="url(#grad)"/>
+  <!-- Bowl / Meal Plate -->
+  <path d="M120 280 C120 380, 392 380, 392 280 Z" fill="#ffffff" opacity="0.95"/>
+  <!-- Spoon & Fork -->
+  <path d="M180 150 Q180 230 220 250 L220 350 L200 350 L200 250 Z" fill="#facc15"/>
+  <path d="M332 150 L332 230 Q332 250 292 250 L292 350 L312 350 L312 250 Z" fill="#facc15"/>
+  <!-- Text MDM -->
+  <text x="256" y="440" font-family="Arial, sans-serif" font-weight="900" font-size="46" fill="#ffffff" text-anchor="middle" letter-spacing="4">MDM APP</text>
+</svg>
