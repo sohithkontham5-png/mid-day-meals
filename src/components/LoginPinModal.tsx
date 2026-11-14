@@ -166,17 +166,17 @@ export const LoginPinModal: React.FC<LoginPinModalProps> = ({
                 })}
               </div>
 
-              {/* Quick Demo Helper Box */}
-              <div className="mt-4 p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900">
-                <div className="font-bold flex items-center space-x-1 text-amber-950 mb-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Demo PINs Reference:</span>
+              {/* Initial Setup Info Box */}
+              <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-700">
+                <div className="font-bold flex items-center space-x-1 text-slate-800 mb-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Initial Admin Access:</span>
                 </div>
-                <div className="grid grid-cols-2 gap-1 text-[11px] text-amber-800">
-                  <div>• Headmaster: <strong className="font-mono">1234</strong></div>
-                  <div>• Class 6A: <strong className="font-mono">1111</strong></div>
-                  <div>• Class 6B: <strong className="font-mono">2222</strong></div>
-                  <div>• Class 7A: <strong className="font-mono">3333</strong></div>
+                <div className="text-[11px] text-slate-600 space-y-1">
+                  <div>• Default Headmaster PIN: <strong className="font-mono text-emerald-700">1234</strong></div>
+                  <div className="text-slate-500">
+                    To add your school's teachers and assign their classes/sections, log in as Headmaster and use the <strong>School Admin &rarr; Staff & PINs</strong> tab.
+                  </div>
                 </div>
               </div>
             </div>
@@ -273,3 +273,4 @@ export const LoginPinModal: React.FC<LoginPinModalProps> = ({
     </div>
   );
 };
+

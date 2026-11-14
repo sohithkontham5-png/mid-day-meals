@@ -330,8 +330,9 @@ BEGIN
             (v_c9, 'A'), (v_c9, 'B'),
             (v_c10, 'A'), (v_c10, 'B');
 
-        -- Headmaster user
+        -- Initial Headmaster / Admin user
         INSERT INTO users (school_id, name, phone_or_email, role, pin)
-        VALUES (v_school_id, 'Sri. K. Rama Rao (HM)', '9876543210', 'headmaster', '1234');
+        VALUES (v_school_id, 'Headmaster / Admin', 'admin', 'headmaster', '1234');
     END IF;
 END $$;
+

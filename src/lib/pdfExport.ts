@@ -340,3 +340,4 @@ export function exportMonthlySummaryToPDF(
 
   doc.save(`MDM_Monthly_Register_${year}_${monthName}.pdf`);
 }
+

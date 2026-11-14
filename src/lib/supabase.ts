@@ -53,3 +53,4 @@ export async function testSupabaseConnection(url: string, anonKey: string): Prom
     return { success: false, message: err?.message || 'Connection failed' };
   }
 }
+

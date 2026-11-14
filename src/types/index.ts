@@ -156,3 +156,4 @@ export interface MonthlyRowSummary {
   girls_total: number;
   grand_total: number;
 }
+

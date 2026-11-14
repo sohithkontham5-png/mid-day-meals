@@ -110,3 +110,4 @@ export function formatDateIndian(dateStr: string): string {
   const [y, m, d] = dateStr.split('-');
   return `${d}-${m}-${y}`;
 }
+

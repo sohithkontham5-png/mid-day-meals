@@ -698,3 +698,4 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
     </div>
   );
 };
+

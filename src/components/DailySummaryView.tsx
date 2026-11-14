@@ -605,3 +605,4 @@ export const DailySummaryView: React.FC<DailySummaryViewProps> = ({
     </div>
   );
 };
+

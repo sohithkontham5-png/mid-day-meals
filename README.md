@@ -70,24 +70,20 @@ npm run build
 
 ---
 
-## 👥 Default Demo Staff & PINs
+## 👥 Initial Setup & Adding Teachers
 
-| Staff Name | Role | Assigned Class | Demo 4-Digit PIN |
+The app starts with a clean setup containing only the primary administrative account:
+
+| Initial Account | Role | Access | Default PIN |
 |---|---|---|---|
-| **Sri. K. Rama Rao** | Headmaster / Admin | All Sections | **1234** |
-| **Smt. P. Lakshmi Devi** | Teacher | Class 6 - A | **1111** |
-| **Sri. M. Suresh Kumar** | Teacher | Class 6 - B | **2222** |
-| **Smt. S. Kavitha** | Teacher | Class 7 - A | **3333** |
-| **Sri. T. Rajesh** | Teacher | Class 7 - B | **4444** |
-| **Smt. V. Sunitha** | Teacher | Class 8 - A | **5555** |
-| **Sri. B. Naresh Babu** | Teacher | Class 8 - B | **6666** |
-| **Smt. G. Mary Prasanna** | Teacher | Class 9 - A | **7777** |
-| **Sri. A. Srinivas** | Teacher | Class 9 - B | **8888** |
-| **Smt. D. Padma** | Teacher | Class 10 - A | **9999** |
-| **Sri. K. Venkat Rao** | Teacher | Class 10 - B | **1212** |
-| **MEO / Inspection Officer** | Viewer | Read-Only | **0000** |
+| **Headmaster / Admin** | Headmaster / Admin | All Sections & Settings | **`1234`** |
 
-*Note: Headmaster can change any PIN, add new teachers, or reassign sections in the School Admin tab.*
+### How to Add Your School's Teachers:
+1. Log in with the default Headmaster account (PIN: `1234`).
+2. Go to the **School Admin** tab &rarr; click on **Staff & PINs**.
+3. Click the green **`+ Add Teacher / Staff`** button.
+4. Enter the teacher's name, assign their class/section (e.g. `Class 6 - A`), set their phone/ID, and give them a 4-digit PIN.
+5. You can edit, change PINs, or remove teachers at any time!
 
 ---
 
@@ -140,3 +136,4 @@ The database schema is defined in [supabase/schema.sql](file:///c:/Users/konth/O
 - **On Android (Chrome / Brave / Edge)**: Open the web link, tap the 3 dots menu -> tap **"Install app"** or **"Add to Home Screen"**.
 - **On iPhone (Safari)**: Open the web link, tap the **Share** button -> tap **"Add to Home Screen"**.
 - The app will install as a native icon on the home screen, opening full-screen with offline caching enabled!
+

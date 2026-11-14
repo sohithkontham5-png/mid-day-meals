@@ -40,6 +40,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [editUserPin, setEditUserPin] = useState('');
   const [editUserSection, setEditUserSection] = useState('');
 
+  // Add Staff State
+  const [showAddStaffForm, setShowAddStaffForm] = useState(false);
+  const [newStaffName, setNewStaffName] = useState('');
+  const [newStaffRole, setNewStaffRole] = useState<'teacher' | 'headmaster' | 'viewer'>('teacher');
+  const [newStaffSection, setNewStaffSection] = useState('');
+  const [newStaffPhone, setNewStaffPhone] = useState('');
+  const [newStaffPin, setNewStaffPin] = useState('1234');
+
   // Enrolment State
   const sections = StorageService.getSections();
   const [enrolments, setEnrolments] = useState<Enrolment[]>(StorageService.getEnrolments());
@@ -105,6 +113,51 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     StorageService.saveUsers(updated);
     setEditingUserId(null);
     showFeedback('Staff details and PIN updated successfully.');
+  };
+
+  const handleAddNewStaff = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newStaffName.trim()) {
+      showFeedback('Please enter teacher name.');
+      return;
+    }
+    const sec = sections.find((s) => s.id === newStaffSection);
+    const added = StorageService.addStaffUser(
+      {
+        name: newStaffName.trim(),
+        role: newStaffRole,
+        phone_or_email: newStaffPhone.trim() || `staff-${Date.now()}`,
+        school_id: school.id,
+        pin: newStaffPin.trim() || '1234',
+        assigned_section_id: newStaffSection || undefined,
+        assigned_section_name: sec ? sec.display_name : undefined,
+      },
+      currentUser
+    );
+
+    setUsers(StorageService.getUsers());
+    setNewStaffName('');
+    setNewStaffPhone('');
+    setNewStaffPin('1234');
+    setNewStaffSection('');
+    setShowAddStaffForm(false);
+    showFeedback(`Staff member "${added.name}" added successfully.`);
+  };
+
+  const handleDeleteStaff = (u: User) => {
+    if (u.id === currentUser.id) {
+      alert('You cannot delete your own active account.');
+      return;
+    }
+    if (confirm(`Are you sure you want to remove staff member "${u.name}"?`)) {
+      const ok = StorageService.deleteStaffUser(u.id, currentUser);
+      if (ok) {
+        setUsers(StorageService.getUsers());
+        showFeedback(`Staff member "${u.name}" deleted.`);
+      } else {
+        alert('Cannot delete this account. At least one Headmaster account must remain in the system.');
+      }
+    }
   };
 
   // Enrolment Handlers
@@ -256,14 +309,113 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       {/* TAB 1: Staff & PINs */}
       {activeTab === 'staff' && (
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden p-4 sm:p-6 space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="font-extrabold text-slate-800 text-base">Teacher & Staff Accounts</h3>
               <p className="text-xs text-slate-500">
-                Staff authenticate via 4-digit PIN. Headmaster has full administrative access.
+                Staff authenticate via 4-digit PIN. Add and assign your real teachers and sections below.
               </p>
             </div>
+
+            <button
+              onClick={() => setShowAddStaffForm(!showAddStaffForm)}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center space-x-1.5 shadow-sm transition-all self-start sm:self-auto"
+            >
+              <Plus className="w-4 h-4" />
+              <span>{showAddStaffForm ? 'Close Form' : '+ Add Teacher / Staff'}</span>
+            </button>
           </div>
+
+          {/* Add New Staff Form */}
+          {showAddStaffForm && (
+            <form onSubmit={handleAddNewStaff} className="bg-slate-50 p-4 rounded-xl border border-emerald-200/80 space-y-3 animate-in fade-in">
+              <div className="font-bold text-slate-800 text-xs uppercase tracking-wider text-emerald-800">
+                New Staff Details
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Teacher Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Smt. Lakshmi"
+                    value={newStaffName}
+                    onChange={(e) => setNewStaffName(e.target.value)}
+                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Role *</label>
+                  <select
+                    value={newStaffRole}
+                    onChange={(e) => setNewStaffRole(e.target.value as any)}
+                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  >
+                    <option value="teacher">Teacher</option>
+                    <option value="headmaster">Headmaster / Admin</option>
+                    <option value="viewer">Viewer / Inspector</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Assigned Section</label>
+                  <select
+                    value={newStaffSection}
+                    onChange={(e) => setNewStaffSection(e.target.value)}
+                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  >
+                    <option value="">None / Floating</option>
+                    {sections.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.display_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Phone / Employee ID</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 9848011111"
+                    value={newStaffPhone}
+                    onChange={(e) => setNewStaffPhone(e.target.value)}
+                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">4-Digit PIN *</label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={4}
+                    placeholder="1234"
+                    value={newStaffPin}
+                    onChange={(e) => setNewStaffPin(e.target.value.replace(/[^0-9]/g, ''))}
+                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono font-bold text-center focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowAddStaffForm(false)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-1.5 rounded-lg shadow-sm"
+                >
+                  Save Staff Member
+                </button>
+              </div>
+            </form>
+          )}
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
@@ -274,12 +426,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   <th className="py-2.5 px-3">Assigned Section</th>
                   <th className="py-2.5 px-3">Phone / ID</th>
                   <th className="py-2.5 px-3">Login PIN</th>
-                  <th className="py-2.5 px-3 text-right">Action</th>
+                  <th className="py-2.5 px-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {users.map((u) => {
                   const isEditing = editingUserId === u.id;
+                  const isSelf = u.id === currentUser.id;
                   return (
                     <tr key={u.id} className="hover:bg-slate-50/80 transition-colors">
                       <td className="py-2.5 px-3 font-bold text-slate-800">
@@ -291,7 +444,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                             className="px-2 py-1 bg-white border border-slate-300 rounded text-xs w-full"
                           />
                         ) : (
-                          u.name
+                          <div className="flex items-center space-x-1.5">
+                            <span>{u.name}</span>
+                            {isSelf && (
+                              <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded">
+                                (You)
+                              </span>
+                            )}
+                          </div>
                         )}
                       </td>
 
@@ -362,12 +522,23 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                             Save
                           </button>
                         ) : (
-                          <button
-                            onClick={() => handleStartEditUser(u)}
-                            className="text-slate-600 hover:text-emerald-700 font-bold px-2 py-1 rounded hover:bg-slate-100"
-                          >
-                            Edit
-                          </button>
+                          <div className="flex items-center justify-end space-x-1">
+                            <button
+                              onClick={() => handleStartEditUser(u)}
+                              className="text-slate-600 hover:text-emerald-700 font-bold px-2 py-1 rounded hover:bg-slate-100"
+                            >
+                              Edit
+                            </button>
+                            {!isSelf && (
+                              <button
+                                onClick={() => handleDeleteStaff(u)}
+                                className="text-slate-400 hover:text-rose-600 p-1 rounded hover:bg-rose-50"
+                                title="Delete staff"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
                         )}
                       </td>
                     </tr>
@@ -712,3 +883,4 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     </div>
   );
 };
+

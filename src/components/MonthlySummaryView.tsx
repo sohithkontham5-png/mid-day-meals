@@ -351,3 +351,4 @@ export const MonthlySummaryView: React.FC<MonthlySummaryViewProps> = ({
     </div>
   );
 };
+

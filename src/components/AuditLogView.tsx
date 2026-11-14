@@ -174,3 +174,4 @@ export const AuditLogView: React.FC<AuditLogViewProps> = ({ currentUser }) => {
     </div>
   );
 };
+

@@ -71,119 +71,11 @@ export const SEED_SECTIONS: SectionItem[] = [
 export const SEED_USERS: User[] = [
   {
     id: 'user-admin',
-    name: 'Sri. K. Rama Rao (HM)',
-    phone_or_email: '9876543210',
+    name: 'Headmaster / Admin',
+    phone_or_email: 'admin',
     role: 'headmaster',
     school_id: 'school-1',
     pin: '1234',
-  },
-  {
-    id: 'user-6a',
-    name: 'Smt. P. Lakshmi Devi',
-    phone_or_email: '9848011111',
-    role: 'teacher',
-    school_id: 'school-1',
-    pin: '1111',
-    assigned_section_id: 'sec-6A',
-    assigned_section_name: 'Class 6 - A',
-  },
-  {
-    id: 'user-6b',
-    name: 'Sri. M. Suresh Kumar',
-    phone_or_email: '9848022222',
-    role: 'teacher',
-    school_id: 'school-1',
-    pin: '2222',
-    assigned_section_id: 'sec-6B',
-    assigned_section_name: 'Class 6 - B',
-  },
-  {
-    id: 'user-7a',
-    name: 'Smt. S. Kavitha',
-    phone_or_email: '9848033333',
-    role: 'teacher',
-    school_id: 'school-1',
-    pin: '3333',
-    assigned_section_id: 'sec-7A',
-    assigned_section_name: 'Class 7 - A',
-  },
-  {
-    id: 'user-7b',
-    name: 'Sri. T. Rajesh',
-    phone_or_email: '9848044444',
-    role: 'teacher',
-    school_id: 'school-1',
-    pin: '4444',
-    assigned_section_id: 'sec-7B',
-    assigned_section_name: 'Class 7 - B',
-  },
-  {
-    id: 'user-8a',
-    name: 'Smt. V. Sunitha',
-    phone_or_email: '9848055555',
-    role: 'teacher',
-    school_id: 'school-1',
-    pin: '5555',
-    assigned_section_id: 'sec-8A',
-    assigned_section_name: 'Class 8 - A',
-  },
-  {
-    id: 'user-8b',
-    name: 'Sri. B. Naresh Babu',
-    phone_or_email: '9848066666',
-    role: 'teacher',
-    school_id: 'school-1',
-    pin: '6666',
-    assigned_section_id: 'sec-8B',
-    assigned_section_name: 'Class 8 - B',
-  },
-  {
-    id: 'user-9a',
-    name: 'Smt. G. Mary Prasanna',
-    phone_or_email: '9848077777',
-    role: 'teacher',
-    school_id: 'school-1',
-    pin: '7777',
-    assigned_section_id: 'sec-9A',
-    assigned_section_name: 'Class 9 - A',
-  },
-  {
-    id: 'user-9b',
-    name: 'Sri. A. Srinivas',
-    phone_or_email: '9848088888',
-    role: 'teacher',
-    school_id: 'school-1',
-    pin: '8888',
-    assigned_section_id: 'sec-9B',
-    assigned_section_name: 'Class 9 - B',
-  },
-  {
-    id: 'user-10a',
-    name: 'Smt. D. Padma',
-    phone_or_email: '9848099999',
-    role: 'teacher',
-    school_id: 'school-1',
-    pin: '9999',
-    assigned_section_id: 'sec-10A',
-    assigned_section_name: 'Class 10 - A',
-  },
-  {
-    id: 'user-10b',
-    name: 'Sri. K. Venkat Rao',
-    phone_or_email: '9848012121',
-    role: 'teacher',
-    school_id: 'school-1',
-    pin: '1212',
-    assigned_section_id: 'sec-10B',
-    assigned_section_name: 'Class 10 - B',
-  },
-  {
-    id: 'user-viewer',
-    name: 'MEO / District Inspection Officer',
-    phone_or_email: 'inspector@education.gov',
-    role: 'viewer',
-    school_id: 'school-1',
-    pin: '0000',
   },
 ];
 
@@ -350,9 +242,9 @@ function generateSampleEntries(): MdmEntry[] {
       remarks: 'Nutritious meal served with egg and fruit',
       locked: false,
       created_by: 'user-admin',
-      created_by_name: 'Sri. K. Rama Rao (HM)',
+      created_by_name: 'Headmaster / Admin',
       updated_by: 'user-admin',
-      updated_by_name: 'Sri. K. Rama Rao (HM)',
+      updated_by_name: 'Headmaster / Admin',
       created_at: `${yesterday}T13:30:00Z`,
       updated_at: `${yesterday}T13:30:00Z`,
       ...counts,
@@ -381,9 +273,9 @@ function generateSampleEntries(): MdmEntry[] {
       remarks: 'Egg Curry & Rice served',
       locked: false,
       created_by: 'user-admin',
-      created_by_name: 'Sri. K. Rama Rao (HM)',
+      created_by_name: 'Headmaster / Admin',
       updated_by: 'user-admin',
-      updated_by_name: 'Sri. K. Rama Rao (HM)',
+      updated_by_name: 'Headmaster / Admin',
       created_at: `${today}T13:15:00Z`,
       updated_at: `${today}T13:15:00Z`,
       ...counts,
@@ -427,7 +319,12 @@ export class StorageService {
     if (!localStorage.getItem(STORAGE_KEYS.SECTIONS)) {
       this.set(STORAGE_KEYS.SECTIONS, SEED_SECTIONS);
     }
-    if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
+    // Clean up any old mock users from previous storage
+    const existingUsers = this.get<User[]>(STORAGE_KEYS.USERS, []);
+    if (existingUsers.some(u => u.name.includes('Lakshmi Devi') || u.name.includes('Rama Rao') || u.name.includes('Suresh Kumar'))) {
+      this.set(STORAGE_KEYS.USERS, SEED_USERS);
+      this.set(STORAGE_KEYS.CURRENT_USER, SEED_USERS[0]);
+    } else if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
       this.set(STORAGE_KEYS.USERS, SEED_USERS);
     }
     if (!localStorage.getItem(STORAGE_KEYS.ENROLMENT)) {
@@ -449,7 +346,7 @@ export class StorageService {
           old_json: null,
           new_json: { status: 'System Initialized' },
           user_id: 'user-admin',
-          user_name: 'Sri. K. Rama Rao (HM)',
+          user_name: 'Headmaster / Admin',
           timestamp: new Date().toISOString(),
         },
       ];
@@ -489,6 +386,58 @@ export class StorageService {
 
   public static saveUsers(users: User[]): void {
     this.set(STORAGE_KEYS.USERS, users);
+  }
+
+  public static addStaffUser(
+    user: Omit<User, 'id'>,
+    byUser: User
+  ): User {
+    const users = this.getUsers();
+    const newUser: User = {
+      ...user,
+      id: `user-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    };
+    users.push(newUser);
+    this.saveUsers(users);
+
+    this.addAuditLog({
+      entity: 'users',
+      entity_id: newUser.id,
+      action: 'CREATE',
+      old_json: null,
+      new_json: newUser,
+      user_id: byUser.id,
+      user_name: byUser.name,
+    });
+
+    return newUser;
+  }
+
+  public static deleteStaffUser(userId: string, byUser: User): boolean {
+    const users = this.getUsers();
+    const target = users.find((u) => u.id === userId);
+    if (!target) return false;
+
+    // Do not delete if it is the only headmaster
+    const hmCount = users.filter((u) => u.role === 'headmaster').length;
+    if (target.role === 'headmaster' && hmCount <= 1) {
+      return false;
+    }
+
+    const updated = users.filter((u) => u.id !== userId);
+    this.saveUsers(updated);
+
+    this.addAuditLog({
+      entity: 'users',
+      entity_id: userId,
+      action: 'DELETE',
+      old_json: target,
+      new_json: null,
+      user_id: byUser.id,
+      user_name: byUser.name,
+    });
+
+    return true;
   }
 
   public static getCurrentUser(): User {
