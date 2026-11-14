@@ -166,6 +166,8 @@ export function App() {
               currentUser={currentUser}
               school={school}
               academicYear={academicYear}
+              onNavigateToDailySummary={handleNavigateToDailySummary}
+              onNavigateToEntry={handleNavigateToEntry}
             />
           )}
 
