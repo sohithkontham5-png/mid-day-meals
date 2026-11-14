@@ -432,7 +432,7 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
             </span>
           </div>
 
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-5 gap-1.5">
             {[6, 7, 8, 9, 10].map((classNum) => {
               const secA = sections.find((s) => s.class_number === classNum && s.name === 'A');
               const secB = sections.find((s) => s.class_number === classNum && s.name === 'B');
@@ -447,31 +447,27 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                   key={classNum}
                   type="button"
                   onClick={() => setSelectedClass(classNum)}
-                  className={`p-3 rounded-xl border text-center transition-all flex flex-col justify-between ${
+                  className={`p-2 rounded-xl border text-center transition-all flex flex-col items-center justify-between ${
                     isSelected
-                      ? 'bg-black text-white border-black shadow-md ring-2 ring-black/20'
+                      ? 'bg-black text-white border-black shadow-xs ring-2 ring-black/20'
                       : 'bg-zinc-50/80 border-zinc-200 text-zinc-700 hover:border-zinc-400 hover:bg-white'
                   }`}
                 >
-                  <div className="flex items-center justify-between w-full">
-                    <span className="text-[10px] font-mono uppercase opacity-70">
-                      {classNum <= 8 ? 'UP' : 'HS'}
-                    </span>
-                    {doneCount === 2 ? (
-                      <span className="w-2 h-2 rounded-full bg-emerald-400" title="Both sections recorded" />
-                    ) : doneCount === 1 ? (
-                      <span className="w-2 h-2 rounded-full bg-amber-400" title="1 section recorded" />
-                    ) : (
-                      <span className="w-2 h-2 rounded-full bg-zinc-300" title="Pending" />
-                    )}
+                  <div className="flex items-center justify-between w-full text-[9px] font-mono uppercase opacity-70">
+                    <span>{classNum <= 8 ? 'UP' : 'HS'}</span>
+                    <span 
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        doneCount === 2 ? 'bg-emerald-400' : doneCount === 1 ? 'bg-amber-400' : 'bg-zinc-300'
+                      }`} 
+                    />
                   </div>
 
-                  <div className="text-base sm:text-lg font-black font-mono my-1">
-                    Class {classNum}
+                  <div className="text-base font-black font-mono my-0.5">
+                    {classNum}
                   </div>
 
-                  <div className={`text-[10px] font-mono truncate ${isSelected ? 'text-zinc-300' : 'text-zinc-500'}`}>
-                    {doneCount > 0 ? `${classTotalMeals} meals` : 'Pending'}
+                  <div className={`text-[9px] font-mono truncate max-w-full ${isSelected ? 'text-zinc-300' : 'text-zinc-400'}`}>
+                    {doneCount > 0 ? `${classTotalMeals}m` : 'Empty'}
                   </div>
                 </button>
               );
@@ -486,11 +482,11 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
               Step 2: Select Section for Class {selectedClass}
             </span>
             <span className="text-xs font-mono text-zinc-500">
-              Currently Editing: <strong className="text-zinc-950 font-bold">{currentSection.display_name}</strong>
+              Active: <strong className="text-zinc-950 font-bold">{currentSection.display_name}</strong>
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2">
             {(['A', 'B'] as const).map((secName) => {
               const secItem = sections.find((s) => s.class_number === selectedClass && s.name === secName);
               if (!secItem) return null;
@@ -503,40 +499,39 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                 <div
                   key={secName}
                   onClick={() => setSelectedSectionName(secName)}
-                  className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
+                  className={`p-3 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
                     isSelected
-                      ? 'border-black ring-2 ring-black bg-white shadow-sm'
+                      ? 'border-black ring-2 ring-black bg-white shadow-xs'
                       : 'border-zinc-200 bg-zinc-50/70 hover:bg-white hover:border-zinc-300'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2.5">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs font-mono ${
-                        isSelected ? 'bg-black text-white' : 'bg-zinc-200 text-zinc-800'
-                      }`}>
-                        {secName}
-                      </div>
-                      <div>
-                        <div className="font-bold text-sm text-zinc-950">
-                          Class {selectedClass} - Section {secName}
-                        </div>
-                        {enr && (
-                          <div className="text-[11px] font-mono text-zinc-400">
-                            Enrolled: {enr.totals.grand_total} Students
-                          </div>
-                        )}
-                      </div>
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-6 h-6 rounded-md flex items-center justify-center font-bold text-xs font-mono shrink-0 ${
+                      isSelected ? 'bg-black text-white' : 'bg-zinc-200 text-zinc-800'
+                    }`}>
+                      {secName}
                     </div>
+                    <div className="overflow-hidden">
+                      <div className="font-bold text-xs text-zinc-950 truncate">
+                        Section {secName}
+                      </div>
+                      {enr && (
+                        <div className="text-[10px] font-mono text-zinc-400 truncate">
+                          {enr.totals.grand_total} Enrolled
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
+                  <div className="mt-2 text-right">
                     {isRecorded ? (
-                      <span className="text-[11px] font-mono font-semibold px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center space-x-1">
-                        <CheckCircle2 className="w-3 h-3" />
+                      <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center space-x-1">
+                        <CheckCircle2 className="w-2.5 h-2.5" />
                         <span>{entry.totals.grand_total} Meals</span>
                       </span>
                     ) : (
-                      <span className="text-[11px] font-mono font-semibold px-2.5 py-1 rounded bg-amber-50 text-amber-700 border border-amber-200 flex items-center space-x-1">
-                        <Clock className="w-3 h-3" />
-                        <span>Pending</span>
+                      <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-600 border border-zinc-200 inline-block">
+                        Pending
                       </span>
                     )}
                   </div>
@@ -637,45 +632,47 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
       </div>
 
       {/* 4 CATEGORY INPUT CARDS (NO EXCEL TABLE!) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs font-mono text-zinc-500 px-1 gap-1">
+      <div className="flex items-center justify-between text-xs font-mono text-zinc-500 px-1">
         <span className="font-semibold text-zinc-700">Enter Category Meal Counts</span>
-        <span className="text-[11px] text-zinc-400">⌨️ Tip: Type numbers directly • Press Enter or Tab to jump to the next field</span>
+        <span className="text-[10px] text-zinc-400">⌨️ Enter moves to next field</span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-3.5">
         {categories.map((cat) => {
           const isOverCapacity = cat.enrolledTotal !== null && cat.total > cat.enrolledTotal;
 
           return (
             <div
               key={cat.key}
-              className={`bg-white rounded-xl border p-5 shadow-sm transition-all space-y-4 ${
+              className={`bg-white rounded-2xl border p-4 shadow-xs transition-all space-y-3 ${
                 isOverCapacity 
-                  ? 'border-amber-300 ring-1 ring-amber-300/50' 
+                  ? 'border-amber-400 ring-2 ring-amber-300/40' 
                   : 'border-zinc-200 hover:border-zinc-300'
               }`}
             >
               {/* Category Card Header */}
-              <div className="flex items-start justify-between border-b border-zinc-100 pb-3">
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <span className="w-2 h-2 rounded-full bg-black" />
-                    <h4 className="font-bold text-base text-zinc-950 tracking-tight">
-                      {cat.name}
-                    </h4>
-                    <span className="text-xs text-zinc-400 font-medium">
-                      ({cat.fullName})
-                    </span>
-                  </div>
-                  {cat.enrolledTotal !== null && (
-                    <div className="text-[11px] font-mono text-zinc-400 mt-0.5">
-                      Enrolled: {cat.enrolledTotal} ({cat.enrolledBoys} B • {cat.enrolledGirls} G)
+              <div className="flex items-center justify-between border-b border-zinc-100 pb-2.5">
+                <div className="flex items-center space-x-2">
+                  <span className="w-2 h-2 rounded-full bg-black shrink-0" />
+                  <div>
+                    <div className="flex items-baseline space-x-1.5">
+                      <h4 className="font-bold text-sm text-zinc-950 tracking-tight font-mono">
+                        {cat.name}
+                      </h4>
+                      <span className="text-xs text-zinc-500 font-medium">
+                        ({cat.fullName})
+                      </span>
                     </div>
-                  )}
+                    {cat.enrolledTotal !== null && (
+                      <div className="text-[10px] font-mono text-zinc-400">
+                        Enrolled: {cat.enrolledTotal} ({cat.enrolledBoys} B • {cat.enrolledGirls} G)
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Live Category Total Badge */}
-                <div className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold border transition-colors ${
+                <div className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold border transition-colors shrink-0 ${
                   isOverCapacity
                     ? 'bg-amber-50 text-amber-900 border-amber-200'
                     : 'bg-zinc-100 text-zinc-900 border-zinc-200'
@@ -685,27 +682,27 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
               </div>
 
               {/* 2 Touch-Friendly Number Inputs (Boys & Girls) */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2.5">
                 {/* Boys Input Block */}
                 <div 
                   onClick={() => inputRefs.current[cat.boysKey]?.focus()}
-                  className="bg-zinc-50/80 rounded-xl p-3 border border-zinc-200/80 focus-within:border-black focus-within:ring-1 focus-within:ring-black focus-within:bg-white transition-all cursor-text"
+                  className="bg-zinc-50/90 rounded-xl p-2.5 border border-zinc-200/80 focus-within:border-black focus-within:ring-1 focus-within:ring-black focus-within:bg-white transition-all cursor-text"
                 >
-                  <div className="flex items-center justify-between text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 font-mono">
+                  <div className="flex items-center justify-between text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1 font-mono">
                     <span>Boys</span>
                     {cat.enrolledBoys !== null && (
                       <span className="text-[10px] text-zinc-400 lowercase">max ~{cat.enrolledBoys}</span>
                     )}
                   </div>
-                  <div className="flex items-center space-x-1.5" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex items-center justify-between gap-1" onClick={(e) => e.stopPropagation()}>
                     <button
                       type="button"
                       disabled={isReadonlyForTeacher}
                       onClick={() => handleStep(cat.boysKey, -1)}
-                      className="w-8 h-8 rounded-lg bg-white border border-zinc-200 text-zinc-600 hover:text-black hover:border-zinc-300 flex items-center justify-center shrink-0 transition-colors disabled:opacity-30 active:scale-95"
+                      className="w-7 h-7 rounded-lg bg-white border border-zinc-200 text-zinc-700 hover:text-black hover:border-zinc-400 flex items-center justify-center shrink-0 transition-colors disabled:opacity-30 active:scale-95 shadow-2xs"
                       title="Decrease by 1"
                     >
-                      <Minus className="w-3.5 h-3.5" />
+                      <Minus className="w-3 h-3" />
                     </button>
                     <input
                       ref={(el) => { inputRefs.current[cat.boysKey] = el; }}
@@ -718,16 +715,16 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                       onFocus={(e) => e.target.select()}
                       onKeyDown={(e) => handleKeyDown(cat.boysKey, e)}
                       onChange={(e) => handleInputChange(cat.boysKey, e.target.value)}
-                      className="w-full text-center font-mono font-black text-xl text-zinc-950 bg-transparent focus:outline-none"
+                      className="w-full min-w-0 text-center font-mono font-black text-lg text-zinc-950 bg-transparent focus:outline-none"
                     />
                     <button
                       type="button"
                       disabled={isReadonlyForTeacher}
                       onClick={() => handleStep(cat.boysKey, 1)}
-                      className="w-8 h-8 rounded-lg bg-white border border-zinc-200 text-zinc-600 hover:text-black hover:border-zinc-300 flex items-center justify-center shrink-0 transition-colors disabled:opacity-30 active:scale-95"
+                      className="w-7 h-7 rounded-lg bg-white border border-zinc-200 text-zinc-700 hover:text-black hover:border-zinc-400 flex items-center justify-center shrink-0 transition-colors disabled:opacity-30 active:scale-95 shadow-2xs"
                       title="Increase by 1"
                     >
-                      <Plus className="w-3.5 h-3.5" />
+                      <Plus className="w-3 h-3" />
                     </button>
                   </div>
                 </div>
@@ -735,23 +732,23 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                 {/* Girls Input Block */}
                 <div 
                   onClick={() => inputRefs.current[cat.girlsKey]?.focus()}
-                  className="bg-zinc-50/80 rounded-xl p-3 border border-zinc-200/80 focus-within:border-black focus-within:ring-1 focus-within:ring-black focus-within:bg-white transition-all cursor-text"
+                  className="bg-zinc-50/90 rounded-xl p-2.5 border border-zinc-200/80 focus-within:border-black focus-within:ring-1 focus-within:ring-black focus-within:bg-white transition-all cursor-text"
                 >
-                  <div className="flex items-center justify-between text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 font-mono">
+                  <div className="flex items-center justify-between text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1 font-mono">
                     <span>Girls</span>
                     {cat.enrolledGirls !== null && (
                       <span className="text-[10px] text-zinc-400 lowercase">max ~{cat.enrolledGirls}</span>
                     )}
                   </div>
-                  <div className="flex items-center space-x-1.5" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex items-center justify-between gap-1" onClick={(e) => e.stopPropagation()}>
                     <button
                       type="button"
                       disabled={isReadonlyForTeacher}
                       onClick={() => handleStep(cat.girlsKey, -1)}
-                      className="w-8 h-8 rounded-lg bg-white border border-zinc-200 text-zinc-600 hover:text-black hover:border-zinc-300 flex items-center justify-center shrink-0 transition-colors disabled:opacity-30 active:scale-95"
+                      className="w-7 h-7 rounded-lg bg-white border border-zinc-200 text-zinc-700 hover:text-black hover:border-zinc-400 flex items-center justify-center shrink-0 transition-colors disabled:opacity-30 active:scale-95 shadow-2xs"
                       title="Decrease by 1"
                     >
-                      <Minus className="w-3.5 h-3.5" />
+                      <Minus className="w-3 h-3" />
                     </button>
                     <input
                       ref={(el) => { inputRefs.current[cat.girlsKey] = el; }}
@@ -764,16 +761,16 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                       onFocus={(e) => e.target.select()}
                       onKeyDown={(e) => handleKeyDown(cat.girlsKey, e)}
                       onChange={(e) => handleInputChange(cat.girlsKey, e.target.value)}
-                      className="w-full text-center font-mono font-black text-xl text-zinc-950 bg-transparent focus:outline-none"
+                      className="w-full min-w-0 text-center font-mono font-black text-lg text-zinc-950 bg-transparent focus:outline-none"
                     />
                     <button
                       type="button"
                       disabled={isReadonlyForTeacher}
                       onClick={() => handleStep(cat.girlsKey, 1)}
-                      className="w-8 h-8 rounded-lg bg-white border border-zinc-200 text-zinc-600 hover:text-black hover:border-zinc-300 flex items-center justify-center shrink-0 transition-colors disabled:opacity-30 active:scale-95"
+                      className="w-7 h-7 rounded-lg bg-white border border-zinc-200 text-zinc-700 hover:text-black hover:border-zinc-400 flex items-center justify-center shrink-0 transition-colors disabled:opacity-30 active:scale-95 shadow-2xs"
                       title="Increase by 1"
                     >
-                      <Plus className="w-3.5 h-3.5" />
+                      <Plus className="w-3 h-3" />
                     </button>
                   </div>
                 </div>
