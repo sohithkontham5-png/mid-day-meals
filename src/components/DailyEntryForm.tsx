@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   SectionItem, 
   User, 
@@ -169,6 +169,36 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
     const sanitized = rawValue.replace(/[^0-9]/g, '');
     setCounts((prev) => ({ ...prev, [field]: sanitized }));
     setErrorMsg('');
+  };
+
+  const fieldOrder: (keyof typeof counts)[] = [
+    'sc_boys', 'sc_girls',
+    'st_boys', 'st_girls',
+    'bc_boys', 'bc_girls',
+    'oc_boys', 'oc_girls'
+  ];
+
+  const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const remarksRef = useRef<HTMLInputElement | null>(null);
+
+  const handleKeyDown = (field: keyof typeof counts, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const idx = fieldOrder.indexOf(field);
+      if (idx < fieldOrder.length - 1) {
+        const nextField = fieldOrder[idx + 1];
+        inputRefs.current[nextField]?.focus();
+        inputRefs.current[nextField]?.select();
+      } else {
+        remarksRef.current?.focus();
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      handleStep(field, 1);
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      handleStep(field, -1);
+    }
   };
 
   const handleStep = (field: keyof typeof counts, delta: number) => {
@@ -537,6 +567,11 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
       </div>
 
       {/* 4 CATEGORY INPUT CARDS (NO EXCEL TABLE!) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs font-mono text-zinc-500 px-1 gap-1">
+        <span className="font-semibold text-zinc-700">Enter Category Meal Counts</span>
+        <span className="text-[11px] text-zinc-400">⌨️ Tip: Type numbers directly • Press Enter or Tab to jump to the next field</span>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {categories.map((cat) => {
           const isOverCapacity = cat.enrolledTotal !== null && cat.total > cat.enrolledTotal;
@@ -582,14 +617,17 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
               {/* 2 Touch-Friendly Number Inputs (Boys & Girls) */}
               <div className="grid grid-cols-2 gap-3">
                 {/* Boys Input Block */}
-                <div className="bg-zinc-50/80 rounded-xl p-3 border border-zinc-200/80 focus-within:border-black focus-within:bg-white transition-all">
+                <div 
+                  onClick={() => inputRefs.current[cat.boysKey]?.focus()}
+                  className="bg-zinc-50/80 rounded-xl p-3 border border-zinc-200/80 focus-within:border-black focus-within:ring-1 focus-within:ring-black focus-within:bg-white transition-all cursor-text"
+                >
                   <div className="flex items-center justify-between text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 font-mono">
                     <span>Boys</span>
                     {cat.enrolledBoys !== null && (
                       <span className="text-[10px] text-zinc-400 lowercase">max ~{cat.enrolledBoys}</span>
                     )}
                   </div>
-                  <div className="flex items-center space-x-1.5">
+                  <div className="flex items-center space-x-1.5" onClick={(e) => e.stopPropagation()}>
                     <button
                       type="button"
                       disabled={isReadonlyForTeacher}
@@ -600,6 +638,7 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                       <Minus className="w-3.5 h-3.5" />
                     </button>
                     <input
+                      ref={(el) => { inputRefs.current[cat.boysKey] = el; }}
                       type="text"
                       inputMode="numeric"
                       pattern="[0-9]*"
@@ -607,6 +646,7 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                       disabled={isReadonlyForTeacher}
                       value={cat.boysVal}
                       onFocus={(e) => e.target.select()}
+                      onKeyDown={(e) => handleKeyDown(cat.boysKey, e)}
                       onChange={(e) => handleInputChange(cat.boysKey, e.target.value)}
                       className="w-full text-center font-mono font-black text-xl text-zinc-950 bg-transparent focus:outline-none"
                     />
@@ -623,14 +663,17 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                 </div>
 
                 {/* Girls Input Block */}
-                <div className="bg-zinc-50/80 rounded-xl p-3 border border-zinc-200/80 focus-within:border-black focus-within:bg-white transition-all">
+                <div 
+                  onClick={() => inputRefs.current[cat.girlsKey]?.focus()}
+                  className="bg-zinc-50/80 rounded-xl p-3 border border-zinc-200/80 focus-within:border-black focus-within:ring-1 focus-within:ring-black focus-within:bg-white transition-all cursor-text"
+                >
                   <div className="flex items-center justify-between text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 font-mono">
                     <span>Girls</span>
                     {cat.enrolledGirls !== null && (
                       <span className="text-[10px] text-zinc-400 lowercase">max ~{cat.enrolledGirls}</span>
                     )}
                   </div>
-                  <div className="flex items-center space-x-1.5">
+                  <div className="flex items-center space-x-1.5" onClick={(e) => e.stopPropagation()}>
                     <button
                       type="button"
                       disabled={isReadonlyForTeacher}
@@ -641,6 +684,7 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                       <Minus className="w-3.5 h-3.5" />
                     </button>
                     <input
+                      ref={(el) => { inputRefs.current[cat.girlsKey] = el; }}
                       type="text"
                       inputMode="numeric"
                       pattern="[0-9]*"
@@ -648,6 +692,7 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                       disabled={isReadonlyForTeacher}
                       value={cat.girlsVal}
                       onFocus={(e) => e.target.select()}
+                      onKeyDown={(e) => handleKeyDown(cat.girlsKey, e)}
                       onChange={(e) => handleInputChange(cat.girlsKey, e.target.value)}
                       className="w-full text-center font-mono font-black text-xl text-zinc-950 bg-transparent focus:outline-none"
                     />
@@ -702,6 +747,7 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
         </div>
 
         <input
+          ref={remarksRef}
           type="text"
           disabled={isReadonlyForTeacher}
           value={remarks}
