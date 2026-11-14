@@ -4,8 +4,8 @@
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 font-sans antialiased;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    @apply bg-[#fafafa] text-zinc-950 font-sans antialiased;
+    letter-spacing: -0.011em;
   }
 
   /* Remove arrows from number input */
@@ -28,11 +28,16 @@
   scrollbar-width: none;
 }
 
+/* Vercel Crisp UI Shadows & Borders */
+.vercel-card {
+  @apply bg-white border border-zinc-200 shadow-[0_1px_2px_rgba(0,0,0,0.04)] rounded-xl;
+}
+
 /* Print Specific Styles for A4 Landscape MDM Registers */
 @media print {
   @page {
     size: A4 landscape;
-    margin: 10mm;
+    margin: 8mm;
   }
 
   body {
@@ -51,9 +56,8 @@
   }
 
   th, td {
-    border: 1px solid #94a3b8 !important;
+    border: 1px solid #d4d4d8 !important;
     padding: 3px 4px !important;
     color: black !important;
   }
 }
-

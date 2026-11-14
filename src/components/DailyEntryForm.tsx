@@ -21,14 +21,11 @@ import {
   AlertTriangle, 
   Lock, 
   Unlock, 
-  ArrowRight, 
   Clock, 
-  Calendar, 
-  Info,
   ChevronLeft,
   ChevronRight,
   ShieldAlert,
-  Sparkles
+  Info
 } from 'lucide-react';
 
 interface DailyEntryFormProps {
@@ -135,7 +132,6 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
     }
   }, [selectedDate, selectedSectionId]);
 
-  // Convert input string to integer or null
   const parseVal = (val: string): number | null => {
     if (val.trim() === '') return null;
     const num = parseInt(val, 10);
@@ -153,31 +149,28 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
     oc_girls: parseVal(counts.oc_girls),
   };
 
-  // Live computed totals
   const liveTotals = computeTotals(parsedCounts);
 
-  // Enrolment comparison warnings
   const warnings: string[] = [];
   if (enrolment) {
     if (liveTotals.sc_total > enrolment.totals.sc_total) {
-      warnings.push(`SC meal count (${liveTotals.sc_total}) exceeds enrolled SC students (${enrolment.totals.sc_total})`);
+      warnings.push(`SC meals (${liveTotals.sc_total}) exceed enrolled SC (${enrolment.totals.sc_total})`);
     }
     if (liveTotals.st_total > enrolment.totals.st_total) {
-      warnings.push(`ST meal count (${liveTotals.st_total}) exceeds enrolled ST students (${enrolment.totals.st_total})`);
+      warnings.push(`ST meals (${liveTotals.st_total}) exceed enrolled ST (${enrolment.totals.st_total})`);
     }
     if (liveTotals.bc_total > enrolment.totals.bc_total) {
-      warnings.push(`BC meal count (${liveTotals.bc_total}) exceeds enrolled BC students (${enrolment.totals.bc_total})`);
+      warnings.push(`BC meals (${liveTotals.bc_total}) exceed enrolled BC (${enrolment.totals.bc_total})`);
     }
     if (liveTotals.oc_total > enrolment.totals.oc_total) {
-      warnings.push(`OC meal count (${liveTotals.oc_total}) exceeds enrolled OC students (${enrolment.totals.oc_total})`);
+      warnings.push(`OC meals (${liveTotals.oc_total}) exceed enrolled OC (${enrolment.totals.oc_total})`);
     }
     if (liveTotals.grand_total > enrolment.totals.grand_total) {
-      warnings.push(`Grand total meals (${liveTotals.grand_total}) exceeds total enrolled students (${enrolment.totals.grand_total})`);
+      warnings.push(`Grand total meals (${liveTotals.grand_total}) exceed total enrolled (${enrolment.totals.grand_total})`);
     }
   }
 
   const handleInputChange = (field: keyof typeof counts, rawValue: string) => {
-    // Only accept numbers or empty string
     const sanitized = rawValue.replace(/[^0-9]/g, '');
     setCounts((prev) => ({ ...prev, [field]: sanitized }));
     setErrorMsg('');
@@ -185,7 +178,7 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
 
   const handleSave = (moveToNext: boolean = false) => {
     if (isFutureDate(selectedDate, todayStr)) {
-      setErrorMsg('Cannot enter meals for future dates.');
+      setErrorMsg('Cannot record meals for future dates.');
       return;
     }
 
@@ -213,11 +206,10 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
 
     if (result.success) {
       setExistingEntry(result.entry || null);
-      setSuccessMsg(`Successfully saved ${currentSection.display_name} for ${formatDateIndian(selectedDate)}!`);
+      setSuccessMsg(`Saved ${currentSection.display_name} for ${formatDateIndian(selectedDate)}.`);
       if (onSaved) onSaved();
 
       if (moveToNext) {
-        // Move to the next section in the list
         const currentIndex = sections.findIndex((s) => s.id === selectedSectionId);
         const nextIndex = (currentIndex + 1) % sections.length;
         setSelectedSectionId(sections[nextIndex].id);
@@ -233,36 +225,34 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
     const ok = StorageService.toggleEntryLock(existingEntry.id, newLockState, currentUser);
     if (ok) {
       setExistingEntry((prev) => (prev ? { ...prev, locked: newLockState } : null));
-      setSuccessMsg(`Entry ${newLockState ? 'locked' : 'unlocked'} successfully.`);
+      setSuccessMsg(`Entry ${newLockState ? 'locked' : 'unlocked'}.`);
     }
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-16">
-      {/* Header and Back button */}
+      {/* Header and Back navigation */}
       <div className="flex items-center justify-between">
         <button
           onClick={onBackToDashboard}
-          className="text-xs font-bold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3 py-1.5 rounded-xl flex items-center space-x-1.5 shadow-sm transition-all"
+          className="text-xs font-medium text-zinc-600 hover:text-black bg-white border border-zinc-200 px-3 py-1.5 rounded-lg flex items-center space-x-1.5 shadow-sm transition-all"
         >
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft className="w-3.5 h-3.5" />
           <span>Dashboard</span>
         </button>
 
-        <div className="text-right">
-          <span className="text-xs font-semibold text-slate-500">Fast Entry Mode</span>
-        </div>
+        <span className="text-xs font-mono text-zinc-400">Fast Entry Mode</span>
       </div>
 
       {/* Main Entry Card */}
-      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-        {/* Top Controls: Date & Section Picker */}
-        <div className="bg-slate-50/80 p-4 sm:p-5 border-b border-slate-200">
+      <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
+        {/* Top Controls: Section & Date */}
+        <div className="bg-zinc-50/60 p-4 sm:p-5 border-b border-zinc-200 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Class & Section Selector */}
+            {/* Section Pills */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                Select Class & Section
+              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">
+                Class & Section
               </label>
               <div className="flex flex-wrap gap-1.5">
                 {sections.map((sec) => {
@@ -272,16 +262,16 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                     <button
                       key={sec.id}
                       onClick={() => setSelectedSectionId(sec.id)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold transition-all ${
                         isSelected
-                          ? 'bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-600/30'
-                          : 'bg-white border border-slate-200 text-slate-700 hover:border-emerald-300'
+                          ? 'bg-black text-white shadow-sm'
+                          : 'bg-white border border-zinc-200 text-zinc-700 hover:border-zinc-400'
                       }`}
                     >
                       <span>{sec.display_name.replace('Class ', '')}</span>
                       {isAssigned && (
-                        <span className={`ml-1 text-[9px] px-1 py-0.2 rounded font-bold uppercase ${
-                          isSelected ? 'bg-emerald-800 text-emerald-100' : 'bg-emerald-100 text-emerald-800'
+                        <span className={`ml-1 text-[9px] uppercase px-1 rounded ${
+                          isSelected ? 'bg-zinc-800 text-zinc-200' : 'bg-zinc-100 text-zinc-600'
                         }`}>
                           Mine
                         </span>
@@ -291,18 +281,17 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                 })}
               </div>
 
-              {/* Substitute / Proxy Notice if entering another section */}
               {isTeacher && currentUser.assigned_section_id && currentUser.assigned_section_id !== selectedSectionId && (
-                <div className="mt-2 text-[11px] text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-lg flex items-center space-x-1">
-                  <Info className="w-3.5 h-3.5 shrink-0" />
-                  <span>Entering for colleague as substitute. Your login will be recorded in the audit trail.</span>
+                <div className="mt-2 text-[11px] text-zinc-600 bg-zinc-100 border border-zinc-200 px-2.5 py-1 rounded-md flex items-center space-x-1.5">
+                  <Info className="w-3.5 h-3.5 shrink-0 text-zinc-500" />
+                  <span>Entering for colleague as substitute. Activity is logged.</span>
                 </div>
               )}
             </div>
 
-            {/* Date Selector */}
+            {/* Date Picker */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">
                 Date of Attendance
               </label>
               <div className="flex items-center space-x-2">
@@ -311,30 +300,29 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                   max={todayStr}
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-xl font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  className="w-full px-3 py-1.5 text-xs font-mono bg-white border border-zinc-200 rounded-lg font-medium text-zinc-900 focus:border-black focus:ring-1 focus:ring-black focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => setSelectedDate(todayStr)}
-                  className={`px-3 py-2 text-xs font-bold rounded-xl border shrink-0 transition-colors ${
+                  className={`px-3 py-1.5 text-xs font-medium rounded-lg border shrink-0 transition-colors ${
                     selectedDate === todayStr
-                      ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                      ? 'bg-black text-white border-black'
+                      : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50'
                   }`}
                 >
                   Today
                 </button>
               </div>
 
-              {/* Day Notice */}
               <div className="mt-2 text-xs flex items-center space-x-2">
                 {sundayCheck && (
-                  <span className="text-rose-600 font-bold bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                  <span className="text-zinc-700 font-mono text-[11px] font-semibold bg-zinc-100 px-2 py-0.5 rounded border border-zinc-200">
                     Sunday (School Closed)
                   </span>
                 )}
                 {holidayCheck.is_holiday && (
-                  <span className="text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                  <span className="text-zinc-900 font-mono text-[11px] font-semibold bg-zinc-100 px-2 py-0.5 rounded border border-zinc-300">
                     Holiday: {holidayCheck.reason}
                   </span>
                 )}
@@ -343,40 +331,32 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
           </div>
         </div>
 
-        {/* Lock Notice Banner (1-Day Lock rule) */}
+        {/* Lock Notice Banner */}
         {isReadonlyForTeacher && (
-          <div className="bg-amber-50 border-b border-amber-200 p-4 flex items-center justify-between">
-            <div className="flex items-center space-x-2.5 text-amber-900">
-              <Lock className="w-5 h-5 text-amber-600 shrink-0" />
-              <div>
-                <div className="font-bold text-sm">Entry Locked for Teachers</div>
-                <div className="text-xs text-amber-800">
-                  {isExplicitlyLocked
-                    ? 'This entry has been locked by the Headmaster.'
-                    : 'Entries older than 1 day are automatically locked. Please request Headmaster to modify.'}
-                </div>
-              </div>
+          <div className="bg-zinc-100 border-b border-zinc-200 p-3.5 flex items-center space-x-2.5 text-zinc-800 text-xs">
+            <Lock className="w-4 h-4 text-zinc-600 shrink-0" />
+            <div>
+              <span className="font-semibold">Entry Locked for Teachers: </span>
+              <span className="text-zinc-600">
+                {isExplicitlyLocked
+                  ? 'Locked by Headmaster.'
+                  : 'Entries older than 1 day are locked. Contact Headmaster to edit.'}
+              </span>
             </div>
           </div>
         )}
 
         {/* Headmaster Lock/Unlock Controls */}
         {isHeadmaster && existingEntry && (
-          <div className="bg-slate-50 px-4 py-2 border-b border-slate-200 flex items-center justify-between text-xs">
-            <div className="flex items-center space-x-2 text-slate-600">
-              <span>Status: <strong className={existingEntry.locked ? 'text-rose-600' : 'text-emerald-600'}>
+          <div className="bg-zinc-50 px-4 py-2 border-b border-zinc-200 flex items-center justify-between text-xs font-mono">
+            <div className="flex items-center space-x-2 text-zinc-500">
+              <span>Status: <strong className={existingEntry.locked ? 'text-black' : 'text-zinc-800'}>
                 {existingEntry.locked ? 'Locked' : 'Unlocked'}
               </strong></span>
-              <span>•</span>
-              <span>Last updated: {existingEntry.updated_by_name || 'Admin'}</span>
             </div>
             <button
               onClick={handleToggleLock}
-              className={`flex items-center space-x-1 px-2.5 py-1 rounded-lg font-bold border transition-colors ${
-                existingEntry.locked
-                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
-                  : 'bg-rose-50 text-rose-800 border-rose-300 hover:bg-rose-100'
-              }`}
+              className="flex items-center space-x-1 px-2.5 py-1 rounded border border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-800 font-sans font-medium text-xs transition-colors"
             >
               {existingEntry.locked ? <Unlock className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
               <span>{existingEntry.locked ? 'Unlock for Staff' : 'Lock Entry'}</span>
@@ -384,14 +364,14 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
           </div>
         )}
 
-        {/* Enrolment Warning Banner */}
+        {/* Enrolment Warnings */}
         {warnings.length > 0 && (
-          <div className="bg-amber-50 border-b border-amber-200 p-3 sm:px-5">
-            <div className="flex items-start space-x-2 text-amber-900 text-xs">
-              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+          <div className="bg-zinc-50 border-b border-zinc-200 p-3 sm:px-5">
+            <div className="flex items-start space-x-2 text-zinc-800 text-xs">
+              <AlertTriangle className="w-4 h-4 text-zinc-600 shrink-0 mt-0.5" />
               <div>
-                <span className="font-bold">Enrolment Threshold Warning:</span>
-                <ul className="list-disc list-inside mt-0.5 space-y-0.5 text-amber-800">
+                <span className="font-bold">Threshold Alert:</span>
+                <ul className="list-disc list-inside mt-0.5 space-y-0.5 text-zinc-600 font-mono text-[11px]">
                   {warnings.map((w, i) => (
                     <li key={i}>{w}</li>
                   ))}
@@ -403,62 +383,59 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
 
         {/* Success and Error Alerts */}
         {successMsg && (
-          <div className="bg-emerald-50 border-b border-emerald-200 p-3 sm:px-5 flex items-center space-x-2 text-emerald-900 text-xs sm:text-sm font-semibold animate-in fade-in">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <div className="bg-zinc-100 border-b border-zinc-200 p-3 sm:px-5 flex items-center space-x-2 text-zinc-900 text-xs font-medium animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 text-black shrink-0" />
             <span>{successMsg}</span>
           </div>
         )}
 
         {errorMsg && (
-          <div className="bg-rose-50 border-b border-rose-200 p-3 sm:px-5 flex items-center space-x-2 text-rose-900 text-xs sm:text-sm font-semibold">
-            <ShieldAlert className="w-4 h-4 text-rose-600 shrink-0" />
+          <div className="bg-zinc-900 border-b border-black p-3 sm:px-5 flex items-center space-x-2 text-white text-xs font-medium">
+            <ShieldAlert className="w-4 h-4 text-white shrink-0" />
             <span>{errorMsg}</span>
           </div>
         )}
 
-        {/* CORE FEATURE 1: 8 Numbers Entry Grid */}
+        {/* 8 Numbers Entry Grid */}
         <div className="p-4 sm:p-6 space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-base sm:text-lg font-extrabold text-slate-800">
+              <h3 className="text-base font-bold text-zinc-950">
                 {currentSection.display_name} Meal Counts
               </h3>
-              <p className="text-xs text-slate-500">
-                Enter whole numbers (0 or more). Totals calculate in real-time.
+              <p className="text-xs text-zinc-500 font-mono">
+                Enter counts (whole numbers ≥ 0). Totals calculate automatically.
               </p>
             </div>
 
             {enrolment && (
-              <div className="text-right text-xs bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
-                <span className="text-slate-500">Enrolled Strength: </span>
-                <strong className="text-slate-800 font-extrabold">{enrolment.totals.grand_total}</strong>
-                <span className="text-slate-400"> (B:{enrolment.totals.boys_total} / G:{enrolment.totals.girls_total})</span>
+              <div className="text-right text-xs bg-zinc-50 px-3 py-1.5 rounded-lg border border-zinc-200 font-mono">
+                <span className="text-zinc-500">Enrolled: </span>
+                <strong className="text-zinc-950 font-bold">{enrolment.totals.grand_total}</strong>
+                <span className="text-zinc-400"> (B:{enrolment.totals.boys_total} / G:{enrolment.totals.girls_total})</span>
               </div>
             )}
           </div>
 
-          {/* Form Grid */}
-          <div className="border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+          {/* Form Table */}
+          <div className="border border-zinc-200 rounded-xl overflow-hidden shadow-sm">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-100/90 text-slate-700 text-xs font-extrabold uppercase border-b border-slate-200">
-                  <th className="py-3 px-3 sm:px-4">Category</th>
-                  <th className="py-3 px-2 sm:px-4 text-center">Boys Count</th>
-                  <th className="py-3 px-2 sm:px-4 text-center">Girls Count</th>
-                  <th className="py-3 px-3 sm:px-4 text-center bg-slate-200/60">Caste Total</th>
+                <tr className="bg-zinc-50 text-zinc-600 text-xs font-semibold uppercase border-b border-zinc-200">
+                  <th className="py-2.5 px-3 sm:px-4">Category</th>
+                  <th className="py-2.5 px-2 sm:px-4 text-center">Boys Count</th>
+                  <th className="py-2.5 px-2 sm:px-4 text-center">Girls Count</th>
+                  <th className="py-2.5 px-3 sm:px-4 text-center bg-zinc-100/70">Caste Total</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200 text-sm">
+              <tbody className="divide-y divide-zinc-200 text-sm">
                 
                 {/* 1. SC Row */}
-                <tr className="hover:bg-slate-50/80 transition-colors">
-                  <td className="py-3 px-3 sm:px-4 font-bold text-slate-800">
-                    <div className="flex items-center space-x-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-                      <span>SC (Scheduled Caste)</span>
-                    </div>
+                <tr className="hover:bg-zinc-50/50 transition-colors">
+                  <td className="py-3 px-3 sm:px-4 font-semibold text-zinc-900">
+                    <div>SC (Scheduled Caste)</div>
                     {enrolment && (
-                      <div className="text-[10px] text-slate-400 pl-4.5">
+                      <div className="text-[10px] text-zinc-400 font-mono">
                         Enrolled: {enrolment.totals.sc_total} (B:{enrolment.sc_boys} G:{enrolment.sc_girls})
                       </div>
                     )}
@@ -473,7 +450,7 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                       value={counts.sc_boys}
                       onFocus={(e) => e.target.select()}
                       onChange={(e) => handleInputChange('sc_boys', e.target.value)}
-                      className="w-16 sm:w-24 h-11 text-center font-bold text-base sm:text-lg bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all disabled:opacity-60"
+                      className="w-16 sm:w-24 h-10 text-center font-mono font-bold text-base bg-white border border-zinc-200 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none transition-all disabled:opacity-50"
                     />
                   </td>
                   <td className="py-2.5 px-2 sm:px-4 text-center">
@@ -486,23 +463,20 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                       value={counts.sc_girls}
                       onFocus={(e) => e.target.select()}
                       onChange={(e) => handleInputChange('sc_girls', e.target.value)}
-                      className="w-16 sm:w-24 h-11 text-center font-bold text-base sm:text-lg bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all disabled:opacity-60"
+                      className="w-16 sm:w-24 h-10 text-center font-mono font-bold text-base bg-white border border-zinc-200 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none transition-all disabled:opacity-50"
                     />
                   </td>
-                  <td className="py-2.5 px-3 sm:px-4 text-center font-black text-base text-slate-800 bg-slate-50/60">
+                  <td className="py-2.5 px-3 sm:px-4 text-center font-bold font-mono text-base text-zinc-950 bg-zinc-50">
                     {liveTotals.sc_total}
                   </td>
                 </tr>
 
                 {/* 2. ST Row */}
-                <tr className="hover:bg-slate-50/80 transition-colors">
-                  <td className="py-3 px-3 sm:px-4 font-bold text-slate-800">
-                    <div className="flex items-center space-x-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                      <span>ST (Scheduled Tribe)</span>
-                    </div>
+                <tr className="hover:bg-zinc-50/50 transition-colors">
+                  <td className="py-3 px-3 sm:px-4 font-semibold text-zinc-900">
+                    <div>ST (Scheduled Tribe)</div>
                     {enrolment && (
-                      <div className="text-[10px] text-slate-400 pl-4.5">
+                      <div className="text-[10px] text-zinc-400 font-mono">
                         Enrolled: {enrolment.totals.st_total} (B:{enrolment.st_boys} G:{enrolment.st_girls})
                       </div>
                     )}
@@ -517,7 +491,7 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                       value={counts.st_boys}
                       onFocus={(e) => e.target.select()}
                       onChange={(e) => handleInputChange('st_boys', e.target.value)}
-                      className="w-16 sm:w-24 h-11 text-center font-bold text-base sm:text-lg bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all disabled:opacity-60"
+                      className="w-16 sm:w-24 h-10 text-center font-mono font-bold text-base bg-white border border-zinc-200 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none transition-all disabled:opacity-50"
                     />
                   </td>
                   <td className="py-2.5 px-2 sm:px-4 text-center">
@@ -530,23 +504,20 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                       value={counts.st_girls}
                       onFocus={(e) => e.target.select()}
                       onChange={(e) => handleInputChange('st_girls', e.target.value)}
-                      className="w-16 sm:w-24 h-11 text-center font-bold text-base sm:text-lg bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all disabled:opacity-60"
+                      className="w-16 sm:w-24 h-10 text-center font-mono font-bold text-base bg-white border border-zinc-200 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none transition-all disabled:opacity-50"
                     />
                   </td>
-                  <td className="py-2.5 px-3 sm:px-4 text-center font-black text-base text-slate-800 bg-slate-50/60">
+                  <td className="py-2.5 px-3 sm:px-4 text-center font-bold font-mono text-base text-zinc-950 bg-zinc-50">
                     {liveTotals.st_total}
                   </td>
                 </tr>
 
                 {/* 3. BC Row */}
-                <tr className="hover:bg-slate-50/80 transition-colors">
-                  <td className="py-3 px-3 sm:px-4 font-bold text-slate-800">
-                    <div className="flex items-center space-x-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-                      <span>BC (Backward Class)</span>
-                    </div>
+                <tr className="hover:bg-zinc-50/50 transition-colors">
+                  <td className="py-3 px-3 sm:px-4 font-semibold text-zinc-900">
+                    <div>BC (Backward Class)</div>
                     {enrolment && (
-                      <div className="text-[10px] text-slate-400 pl-4.5">
+                      <div className="text-[10px] text-zinc-400 font-mono">
                         Enrolled: {enrolment.totals.bc_total} (B:{enrolment.bc_boys} G:{enrolment.bc_girls})
                       </div>
                     )}
@@ -561,7 +532,7 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                       value={counts.bc_boys}
                       onFocus={(e) => e.target.select()}
                       onChange={(e) => handleInputChange('bc_boys', e.target.value)}
-                      className="w-16 sm:w-24 h-11 text-center font-bold text-base sm:text-lg bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all disabled:opacity-60"
+                      className="w-16 sm:w-24 h-10 text-center font-mono font-bold text-base bg-white border border-zinc-200 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none transition-all disabled:opacity-50"
                     />
                   </td>
                   <td className="py-2.5 px-2 sm:px-4 text-center">
@@ -574,23 +545,20 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                       value={counts.bc_girls}
                       onFocus={(e) => e.target.select()}
                       onChange={(e) => handleInputChange('bc_girls', e.target.value)}
-                      className="w-16 sm:w-24 h-11 text-center font-bold text-base sm:text-lg bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all disabled:opacity-60"
+                      className="w-16 sm:w-24 h-10 text-center font-mono font-bold text-base bg-white border border-zinc-200 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none transition-all disabled:opacity-50"
                     />
                   </td>
-                  <td className="py-2.5 px-3 sm:px-4 text-center font-black text-base text-slate-800 bg-slate-50/60">
+                  <td className="py-2.5 px-3 sm:px-4 text-center font-bold font-mono text-base text-zinc-950 bg-zinc-50">
                     {liveTotals.bc_total}
                   </td>
                 </tr>
 
                 {/* 4. OC Row */}
-                <tr className="hover:bg-slate-50/80 transition-colors">
-                  <td className="py-3 px-3 sm:px-4 font-bold text-slate-800">
-                    <div className="flex items-center space-x-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-purple-500" />
-                      <span>OC (Other Castes / General)</span>
-                    </div>
+                <tr className="hover:bg-zinc-50/50 transition-colors">
+                  <td className="py-3 px-3 sm:px-4 font-semibold text-zinc-900">
+                    <div>OC (Other Castes / General)</div>
                     {enrolment && (
-                      <div className="text-[10px] text-slate-400 pl-4.5">
+                      <div className="text-[10px] text-zinc-400 font-mono">
                         Enrolled: {enrolment.totals.oc_total} (B:{enrolment.oc_boys} G:{enrolment.oc_girls})
                       </div>
                     )}
@@ -605,7 +573,7 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                       value={counts.oc_boys}
                       onFocus={(e) => e.target.select()}
                       onChange={(e) => handleInputChange('oc_boys', e.target.value)}
-                      className="w-16 sm:w-24 h-11 text-center font-bold text-base sm:text-lg bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all disabled:opacity-60"
+                      className="w-16 sm:w-24 h-10 text-center font-mono font-bold text-base bg-white border border-zinc-200 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none transition-all disabled:opacity-50"
                     />
                   </td>
                   <td className="py-2.5 px-2 sm:px-4 text-center">
@@ -618,53 +586,53 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                       value={counts.oc_girls}
                       onFocus={(e) => e.target.select()}
                       onChange={(e) => handleInputChange('oc_girls', e.target.value)}
-                      className="w-16 sm:w-24 h-11 text-center font-bold text-base sm:text-lg bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all disabled:opacity-60"
+                      className="w-16 sm:w-24 h-10 text-center font-mono font-bold text-base bg-white border border-zinc-200 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none transition-all disabled:opacity-50"
                     />
                   </td>
-                  <td className="py-2.5 px-3 sm:px-4 text-center font-black text-base text-slate-800 bg-slate-50/60">
+                  <td className="py-2.5 px-3 sm:px-4 text-center font-bold font-mono text-base text-zinc-950 bg-zinc-50">
                     {liveTotals.oc_total}
                   </td>
                 </tr>
 
-                {/* Computed Totals Row */}
-                <tr className="bg-emerald-50/90 border-t-2 border-emerald-300 font-extrabold text-emerald-950">
-                  <td className="py-3 px-3 sm:px-4 uppercase tracking-wider text-xs">
-                    Live Computed Totals
+                {/* Computed Totals Row (High Contrast Vercel Black/White) */}
+                <tr className="bg-zinc-950 text-white font-mono">
+                  <td className="py-3 px-3 sm:px-4 uppercase tracking-wider text-xs font-sans font-bold">
+                    Computed Totals
                   </td>
-                  <td className="py-3 px-2 sm:px-4 text-center text-lg font-black text-emerald-900">
-                    {liveTotals.boys_total} <span className="text-[10px] block font-semibold text-emerald-700">Boys</span>
+                  <td className="py-3 px-2 sm:px-4 text-center text-lg font-bold">
+                    {liveTotals.boys_total} <span className="text-[10px] block font-sans text-zinc-400">Boys</span>
                   </td>
-                  <td className="py-3 px-2 sm:px-4 text-center text-lg font-black text-emerald-900">
-                    {liveTotals.girls_total} <span className="text-[10px] block font-semibold text-emerald-700">Girls</span>
+                  <td className="py-3 px-2 sm:px-4 text-center text-lg font-bold">
+                    {liveTotals.girls_total} <span className="text-[10px] block font-sans text-zinc-400">Girls</span>
                   </td>
-                  <td className="py-3 px-3 sm:px-4 text-center bg-emerald-600 text-white font-black text-xl rounded-br-xl shadow-inner">
-                    {liveTotals.grand_total} <span className="text-[10px] block font-bold text-emerald-100">GRAND TOTAL</span>
+                  <td className="py-3 px-3 sm:px-4 text-center bg-zinc-900 font-extrabold text-xl">
+                    {liveTotals.grand_total} <span className="text-[10px] block font-sans text-zinc-400 font-semibold">SECTION TOTAL</span>
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          {/* Remarks Field */}
+          {/* Remarks */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-              Remarks / Menu Items Served (Optional)
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1.5">
+              Remarks / Menu Items (Optional)
             </label>
             <input
               type="text"
               disabled={isReadonlyForTeacher}
               value={remarks}
               onChange={(e) => setRemarks(e.target.value)}
-              placeholder="e.g. Sambar, Egg Curry, Banana served..."
-              className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl font-medium focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all disabled:opacity-60"
+              placeholder="e.g. Sambar, Egg Curry served..."
+              className="w-full px-3 py-2 text-xs font-medium bg-white border border-zinc-200 rounded-lg text-zinc-900 focus:border-black focus:ring-1 focus:ring-black focus:outline-none transition-all disabled:opacity-50"
             />
           </div>
 
           {/* Action Buttons */}
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="text-xs text-slate-400">
+            <div className="text-xs font-mono text-zinc-400">
               {existingEntry ? (
-                <span>Recorded on {new Date(existingEntry.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} by {existingEntry.created_by_name}</span>
+                <span>Recorded: {formatDateIndian(existingEntry.entry_date)} by {existingEntry.created_by_name}</span>
               ) : (
                 <span>New entry for {currentSection.display_name}</span>
               )}
@@ -675,9 +643,9 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                 type="button"
                 disabled={isReadonlyForTeacher}
                 onClick={() => handleSave(false)}
-                className="flex-1 sm:flex-initial bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-extrabold text-sm shadow-sm shadow-emerald-200 flex items-center justify-center space-x-1.5 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex-1 sm:flex-initial bg-black hover:bg-zinc-800 text-white px-5 py-2 rounded-lg font-semibold text-xs shadow-sm flex items-center justify-center space-x-1.5 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                <Save className="w-4 h-4" />
+                <Save className="w-3.5 h-3.5" />
                 <span>Save Entry</span>
               </button>
 
@@ -685,11 +653,11 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
                 type="button"
                 disabled={isReadonlyForTeacher}
                 onClick={() => handleSave(true)}
-                className="flex-1 sm:flex-initial bg-slate-800 hover:bg-slate-900 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm flex items-center justify-center space-x-1.5 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                title="Save this section and automatically load the next section"
+                className="flex-1 sm:flex-initial bg-white border border-zinc-300 hover:bg-zinc-50 text-zinc-900 px-4 py-2 rounded-lg font-semibold text-xs shadow-sm flex items-center justify-center space-x-1.5 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                title="Save and advance to next section"
               >
                 <span>Save & Next</span>
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
@@ -698,4 +666,3 @@ export const DailyEntryForm: React.FC<DailyEntryFormProps> = ({
     </div>
   );
 };
-

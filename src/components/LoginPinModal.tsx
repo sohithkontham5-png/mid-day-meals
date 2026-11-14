@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { User, SectionItem } from '../types';
+import { User } from '../types';
 import { StorageService } from '../lib/storage';
-import { X, KeyRound, UserCheck, ShieldCheck, CheckCircle2, Lock, ArrowLeft, Search } from 'lucide-react';
+import { X, KeyRound, ArrowLeft, Search, ShieldCheck } from 'lucide-react';
 
 interface LoginPinModalProps {
   isOpen: boolean;
@@ -69,25 +69,25 @@ export const LoginPinModal: React.FC<LoginPinModalProps> = ({
   );
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+      <div className="bg-white rounded-xl shadow-2xl border border-zinc-200 w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         
         {/* Header */}
-        <div className="bg-gradient-to-r from-emerald-800 to-emerald-700 text-white p-4 flex items-center justify-between">
+        <div className="bg-white border-b border-zinc-200 p-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-600/80 flex items-center justify-center text-white">
-              <KeyRound className="w-4 h-4" />
+            <div className="w-7 h-7 rounded-lg bg-black text-white flex items-center justify-center">
+              <KeyRound className="w-3.5 h-3.5" />
             </div>
             <div>
-              <h3 className="font-bold text-base">Staff Login & Switcher</h3>
-              <p className="text-xs text-emerald-200">Select your name and enter 4-digit PIN</p>
+              <h3 className="font-bold text-zinc-950 text-sm">Staff Login</h3>
+              <p className="text-[11px] text-zinc-500 font-mono">Select name and enter PIN</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg hover:bg-emerald-600/50 text-emerald-200 hover:text-white transition-colors"
+            className="p-1 rounded-md text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
@@ -97,21 +97,21 @@ export const LoginPinModal: React.FC<LoginPinModalProps> = ({
             // STEP 1: Staff Selection List
             <div className="space-y-3">
               <div className="relative">
-                <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+                <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-zinc-400" />
                 <input
                   type="text"
-                  placeholder="Search staff or class (e.g. 6A, Lakshmi, HM)..."
+                  placeholder="Search staff or class..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white"
+                  className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-zinc-200 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none"
                 />
               </div>
 
-              <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-1">
+              <div className="text-[10px] font-mono font-semibold text-zinc-400 uppercase tracking-wider px-1">
                 Select Your Name ({filteredUsers.length})
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 {filteredUsers.map((u) => {
                   const isCur = u.id === currentUser.id;
                   const isHm = u.role === 'headmaster';
@@ -119,63 +119,52 @@ export const LoginPinModal: React.FC<LoginPinModalProps> = ({
                     <div
                       key={u.id}
                       onClick={() => handleSelectUser(u)}
-                      className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all hover:scale-[1.01] ${
+                      className={`flex items-center justify-between p-2.5 rounded-lg border cursor-pointer transition-all ${
                         isCur
-                          ? 'border-emerald-500 bg-emerald-50/70 shadow-sm'
-                          : 'border-slate-200 bg-white hover:border-emerald-300 hover:bg-slate-50'
+                          ? 'border-black bg-zinc-50'
+                          : 'border-zinc-200 bg-white hover:border-zinc-400 hover:bg-zinc-50/50'
                       }`}
                     >
-                      <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-2.5">
                         <div
-                          className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 ${
-                            isHm
-                              ? 'bg-amber-100 text-amber-800 border border-amber-300'
-                              : 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                          }`}
+                          className="w-8 h-8 rounded-lg flex items-center justify-center font-mono font-bold text-xs shrink-0 bg-zinc-100 text-zinc-900 border border-zinc-200"
                         >
                           {isHm ? 'HM' : u.assigned_section_name ? u.assigned_section_name.replace('Class ', '') : 'TR'}
                         </div>
                         <div>
-                          <div className="font-semibold text-slate-800 text-sm flex items-center space-x-1.5">
+                          <div className="font-semibold text-zinc-900 text-xs flex items-center space-x-1.5">
                             <span>{u.name}</span>
                             {isCur && (
-                              <span className="text-[10px] bg-emerald-600 text-white font-bold px-1.5 py-0.2 rounded-full">
+                              <span className="text-[9px] font-mono bg-zinc-900 text-white font-bold px-1 rounded">
                                 Active
                               </span>
                             )}
                           </div>
-                          <div className="text-xs text-slate-500 flex items-center space-x-2 mt-0.5">
+                          <div className="text-[11px] text-zinc-500 font-mono mt-0.5">
                             <span className="capitalize">{u.role}</span>
-                            {u.assigned_section_name && (
-                              <>
-                                <span>•</span>
-                                <span className="font-medium text-emerald-700">{u.assigned_section_name}</span>
-                              </>
-                            )}
+                            {u.assigned_section_name && ` • ${u.assigned_section_name}`}
                           </div>
                         </div>
                       </div>
 
-                      <div className="text-right">
-                        <span className="text-xs font-semibold text-emerald-600 bg-emerald-100/70 px-2 py-1 rounded-lg">
-                          PIN Login &rarr;
-                        </span>
-                      </div>
+                      <span className="text-xs font-mono font-medium text-zinc-400 group-hover:text-black">
+                        &rarr;
+                      </span>
                     </div>
                   );
                 })}
               </div>
 
               {/* Initial Setup Info Box */}
-              <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-700">
-                <div className="font-bold flex items-center space-x-1 text-slate-800 mb-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Initial Admin Access:</span>
+              <div className="mt-4 p-3 bg-zinc-50 rounded-lg border border-zinc-200 text-xs text-zinc-700">
+                <div className="font-semibold flex items-center space-x-1 text-zinc-900 mb-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-zinc-700" />
+                  <span>Admin Access:</span>
                 </div>
-                <div className="text-[11px] text-slate-600 space-y-1">
-                  <div>• Default Headmaster PIN: <strong className="font-mono text-emerald-700">1234</strong></div>
-                  <div className="text-slate-500">
-                    To add your school's teachers and assign their classes/sections, log in as Headmaster and use the <strong>School Admin &rarr; Staff & PINs</strong> tab.
+                <div className="text-[11px] text-zinc-600 font-mono space-y-1">
+                  <div>Default Headmaster PIN: <strong className="font-bold text-black">1234</strong></div>
+                  <div className="text-zinc-500 font-sans text-[11px]">
+                    To add teachers and set their PINs, log in as Headmaster and open <strong>School Admin &rarr; Staff & PINs</strong>.
                   </div>
                 </div>
               </div>
@@ -185,13 +174,13 @@ export const LoginPinModal: React.FC<LoginPinModalProps> = ({
             <div className="py-2 space-y-4 text-center">
               <button
                 onClick={() => setSelectedUser(null)}
-                className="flex items-center space-x-1 text-xs font-semibold text-slate-500 hover:text-slate-800 mb-2"
+                className="flex items-center space-x-1 text-xs font-medium text-zinc-500 hover:text-black mb-2"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Choose another teacher</span>
               </button>
 
-              <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-800 border-2 border-emerald-300 mx-auto flex items-center justify-center font-bold text-lg">
+              <div className="w-12 h-12 rounded-xl bg-zinc-100 text-zinc-900 border border-zinc-200 mx-auto flex items-center justify-center font-mono font-bold text-base">
                 {selectedUser.role === 'headmaster'
                   ? 'HM'
                   : selectedUser.assigned_section_name
@@ -200,25 +189,25 @@ export const LoginPinModal: React.FC<LoginPinModalProps> = ({
               </div>
 
               <div>
-                <h4 className="font-bold text-slate-800 text-base">{selectedUser.name}</h4>
-                <p className="text-xs text-slate-500">
+                <h4 className="font-bold text-zinc-950 text-sm">{selectedUser.name}</h4>
+                <p className="text-xs text-zinc-500 font-mono mt-0.5">
                   {selectedUser.role === 'headmaster'
                     ? 'Headmaster / Admin'
                     : `Incharge for ${selectedUser.assigned_section_name || 'MDM'}`}
                 </p>
               </div>
 
-              {/* PIN Dots Display */}
-              <div className="flex justify-center items-center space-x-3 my-4">
+              {/* PIN Dots */}
+              <div className="flex justify-center items-center space-x-2.5 my-3">
                 {[0, 1, 2, 3].map((idx) => {
                   const filled = pin.length > idx;
                   return (
                     <div
                       key={idx}
-                      className={`w-4 h-4 rounded-full border-2 transition-all ${
+                      className={`w-3.5 h-3.5 rounded-full border transition-all ${
                         filled
-                          ? 'bg-emerald-600 border-emerald-600 scale-110'
-                          : 'border-slate-300 bg-slate-100'
+                          ? 'bg-black border-black scale-110'
+                          : 'border-zinc-300 bg-zinc-100'
                       }`}
                     />
                   );
@@ -226,45 +215,41 @@ export const LoginPinModal: React.FC<LoginPinModalProps> = ({
               </div>
 
               {errorMsg && (
-                <div className="text-xs font-medium text-rose-600 bg-rose-50 py-1.5 px-3 rounded-lg border border-rose-200">
+                <div className="text-xs font-medium text-zinc-900 bg-zinc-100 py-1.5 px-3 rounded-lg border border-zinc-300 font-mono">
                   {errorMsg}
                 </div>
               )}
 
-              {/* Numeric Keypad for Mobile/Touch */}
-              <div className="grid grid-cols-3 gap-2.5 max-w-[260px] mx-auto pt-2">
+              {/* Numeric Keypad */}
+              <div className="grid grid-cols-3 gap-2 max-w-[240px] mx-auto pt-1">
                 {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
                   <button
                     key={digit}
                     onClick={() => handlePinDigit(digit)}
-                    className="h-12 bg-slate-100 hover:bg-emerald-50 active:bg-emerald-200 border border-slate-200 hover:border-emerald-300 rounded-xl text-lg font-bold text-slate-800 active:scale-95 transition-all"
+                    className="h-11 bg-white hover:bg-zinc-100 active:bg-zinc-200 border border-zinc-200 rounded-lg text-base font-mono font-bold text-zinc-900 active:scale-95 transition-all"
                   >
                     {digit}
                   </button>
                 ))}
                 <button
                   onClick={() => handleQuickDemoLogin(selectedUser)}
-                  className="h-12 bg-emerald-50 text-emerald-800 text-[11px] font-bold rounded-xl border border-emerald-200 active:scale-95 flex items-center justify-center"
-                  title="One-click demo bypass"
+                  className="h-11 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-[11px] font-semibold rounded-lg border border-zinc-200 active:scale-95 flex items-center justify-center font-mono"
+                  title="Quick bypass"
                 >
-                  Quick In
+                  Quick
                 </button>
                 <button
                   onClick={() => handlePinDigit('0')}
-                  className="h-12 bg-slate-100 hover:bg-emerald-50 active:bg-emerald-200 border border-slate-200 hover:border-emerald-300 rounded-xl text-lg font-bold text-slate-800 active:scale-95 transition-all"
+                  className="h-11 bg-white hover:bg-zinc-100 active:bg-zinc-200 border border-zinc-200 rounded-lg text-base font-mono font-bold text-zinc-900 active:scale-95 transition-all"
                 >
                   0
                 </button>
                 <button
                   onClick={handlePinBackspace}
-                  className="h-12 bg-slate-100 hover:bg-rose-50 text-rose-600 border border-slate-200 rounded-xl font-bold active:scale-95 flex items-center justify-center"
+                  className="h-11 bg-zinc-50 hover:bg-zinc-100 text-zinc-700 border border-zinc-200 rounded-lg font-bold active:scale-95 flex items-center justify-center"
                 >
                   ⌫
                 </button>
-              </div>
-
-              <div className="text-[11px] text-slate-400 pt-2">
-                Default PIN is <strong className="font-mono text-slate-600">{selectedUser.pin}</strong>
               </div>
             </div>
           )}
@@ -273,4 +258,3 @@ export const LoginPinModal: React.FC<LoginPinModalProps> = ({
     </div>
   );
 };
-

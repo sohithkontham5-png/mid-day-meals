@@ -6,14 +6,10 @@ import {
   Users, 
   Calendar, 
   GraduationCap, 
-  Building, 
   Plus, 
   Trash2, 
-  Edit2, 
   Save, 
   CheckCircle2, 
-  KeyRound, 
-  Shield, 
   School as SchoolIcon 
 } from 'lucide-react';
 
@@ -112,7 +108,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setUsers(updated);
     StorageService.saveUsers(updated);
     setEditingUserId(null);
-    showFeedback('Staff details and PIN updated successfully.');
+    showFeedback('Staff details updated.');
   };
 
   const handleAddNewStaff = (e: React.FormEvent) => {
@@ -141,7 +137,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setNewStaffPin('1234');
     setNewStaffSection('');
     setShowAddStaffForm(false);
-    showFeedback(`Staff member "${added.name}" added successfully.`);
+    showFeedback(`Staff "${added.name}" added successfully.`);
   };
 
   const handleDeleteStaff = (u: User) => {
@@ -153,7 +149,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       const ok = StorageService.deleteStaffUser(u.id, currentUser);
       if (ok) {
         setUsers(StorageService.getUsers());
-        showFeedback(`Staff member "${u.name}" deleted.`);
+        showFeedback(`Staff "${u.name}" deleted.`);
       } else {
         alert('Cannot delete this account. At least one Headmaster account must remain in the system.');
       }
@@ -211,7 +207,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     StorageService.updateEnrolment(newEnr, currentUser);
     setEnrolments(StorageService.getEnrolments());
     setEditingEnrSectionId(null);
-    showFeedback(`Enrolment threshold for ${sec.display_name} updated.`);
+    showFeedback(`Enrolment threshold for ${sec.display_name} saved.`);
   };
 
   // Holiday Handlers
@@ -228,7 +224,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setHolidays(StorageService.getHolidays());
     setNewHolDate('');
     setNewHolReason('');
-    showFeedback('Holiday added successfully.');
+    showFeedback('Holiday added.');
   };
 
   const handleDeleteHoliday = (id: string) => {
@@ -252,35 +248,35 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     };
     StorageService.updateSchool(updated);
     onUpdateSchool(updated);
-    showFeedback('School details updated successfully.');
+    showFeedback('School details updated.');
   };
 
   return (
     <div className="space-y-6 pb-16">
       {/* Title */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-white rounded-xl p-4 sm:p-5 border border-zinc-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md">
-            Headmaster Administration
+          <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-zinc-900 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded">
+            Administration
           </span>
-          <h2 className="text-xl sm:text-2xl font-extrabold text-slate-800 mt-1">
-            School MDM Management Portal
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-950 mt-1.5">
+            School Configuration & Settings
           </h2>
-          <p className="text-xs text-slate-500">
-            Manage teachers, PINs, enrolment benchmarks, holidays, and school settings
+          <p className="text-xs text-zinc-500 font-mono mt-0.5">
+            Manage teachers, PINs, enrolment benchmarks, holidays, and school profile
           </p>
         </div>
 
         {statusMsg && (
-          <div className="bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs font-bold px-3 py-2 rounded-xl flex items-center space-x-1.5 animate-in fade-in">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <div className="bg-zinc-100 border border-zinc-300 text-zinc-900 text-xs font-medium px-3 py-1.5 rounded-lg flex items-center space-x-1.5 animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 text-black shrink-0" />
             <span>{statusMsg}</span>
           </div>
         )}
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center space-x-2 border-b border-slate-200 overflow-x-auto pb-1 no-scrollbar">
+      <div className="flex items-center space-x-2 border-b border-zinc-200 overflow-x-auto pb-1 no-scrollbar">
         {[
           { id: 'staff', label: 'Staff & PINs', icon: Users },
           { id: 'enrolment', label: 'Enrolment Benchmark', icon: GraduationCap },
@@ -293,13 +289,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm shrink-0 transition-all ${
+              className={`flex items-center space-x-2 px-3.5 py-2 rounded-lg font-medium text-xs sm:text-sm shrink-0 transition-all ${
                 isAct
-                  ? 'bg-emerald-600 text-white shadow-sm'
-                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                  ? 'bg-black text-white font-semibold shadow-sm'
+                  : 'bg-white text-zinc-600 border border-zinc-200 hover:bg-zinc-50'
               }`}
             >
-              <Icon className="w-4 h-4" />
+              <Icon className="w-3.5 h-3.5" />
               <span>{tab.label}</span>
             </button>
           );
@@ -308,49 +304,49 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
       {/* TAB 1: Staff & PINs */}
       {activeTab === 'staff' && (
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden p-4 sm:p-6 space-y-4">
+        <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden p-4 sm:p-6 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h3 className="font-extrabold text-slate-800 text-base">Teacher & Staff Accounts</h3>
-              <p className="text-xs text-slate-500">
+              <h3 className="font-bold text-zinc-950 text-base">Teacher & Staff Accounts</h3>
+              <p className="text-xs text-zinc-500 font-mono">
                 Staff authenticate via 4-digit PIN. Add and assign your real teachers and sections below.
               </p>
             </div>
 
             <button
               onClick={() => setShowAddStaffForm(!showAddStaffForm)}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center space-x-1.5 shadow-sm transition-all self-start sm:self-auto"
+              className="bg-black hover:bg-zinc-800 text-white font-semibold text-xs px-3.5 py-1.5 rounded-lg flex items-center space-x-1.5 shadow-sm transition-all self-start sm:self-auto"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-3.5 h-3.5" />
               <span>{showAddStaffForm ? 'Close Form' : '+ Add Teacher / Staff'}</span>
             </button>
           </div>
 
           {/* Add New Staff Form */}
           {showAddStaffForm && (
-            <form onSubmit={handleAddNewStaff} className="bg-slate-50 p-4 rounded-xl border border-emerald-200/80 space-y-3 animate-in fade-in">
-              <div className="font-bold text-slate-800 text-xs uppercase tracking-wider text-emerald-800">
+            <form onSubmit={handleAddNewStaff} className="bg-zinc-50 p-4 rounded-xl border border-zinc-200 space-y-3 animate-in fade-in">
+              <div className="font-semibold text-zinc-900 text-xs uppercase tracking-wider">
                 New Staff Details
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Teacher Name *</label>
+                  <label className="block text-[10px] font-semibold uppercase text-zinc-500 mb-1">Teacher Name *</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Smt. Lakshmi"
                     value={newStaffName}
                     onChange={(e) => setNewStaffName(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                    className="w-full px-2.5 py-1.5 bg-white border border-zinc-200 rounded-lg text-xs focus:border-black focus:ring-1 focus:ring-black focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Role *</label>
+                  <label className="block text-[10px] font-semibold uppercase text-zinc-500 mb-1">Role *</label>
                   <select
                     value={newStaffRole}
                     onChange={(e) => setNewStaffRole(e.target.value as any)}
-                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                    className="w-full px-2.5 py-1.5 bg-white border border-zinc-200 rounded-lg text-xs focus:border-black focus:ring-1 focus:ring-black focus:outline-none"
                   >
                     <option value="teacher">Teacher</option>
                     <option value="headmaster">Headmaster / Admin</option>
@@ -359,11 +355,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Assigned Section</label>
+                  <label className="block text-[10px] font-semibold uppercase text-zinc-500 mb-1">Assigned Section</label>
                   <select
                     value={newStaffSection}
                     onChange={(e) => setNewStaffSection(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                    className="w-full px-2.5 py-1.5 bg-white border border-zinc-200 rounded-lg text-xs focus:border-black focus:ring-1 focus:ring-black focus:outline-none"
                   >
                     <option value="">None / Floating</option>
                     {sections.map((s) => (
@@ -375,18 +371,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Phone / Employee ID</label>
+                  <label className="block text-[10px] font-semibold uppercase text-zinc-500 mb-1">Phone / Employee ID</label>
                   <input
                     type="text"
                     placeholder="e.g. 9848011111"
                     value={newStaffPhone}
                     onChange={(e) => setNewStaffPhone(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                    className="w-full px-2.5 py-1.5 bg-white border border-zinc-200 rounded-lg text-xs font-mono focus:border-black focus:ring-1 focus:ring-black focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">4-Digit PIN *</label>
+                  <label className="block text-[10px] font-semibold uppercase text-zinc-500 mb-1">4-Digit PIN *</label>
                   <input
                     type="text"
                     required
@@ -394,7 +390,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     placeholder="1234"
                     value={newStaffPin}
                     onChange={(e) => setNewStaffPin(e.target.value.replace(/[^0-9]/g, ''))}
-                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono font-bold text-center focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                    className="w-full px-2.5 py-1.5 bg-white border border-zinc-200 rounded-lg text-xs font-mono font-bold text-center focus:border-black focus:ring-1 focus:ring-black focus:outline-none"
                   />
                 </div>
               </div>
@@ -403,13 +399,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowAddStaffForm(false)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-200"
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-600 hover:bg-zinc-200"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-1.5 rounded-lg shadow-sm"
+                  className="bg-black hover:bg-zinc-800 text-white font-semibold text-xs px-4 py-1.5 rounded-lg shadow-sm"
                 >
                   Save Staff Member
                 </button>
@@ -418,9 +414,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           )}
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
+            <table className="w-full text-left text-xs border-collapse font-sans">
               <thead>
-                <tr className="bg-slate-100 text-slate-700 font-extrabold uppercase border-b border-slate-200">
+                <tr className="bg-zinc-50 text-zinc-600 font-semibold uppercase border-b border-zinc-200">
                   <th className="py-2.5 px-3">Name</th>
                   <th className="py-2.5 px-3">Role</th>
                   <th className="py-2.5 px-3">Assigned Section</th>
@@ -429,26 +425,26 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   <th className="py-2.5 px-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-zinc-100">
                 {users.map((u) => {
                   const isEditing = editingUserId === u.id;
                   const isSelf = u.id === currentUser.id;
                   return (
-                    <tr key={u.id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="py-2.5 px-3 font-bold text-slate-800">
+                    <tr key={u.id} className="hover:bg-zinc-50/60 transition-colors">
+                      <td className="py-2.5 px-3 font-semibold text-zinc-900">
                         {isEditing ? (
                           <input
                             type="text"
                             value={editUserName}
                             onChange={(e) => setEditUserName(e.target.value)}
-                            className="px-2 py-1 bg-white border border-slate-300 rounded text-xs w-full"
+                            className="px-2 py-1 bg-white border border-zinc-300 rounded text-xs w-full"
                           />
                         ) : (
                           <div className="flex items-center space-x-1.5">
                             <span>{u.name}</span>
                             {isSelf && (
-                              <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded">
-                                (You)
+                              <span className="text-[9px] font-mono bg-zinc-100 text-zinc-700 font-bold px-1.5 py-0.2 rounded border border-zinc-200">
+                                You
                               </span>
                             )}
                           </div>
@@ -456,21 +452,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       </td>
 
                       <td className="py-2.5 px-3">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
-                          u.role === 'headmaster'
-                            ? 'bg-amber-100 text-amber-800'
-                            : 'bg-blue-100 text-blue-800'
-                        }`}>
+                        <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-zinc-100 text-zinc-800 border border-zinc-200 uppercase">
                           {u.role}
                         </span>
                       </td>
 
-                      <td className="py-2.5 px-3 font-semibold text-emerald-800">
+                      <td className="py-2.5 px-3 font-medium text-zinc-800">
                         {isEditing ? (
                           <select
                             value={editUserSection}
                             onChange={(e) => setEditUserSection(e.target.value)}
-                            className="px-2 py-1 bg-white border border-slate-300 rounded text-xs"
+                            className="px-2 py-1 bg-white border border-zinc-300 rounded text-xs"
                           >
                             <option value="">None / Floating</option>
                             {sections.map((s) => (
@@ -484,30 +476,30 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         )}
                       </td>
 
-                      <td className="py-2.5 px-3 text-slate-500 font-mono">
+                      <td className="py-2.5 px-3 text-zinc-500 font-mono">
                         {isEditing ? (
                           <input
                             type="text"
                             value={editUserPhone}
                             onChange={(e) => setEditUserPhone(e.target.value)}
-                            className="px-2 py-1 bg-white border border-slate-300 rounded text-xs font-mono w-28"
+                            className="px-2 py-1 bg-white border border-zinc-300 rounded text-xs font-mono w-28"
                           />
                         ) : (
                           u.phone_or_email
                         )}
                       </td>
 
-                      <td className="py-2.5 px-3">
+                      <td className="py-2.5 px-3 font-mono">
                         {isEditing ? (
                           <input
                             type="text"
                             maxLength={4}
                             value={editUserPin}
                             onChange={(e) => setEditUserPin(e.target.value)}
-                            className="px-2 py-1 bg-white border border-emerald-400 rounded text-xs font-mono font-bold w-16 text-center"
+                            className="px-2 py-1 bg-white border border-black rounded text-xs font-mono font-bold w-16 text-center"
                           />
                         ) : (
-                          <span className="font-mono bg-slate-100 px-2 py-0.5 rounded font-bold text-slate-700">
+                          <span className="bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded font-bold text-zinc-800">
                             {u.pin}
                           </span>
                         )}
@@ -517,7 +509,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         {isEditing ? (
                           <button
                             onClick={() => handleSaveUser(u.id)}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1 rounded text-xs"
+                            className="bg-black hover:bg-zinc-800 text-white font-semibold px-2.5 py-1 rounded text-xs"
                           >
                             Save
                           </button>
@@ -525,14 +517,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                           <div className="flex items-center justify-end space-x-1">
                             <button
                               onClick={() => handleStartEditUser(u)}
-                              className="text-slate-600 hover:text-emerald-700 font-bold px-2 py-1 rounded hover:bg-slate-100"
+                              className="text-zinc-600 hover:text-black font-semibold px-2 py-1 rounded hover:bg-zinc-100"
                             >
                               Edit
                             </button>
                             {!isSelf && (
                               <button
                                 onClick={() => handleDeleteStaff(u)}
-                                className="text-slate-400 hover:text-rose-600 p-1 rounded hover:bg-rose-50"
+                                className="text-zinc-400 hover:text-black p-1 rounded hover:bg-zinc-100"
                                 title="Delete staff"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -552,18 +544,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
       {/* TAB 2: Enrolment Benchmarks */}
       {activeTab === 'enrolment' && (
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden p-4 sm:p-6 space-y-4">
+        <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden p-4 sm:p-6 space-y-4">
           <div>
-            <h3 className="font-extrabold text-slate-800 text-base">Section Enrolment Benchmarks</h3>
-            <p className="text-xs text-slate-500">
+            <h3 className="font-bold text-zinc-950 text-base">Section Enrolment Benchmarks</h3>
+            <p className="text-xs text-zinc-500 font-mono">
               The app warns if daily meals taken exceed these enrolled counts.
             </p>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-center text-xs border-collapse">
+            <table className="w-full text-center text-xs border-collapse font-mono">
               <thead>
-                <tr className="bg-slate-100 text-slate-700 font-extrabold uppercase border-b border-slate-200">
+                <tr className="bg-zinc-50 text-zinc-600 font-semibold font-sans uppercase border-b border-zinc-200">
                   <th className="py-2.5 px-3 text-left">Section</th>
                   <th className="py-2.5 px-2">SC (B+G)</th>
                   <th className="py-2.5 px-2">ST (B+G)</th>
@@ -571,18 +563,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   <th className="py-2.5 px-2">OC (B+G)</th>
                   <th className="py-2.5 px-2">Boys</th>
                   <th className="py-2.5 px-2">Girls</th>
-                  <th className="py-2.5 px-2 font-black text-emerald-800 bg-emerald-50">Total Enrolled</th>
-                  <th className="py-2.5 px-2 text-right">Action</th>
+                  <th className="py-2.5 px-2 font-bold text-zinc-950 bg-zinc-100">Total Enrolled</th>
+                  <th className="py-2.5 px-2 text-right font-sans">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-zinc-100">
                 {sections.map((sec) => {
                   const enr = enrolments.find((e) => e.section_id === sec.id);
                   const isEditing = editingEnrSectionId === sec.id;
 
                   return (
-                    <tr key={sec.id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="py-2.5 px-3 text-left font-bold text-slate-800">
+                    <tr key={sec.id} className="hover:bg-zinc-50/60 transition-colors">
+                      <td className="py-2.5 px-3 text-left font-sans font-semibold text-zinc-900">
                         {sec.display_name}
                       </td>
 
@@ -596,7 +588,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                                 placeholder="B"
                                 value={enrForm.sc_boys}
                                 onChange={(e) => setEnrForm((p) => ({ ...p, sc_boys: Number(e.target.value) }))}
-                                className="w-10 text-center border rounded p-0.5 text-xs"
+                                className="w-10 text-center border rounded p-0.5 text-xs font-mono"
                               />
                               <input
                                 type="number"
@@ -604,7 +596,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                                 placeholder="G"
                                 value={enrForm.sc_girls}
                                 onChange={(e) => setEnrForm((p) => ({ ...p, sc_girls: Number(e.target.value) }))}
-                                className="w-10 text-center border rounded p-0.5 text-xs"
+                                className="w-10 text-center border rounded p-0.5 text-xs font-mono"
                               />
                             </div>
                           </td>
@@ -616,7 +608,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                                 placeholder="B"
                                 value={enrForm.st_boys}
                                 onChange={(e) => setEnrForm((p) => ({ ...p, st_boys: Number(e.target.value) }))}
-                                className="w-10 text-center border rounded p-0.5 text-xs"
+                                className="w-10 text-center border rounded p-0.5 text-xs font-mono"
                               />
                               <input
                                 type="number"
@@ -624,7 +616,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                                 placeholder="G"
                                 value={enrForm.st_girls}
                                 onChange={(e) => setEnrForm((p) => ({ ...p, st_girls: Number(e.target.value) }))}
-                                className="w-10 text-center border rounded p-0.5 text-xs"
+                                className="w-10 text-center border rounded p-0.5 text-xs font-mono"
                               />
                             </div>
                           </td>
@@ -636,7 +628,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                                 placeholder="B"
                                 value={enrForm.bc_boys}
                                 onChange={(e) => setEnrForm((p) => ({ ...p, bc_boys: Number(e.target.value) }))}
-                                className="w-10 text-center border rounded p-0.5 text-xs"
+                                className="w-10 text-center border rounded p-0.5 text-xs font-mono"
                               />
                               <input
                                 type="number"
@@ -644,7 +636,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                                 placeholder="G"
                                 value={enrForm.bc_girls}
                                 onChange={(e) => setEnrForm((p) => ({ ...p, bc_girls: Number(e.target.value) }))}
-                                className="w-10 text-center border rounded p-0.5 text-xs"
+                                className="w-10 text-center border rounded p-0.5 text-xs font-mono"
                               />
                             </div>
                           </td>
@@ -656,7 +648,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                                 placeholder="B"
                                 value={enrForm.oc_boys}
                                 onChange={(e) => setEnrForm((p) => ({ ...p, oc_boys: Number(e.target.value) }))}
-                                className="w-10 text-center border rounded p-0.5 text-xs"
+                                className="w-10 text-center border rounded p-0.5 text-xs font-mono"
                               />
                               <input
                                 type="number"
@@ -664,23 +656,23 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                                 placeholder="G"
                                 value={enrForm.oc_girls}
                                 onChange={(e) => setEnrForm((p) => ({ ...p, oc_girls: Number(e.target.value) }))}
-                                className="w-10 text-center border rounded p-0.5 text-xs"
+                                className="w-10 text-center border rounded p-0.5 text-xs font-mono"
                               />
                             </div>
                           </td>
-                          <td className="font-bold text-slate-800">
+                          <td className="font-semibold text-zinc-900">
                             {enrForm.sc_boys + enrForm.st_boys + enrForm.bc_boys + enrForm.oc_boys}
                           </td>
-                          <td className="font-bold text-slate-800">
+                          <td className="font-semibold text-zinc-900">
                             {enrForm.sc_girls + enrForm.st_girls + enrForm.bc_girls + enrForm.oc_girls}
                           </td>
-                          <td className="font-black text-emerald-800 bg-emerald-50">
+                          <td className="font-bold text-zinc-950 bg-zinc-100">
                             {enrForm.sc_boys + enrForm.sc_girls + enrForm.st_boys + enrForm.st_girls + enrForm.bc_boys + enrForm.bc_girls + enrForm.oc_boys + enrForm.oc_girls}
                           </td>
-                          <td className="text-right py-2 px-2">
+                          <td className="text-right py-2 px-2 font-sans">
                             <button
                               onClick={() => handleSaveEnrolment(sec.id)}
-                              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1 rounded text-xs"
+                              className="bg-black hover:bg-zinc-800 text-white font-semibold px-2.5 py-1 rounded text-xs"
                             >
                               Save
                             </button>
@@ -692,13 +684,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                           <td>{enr ? `${enr.totals.st_total} (${enr.st_boys}+${enr.st_girls})` : '-'}</td>
                           <td>{enr ? `${enr.totals.bc_total} (${enr.bc_boys}+${enr.bc_girls})` : '-'}</td>
                           <td>{enr ? `${enr.totals.oc_total} (${enr.oc_boys}+${enr.oc_girls})` : '-'}</td>
-                          <td className="font-bold text-slate-800">{enr?.totals.boys_total ?? '-'}</td>
-                          <td className="font-bold text-slate-800">{enr?.totals.girls_total ?? '-'}</td>
-                          <td className="font-black text-emerald-800 bg-emerald-50">{enr?.totals.grand_total ?? '-'}</td>
-                          <td className="text-right py-2 px-2">
+                          <td className="font-semibold text-zinc-900">{enr?.totals.boys_total ?? '-'}</td>
+                          <td className="font-semibold text-zinc-900">{enr?.totals.girls_total ?? '-'}</td>
+                          <td className="font-bold text-zinc-950 bg-zinc-100">{enr?.totals.grand_total ?? '-'}</td>
+                          <td className="text-right py-2 px-2 font-sans">
                             <button
                               onClick={() => handleStartEditEnrolment(sec.id)}
-                              className="text-slate-600 hover:text-emerald-700 font-bold px-2 py-1 rounded hover:bg-slate-100"
+                              className="text-zinc-600 hover:text-black font-semibold px-2 py-1 rounded hover:bg-zinc-100"
                             >
                               Edit
                             </button>
@@ -716,45 +708,45 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
       {/* TAB 3: Holidays Calendar */}
       {activeTab === 'holidays' && (
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-6 space-y-6">
+        <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-4 sm:p-6 space-y-6">
           <div>
-            <h3 className="font-extrabold text-slate-800 text-base">Holidays & Non-Working Days</h3>
-            <p className="text-xs text-slate-500">
-              Sundays are detected automatically. Add government, state, or local school holidays here.
+            <h3 className="font-bold text-zinc-950 text-base">Holidays & Non-Working Days</h3>
+            <p className="text-xs text-zinc-500 font-mono">
+              Sundays are detected automatically. Add government or local school holidays here.
             </p>
           </div>
 
           {/* Add Holiday Form */}
-          <form onSubmit={handleAddHoliday} className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row items-center gap-3">
+          <form onSubmit={handleAddHoliday} className="bg-zinc-50 p-4 rounded-xl border border-zinc-200 flex flex-col sm:flex-row items-center gap-3">
             <div className="w-full sm:w-auto">
-              <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Holiday Date</label>
+              <label className="block text-[10px] font-semibold uppercase text-zinc-500 mb-1">Holiday Date</label>
               <input
                 type="date"
                 required
                 value={newHolDate}
                 onChange={(e) => setNewHolDate(e.target.value)}
-                className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold"
+                className="w-full px-3 py-1.5 bg-white border border-zinc-200 rounded-lg text-xs font-mono"
               />
             </div>
 
             <div className="flex-1 w-full">
-              <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Holiday Reason / Festival</label>
+              <label className="block text-[10px] font-semibold uppercase text-zinc-500 mb-1">Reason / Festival Name</label>
               <input
                 type="text"
                 required
-                placeholder="e.g. Gandhi Jayanti, Diwali Festival, Local Holiday"
+                placeholder="e.g. Gandhi Jayanti, Dussehra, Local Holiday"
                 value={newHolReason}
                 onChange={(e) => setNewHolReason(e.target.value)}
-                className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-medium"
+                className="w-full px-3 py-1.5 bg-white border border-zinc-200 rounded-lg text-xs"
               />
             </div>
 
             <div className="w-full sm:w-auto pt-4 sm:pt-0">
               <button
                 type="submit"
-                className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-lg flex items-center justify-center space-x-1 shadow-sm"
+                className="w-full sm:w-auto bg-black hover:bg-zinc-800 text-white font-semibold text-xs px-4 py-2 rounded-lg flex items-center justify-center space-x-1 shadow-sm"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-3.5 h-3.5" />
                 <span>Add Holiday</span>
               </button>
             </div>
@@ -762,27 +754,27 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
           {/* Holiday List */}
           <div className="space-y-2">
-            <div className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">
+            <div className="text-xs font-mono font-semibold text-zinc-500 uppercase tracking-wider">
               Marked Holidays ({holidays.length})
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {holidays.map((h) => (
                 <div
                   key={h.id}
-                  className="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-amber-300"
+                  className="flex items-center justify-between p-3 rounded-xl border border-zinc-200 bg-white hover:border-zinc-400"
                 >
                   <div className="flex items-center space-x-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs">
+                    <div className="w-8 h-8 rounded-lg bg-zinc-100 text-zinc-900 border border-zinc-200 flex items-center justify-center font-mono font-bold text-xs">
                       {h.date.split('-')[2]}
                     </div>
                     <div>
-                      <div className="font-bold text-slate-800 text-xs">{h.reason}</div>
-                      <div className="text-[11px] text-slate-400">{formatDateIndian(h.date)}</div>
+                      <div className="font-semibold text-zinc-900 text-xs">{h.reason}</div>
+                      <div className="text-[11px] text-zinc-400 font-mono">{formatDateIndian(h.date)}</div>
                     </div>
                   </div>
                   <button
                     onClick={() => handleDeleteHoliday(h.id)}
-                    className="p-1 text-slate-400 hover:text-rose-600 rounded transition-colors"
+                    className="p-1 text-zinc-400 hover:text-black rounded transition-colors"
                     title="Delete holiday"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -796,85 +788,85 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
       {/* TAB 4: School Profile */}
       {activeTab === 'school' && (
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-6 space-y-6">
+        <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-4 sm:p-6 space-y-6">
           <div>
-            <h3 className="font-extrabold text-slate-800 text-base">School Details & Register Headings</h3>
-            <p className="text-xs text-slate-500">
+            <h3 className="font-bold text-zinc-950 text-base">School Details & Register Headings</h3>
+            <p className="text-xs text-zinc-500 font-mono">
               These details print at the top of all official Excel and PDF registers.
             </p>
           </div>
 
           <form onSubmit={handleSaveSchoolInfo} className="space-y-4 max-w-xl">
             <div>
-              <label className="block text-xs font-bold uppercase text-slate-500 mb-1">School Full Name</label>
+              <label className="block text-xs font-semibold uppercase text-zinc-500 mb-1">School Full Name</label>
               <input
                 type="text"
                 required
                 value={schoolName}
                 onChange={(e) => setSchoolName(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:bg-white focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-sm font-semibold focus:border-black focus:ring-1 focus:ring-black focus:outline-none"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-500 mb-1">School U-DISE Code</label>
+                <label className="block text-xs font-semibold uppercase text-zinc-500 mb-1">School U-DISE Code</label>
                 <input
                   type="text"
                   value={schoolCode}
                   onChange={(e) => setSchoolCode(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:bg-white"
+                  className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-sm font-mono focus:border-black focus:ring-1 focus:ring-black focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Academic Year</label>
+                <label className="block text-xs font-semibold uppercase text-zinc-500 mb-1">Academic Year</label>
                 <input
                   type="text"
                   disabled
                   value={academicYear.name}
-                  className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600"
+                  className="w-full px-3 py-2 bg-zinc-100 border border-zinc-200 rounded-lg text-sm font-mono text-zinc-600"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase text-slate-500 mb-1">School Address</label>
+              <label className="block text-xs font-semibold uppercase text-zinc-500 mb-1">School Address</label>
               <input
                 type="text"
                 value={schoolAddress}
                 onChange={(e) => setSchoolAddress(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white"
+                className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-sm focus:border-black focus:ring-1 focus:ring-black focus:outline-none"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-500 mb-1">District</label>
+                <label className="block text-xs font-semibold uppercase text-zinc-500 mb-1">District</label>
                 <input
                   type="text"
                   value={schoolDistrict}
                   onChange={(e) => setSchoolDistrict(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white"
+                  className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-sm focus:border-black focus:ring-1 focus:ring-black focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-500 mb-1">State</label>
+                <label className="block text-xs font-semibold uppercase text-zinc-500 mb-1">State</label>
                 <input
                   type="text"
                   value={schoolState}
                   onChange={(e) => setSchoolState(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white"
+                  className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-sm focus:border-black focus:ring-1 focus:ring-black focus:outline-none"
                 />
               </div>
             </div>
 
             <button
               type="submit"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm px-5 py-2.5 rounded-xl shadow-sm flex items-center space-x-1.5 transition-all"
+              className="bg-black hover:bg-zinc-800 text-white font-semibold text-xs px-5 py-2 rounded-lg shadow-sm flex items-center space-x-1.5 transition-all"
             >
-              <Save className="w-4 h-4" />
+              <Save className="w-3.5 h-3.5" />
               <span>Save School Information</span>
             </button>
           </form>
@@ -883,4 +875,3 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     </div>
   );
 };
-
