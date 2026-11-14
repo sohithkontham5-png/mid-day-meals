@@ -20,8 +20,13 @@ import {
   KeyRound,
   Phone,
   LayoutGrid,
-  Download
+  Download,
+  Database,
+  RefreshCw,
+  ExternalLink
 } from 'lucide-react';
+import { getSupabaseConfig, saveSupabaseConfig, testSupabaseConnection } from '../lib/supabase';
+import { SupabaseSyncService } from '../lib/supabaseSync';
 
 interface AdminPanelProps {
   currentUser: User;
@@ -85,9 +90,59 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   // Feedback
   const [statusMsg, setStatusMsg] = useState('');
 
+  // Supabase Cloud State
+  const initialSupabaseConfig = getSupabaseConfig();
+  const [supabaseUrl, setSupabaseUrl] = useState(initialSupabaseConfig.url || '');
+  const [supabaseKey, setSupabaseKey] = useState(initialSupabaseConfig.anonKey || '');
+  const [isTestingSupabase, setIsTestingSupabase] = useState(false);
+  const [isSyncingSupabase, setIsSyncingSupabase] = useState(false);
+  const [supabaseStatusMsg, setSupabaseStatusMsg] = useState<{ success: boolean; text: string } | null>(null);
+  const isSupabaseConfigured = Boolean(supabaseUrl.trim() && supabaseKey.trim());
+
   const showFeedback = (msg: string) => {
     setStatusMsg(msg);
     setTimeout(() => setStatusMsg(''), 4000);
+  };
+
+  const handleSaveSupabaseConfig = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    saveSupabaseConfig({
+      url: supabaseUrl.trim(),
+      anonKey: supabaseKey.trim(),
+      enabled: Boolean(supabaseUrl.trim() && supabaseKey.trim()),
+    });
+    setSupabaseStatusMsg({ success: true, text: 'Supabase credentials saved successfully!' });
+    setTimeout(() => setSupabaseStatusMsg(null), 4000);
+  };
+
+  const handleTestSupabase = async () => {
+    if (!supabaseUrl.trim() || !supabaseKey.trim()) {
+      setSupabaseStatusMsg({ success: false, text: 'Please enter both Supabase URL and Anon Key.' });
+      return;
+    }
+    setIsTestingSupabase(true);
+    setSupabaseStatusMsg(null);
+    const result = await testSupabaseConnection(supabaseUrl.trim(), supabaseKey.trim());
+    setIsTestingSupabase(false);
+    setSupabaseStatusMsg({ success: result.success, text: result.message });
+  };
+
+  const handleSyncSupabaseNow = async () => {
+    setIsSyncingSupabase(true);
+    setSupabaseStatusMsg(null);
+    try {
+      const pushed = await SupabaseSyncService.pushAllLocalEntries();
+      const pulled = await SupabaseSyncService.pullEntries();
+      setIsSyncingSupabase(false);
+      setSupabaseStatusMsg({
+        success: true,
+        text: `Sync complete! Pushed ${pushed} entries, received ${pulled} updates.`,
+      });
+      setTimeout(() => setSupabaseStatusMsg(null), 5000);
+    } catch (err: any) {
+      setIsSyncingSupabase(false);
+      setSupabaseStatusMsg({ success: false, text: `Sync failed: ${err?.message || 'Network error'}` });
+    }
   };
 
   // Staff Handlers
@@ -1163,6 +1218,97 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               </div>
               <span className="text-[9px] font-mono px-1.5 py-0.5 bg-zinc-200 rounded font-semibold text-zinc-600">JSON</span>
             </button>
+          </div>
+
+          {/* Supabase Cloud Sync */}
+          <div className="pt-3 border-t border-zinc-200/90 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Database className="w-4 h-4 text-zinc-800" />
+                <span className="text-[11px] font-semibold uppercase text-zinc-950 font-mono">
+                  Supabase Cloud Database
+                </span>
+              </div>
+              <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold ${
+                isSupabaseConfigured
+                  ? 'bg-zinc-900 text-white'
+                  : 'bg-zinc-100 text-zinc-500'
+              }`}>
+                {isSupabaseConfigured ? 'Configured' : 'Offline Only'}
+              </span>
+            </div>
+
+            <p className="text-xs text-zinc-500 font-mono">
+              Sync attendance and meals across multiple teachers' phones using Supabase.
+            </p>
+
+            {supabaseStatusMsg && (
+              <div className={`p-2.5 rounded-xl border text-xs font-mono ${
+                supabaseStatusMsg.success
+                  ? 'bg-zinc-50 border-zinc-300 text-zinc-900'
+                  : 'bg-zinc-100 border-zinc-400 text-zinc-900'
+              }`}>
+                {supabaseStatusMsg.text}
+              </div>
+            )}
+
+            <form onSubmit={handleSaveSupabaseConfig} className="space-y-2.5">
+              <div>
+                <label className="block text-[10px] font-semibold uppercase text-zinc-500 mb-1 font-mono">
+                  Project URL
+                </label>
+                <input
+                  type="url"
+                  placeholder="https://xyzcompany.supabase.co"
+                  value={supabaseUrl}
+                  onChange={(e) => setSupabaseUrl(e.target.value)}
+                  className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl text-xs font-mono focus:bg-white focus:border-black focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-semibold uppercase text-zinc-500 mb-1 font-mono">
+                  API Anon Key
+                </label>
+                <input
+                  type="password"
+                  placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  value={supabaseKey}
+                  onChange={(e) => setSupabaseKey(e.target.value)}
+                  className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl text-xs font-mono focus:bg-white focus:border-black focus:outline-none"
+                />
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <button
+                  type="submit"
+                  className="bg-black hover:bg-zinc-800 text-white font-semibold text-xs py-2 px-3.5 rounded-xl shadow-xs active:scale-95 transition-all"
+                >
+                  Save Credentials
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleTestSupabase}
+                  disabled={isTestingSupabase}
+                  className="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 font-medium text-xs py-2 px-3 rounded-xl border border-zinc-200 active:scale-95 transition-all disabled:opacity-50"
+                >
+                  {isTestingSupabase ? 'Testing...' : 'Test Connection'}
+                </button>
+
+                {isSupabaseConfigured && (
+                  <button
+                    type="button"
+                    onClick={handleSyncSupabaseNow}
+                    disabled={isSyncingSupabase}
+                    className="bg-white hover:bg-zinc-50 text-zinc-900 font-semibold text-xs py-2 px-3 rounded-xl border border-zinc-300 ml-auto flex items-center space-x-1.5 shadow-2xs active:scale-95 transition-all disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${isSyncingSupabase ? 'animate-spin' : ''}`} />
+                    <span>{isSyncingSupabase ? 'Syncing...' : 'Sync Now'}</span>
+                  </button>
+                )}
+              </div>
+            </form>
           </div>
         </div>
       )}

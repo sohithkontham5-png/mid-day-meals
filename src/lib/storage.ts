@@ -704,6 +704,18 @@ export class StorageService {
     }
 
     this.set(STORAGE_KEYS.ENTRIES, entries);
+
+    // Non-blocking background sync to Supabase if connected
+    try {
+      import('./supabaseSync').then(({ SupabaseSyncService }) => {
+        if (SupabaseSyncService.isConnected()) {
+          SupabaseSyncService.pushEntry(savedEntry);
+        }
+      });
+    } catch {
+      // offline / non-blocking
+    }
+
     return { success: true, entry: savedEntry };
   }
 
@@ -727,6 +739,18 @@ export class StorageService {
       user_id: user.id,
       user_name: user.name,
     });
+
+    // Non-blocking background sync to Supabase if connected
+    try {
+      import('./supabaseSync').then(({ SupabaseSyncService }) => {
+        if (SupabaseSyncService.isConnected()) {
+          SupabaseSyncService.pushEntry(entries[idx]);
+        }
+      });
+    } catch {
+      // offline / non-blocking
+    }
+
     return true;
   }
 

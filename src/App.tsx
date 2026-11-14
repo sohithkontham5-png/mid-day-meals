@@ -45,7 +45,25 @@ export function App() {
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
 
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
+    // Initial sync with Supabase Cloud if configured
+    import('./lib/supabaseSync').then(({ SupabaseSyncService }) => {
+      if (SupabaseSyncService.isConnected()) {
+        SupabaseSyncService.pullEntries().then((count) => {
+          if (count > 0) {
+            console.log(`Synced ${count} entries from Supabase`);
+          }
+        });
+      }
+    });
+
+    const handleOnline = () => {
+      setIsOnline(true);
+      import('./lib/supabaseSync').then(({ SupabaseSyncService }) => {
+        if (SupabaseSyncService.isConnected()) {
+          SupabaseSyncService.pullEntries();
+        }
+      });
+    };
     const handleOffline = () => setIsOnline(false);
 
     window.addEventListener('online', handleOnline);
