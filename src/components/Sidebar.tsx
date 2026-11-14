@@ -112,15 +112,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onClick={() => handleNavClick(item.id)}
                 className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
                   isActive
-                    ? 'bg-zinc-100 text-zinc-950 font-semibold border border-zinc-200'
-                    : 'text-zinc-600 hover:text-zinc-950 hover:bg-zinc-50'
+                    ? 'bg-black text-white font-semibold shadow-xs'
+                    : 'text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100'
                 }`}
               >
                 <div className="flex items-center space-x-2.5">
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-black' : 'text-zinc-400'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-zinc-400'}`} />
                   <span>{item.label}</span>
                 </div>
-                {isActive && <div className="w-1.5 h-1.5 rounded-full bg-black" />}
               </button>
             );
           })}
@@ -141,15 +140,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   onClick={() => handleNavClick(item.id)}
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
                     isActive
-                      ? 'bg-zinc-100 text-zinc-950 font-semibold border border-zinc-200'
-                      : 'text-zinc-600 hover:text-zinc-950 hover:bg-zinc-50'
+                      ? 'bg-black text-white font-semibold shadow-xs'
+                      : 'text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100'
                   }`}
                 >
                   <div className="flex items-center space-x-2.5">
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-black' : 'text-zinc-400'}`} />
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-zinc-400'}`} />
                     <span>{item.label}</span>
                   </div>
-                  {isActive && <div className="w-1.5 h-1.5 rounded-full bg-black" />}
                 </button>
               );
             })}

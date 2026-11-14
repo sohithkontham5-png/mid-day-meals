@@ -45,7 +45,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
           : 'fixed bottom-0 left-0 right-0 pb-safe pt-1.5'
       } z-40 bg-white/95 backdrop-blur-lg border-t border-zinc-200 shadow-[0_-4px_20px_rgba(0,0,0,0.04)] px-2 select-none`}
     >
-      <div className="flex items-center justify-around max-w-md mx-auto">
+      <div className="flex items-center justify-around max-w-md mx-auto gap-1">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -58,17 +58,18 @@ export const BottomNav: React.FC<BottomNavProps> = ({
                   setActiveTab(item.id);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className="flex flex-col items-center justify-center -mt-5 active:scale-90 transition-transform focus:outline-none"
+                className="flex flex-col items-center justify-center -mt-5 active:scale-90 transition-transform focus:outline-none px-1"
+                aria-label={item.label}
               >
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-md transition-all ${
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
                   isActive
-                    ? 'bg-black text-white ring-4 ring-zinc-200'
-                    : 'bg-black text-white hover:bg-zinc-800'
+                    ? 'bg-black text-white ring-4 ring-zinc-300 scale-105 shadow-xl'
+                    : 'bg-zinc-900 text-zinc-300 hover:bg-black shadow-md'
                 }`}>
-                  <Icon className="w-5 h-5" />
+                  <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
                 </div>
-                <span className={`text-[10px] font-mono mt-1 font-bold ${
-                  isActive ? 'text-black' : 'text-zinc-600'
+                <span className={`text-[10px] font-mono mt-1 transition-colors ${
+                  isActive ? 'text-black font-extrabold' : 'text-zinc-600 font-semibold'
                 }`}>
                   {item.label}
                 </span>
@@ -87,18 +88,22 @@ export const BottomNav: React.FC<BottomNavProps> = ({
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
               }}
-              className="flex flex-col items-center justify-center flex-1 py-1 active:scale-95 transition-transform focus:outline-none"
+              className={`flex flex-col items-center justify-center flex-1 py-1.5 px-1.5 rounded-2xl transition-all duration-150 active:scale-95 focus:outline-none ${
+                isActive
+                  ? 'bg-black text-white shadow-xs'
+                  : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/60'
+              }`}
+              aria-label={item.label}
+              aria-current={isActive ? 'page' : undefined}
             >
-              <div className="relative">
-                <Icon className={`w-5 h-5 transition-colors ${
-                  isActive ? 'text-black' : 'text-zinc-400'
-                }`} />
-                {isActive && (
-                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-black" />
-                )}
-              </div>
-              <span className={`text-[10px] font-medium mt-1 transition-colors ${
-                isActive ? 'text-black font-bold' : 'text-zinc-500'
+              <Icon 
+                className={`w-5 h-5 transition-transform duration-150 ${
+                  isActive ? 'text-white scale-105' : 'text-zinc-400'
+                }`}
+                strokeWidth={isActive ? 2.5 : 2}
+              />
+              <span className={`text-[10px] tracking-tight mt-0.5 transition-colors ${
+                isActive ? 'text-white font-bold' : 'text-zinc-500 font-medium'
               }`}>
                 {item.label}
               </span>
